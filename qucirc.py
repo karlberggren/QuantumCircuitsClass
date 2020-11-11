@@ -63,6 +63,13 @@ output.layout.height = '350px'
 interactive_plot
 
 def plot_wavefunction(func, range = (-4,4), N = 40, method="cartesian"):
+  """
+  plot_wavefunction
+  func: wavefunction to be plotted
+  range: tuple with min-max to be plotted
+  N: number of plotpoints
+  method: cartesian, polar, pdf, or 3d
+  """
   min, max = range
   Q = np.linspace(min, max, N)
   if method == "cartesian":
