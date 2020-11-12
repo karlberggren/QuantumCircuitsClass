@@ -444,7 +444,9 @@ def plot_time_dep_ψ(func_or_data,
       return xmin, xmax
 
     for eval in [ħ*ωo*(2*n+1)/2 for n in range(5)]:
-      Q_min,Q_max = find_turning_points(Q_range, lambda Q: V(0, Q, params)), E)
+      Q_min,Q_max = find_turning_points(Q_range,
+                                        lambda Q: V(0, Q, params),
+                                        E)
       eval_range = np.linspace(Q_min, Q_max)
       ax.plot(eval_range, np.full(50,eval), "--")
     
