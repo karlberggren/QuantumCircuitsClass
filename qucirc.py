@@ -330,7 +330,7 @@ def plot_time_dep_ψ(func_or_data,
     # set up plots and artists
     ax = fig.add_subplot(111, xlim = (Qmin, Qmax), ylim = (0,vmax))
     ax.set_ylabel("PDF")
-    ax.set_xlabel("charge (Q)")       
+    ax.set_xlabel("phase (φ)")       
 
     particles, = ax.plot([], [])
     pot_parts, = ax.plot([], [])
