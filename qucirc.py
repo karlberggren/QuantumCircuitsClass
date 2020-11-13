@@ -303,7 +303,7 @@ def plot_time_dep_ψ(func_or_data,
                                   frames=new_data.shape[0],
                                   interval=100,
                                   blit=True)
-    #rc('animation', html='jshtml')
+    rc('animation', html='jshtml')
     return ani
 
   """
@@ -387,7 +387,7 @@ def plot_time_dep_ψ(func_or_data,
                                   fargs=[artists],
                                   interval=100,
                                   blit=True)
-    #rc('animation', html='jshtml')
+    rc('animation', html='jshtml')
     return ani
 
   """
@@ -491,7 +491,7 @@ def plot_time_dep_ψ(func_or_data,
                                   fargs=[artists],
                                   interval=100,
                                   blit=True)
-    #rc('animation', html='jshtml')
+    rc('animation', html='jshtml')
     return ani
 
   if method == "animate_3d":
@@ -772,7 +772,7 @@ def plot_time_dep_ψ(func_or_data,
                                    fargs=[lines, params],
                                    frames=frames, interval=100,
                                    blit=True)
-    #rc('animation', html='jshtml')  # makes it work in colaboratory
+    rc('animation', html='jshtml')  # makes it work in colaboratory
     return anim
 
 def plot_wavefunction_discrete(vec, params, N=100, method="cartesian"):
