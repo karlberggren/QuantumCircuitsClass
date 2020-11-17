@@ -1227,8 +1227,12 @@ def ivp_evolve_time_dep(params):
 
   def dψdt(t, ψ, params):  # key function for evolution
     φ_range = make_φ_range(params)
+    try:
+      params["Qo"]
+      KE = make_tdep_KE_matx(t, params)
+    except:
+      KE = params["KE_matx"]
     V_t = params["potential"](t, φ_range, params)
-    KE = make_tdep_KE_matx(t, params)
     return (KE.dot(ψ) + V_t*ψ)/(1j*ħ)
 
  # if "max" parameter is provided, use it, else just uses "min"
@@ -1284,10 +1288,7 @@ def make_tdep_KE_matx(t, params):
   Make kinetic energy matrix
   """
   ωd = params["drive_freq"]
-  try:
-      Qo = params["Qo"]*np.sin(ωd * t)
-  except:
-      Qo = 0
+  Qo = params["Qo"]*np.sin(ωd * t)
   Qhat_sq = make_Q_hat_squared(params)
   Qhat = make_Q_in_φ_basis(params)
   KE_matx = (Qhat_sq - 2 * Qo * Qhat)/(2*params["C"])
@@ -1476,7 +1477,7 @@ def plot_q_paramp_test_3():
     but with some initial momentum
     """
     params = {"min": -20, "N":100, "C":1,
-              "start_time":0, "end_time":2*π*10, "frames":100,
+              "start_time":0, "end_time":2*π*1, "frames":10,
               "Lo": 1, "α":0,
               "amp": 0.37,
               "Qo": 0.1
@@ -1506,6 +1507,7 @@ if __name__=='__main__':
   #ivp_evolve_time_dep_test3()    
   #ivp_evolve_time_dep_test4()
   #ivp_evolve_time_dep_test5()
+  plot_q_paramp_test_2()
   plot_q_paramp_test_3()
   plt.show()
   
