@@ -1186,6 +1186,22 @@ def make_Q_hat_squared(params):
                                     np.ones(N-1)],[0,1,-1]) #no periodic b.c.
   return Qhat_sq
 
+
+def make_Q_in_φ_basis(params):
+  N = params["N"]
+  minφ = params["min"]
+  try:
+    maxφ = params["max"]
+  except KeyError:
+    maxφ = -params["min"]
+
+  Δφ = (maxφ-minφ)/N
+  coeff = 𝕛*2*π*ħ/Φₒ/Δφ
+  Qhat = coeff * sparse.diags([np.ones(N-1),
+                               np.ones(N-1)],[1,-1])/2 #no periodic b.c.
+  return Qhat
+    
+
 def find_esystem(params):
   """ find_esystem: find eigensystem
   returns array of values and vector, aligned and ordered from low to high """
@@ -1212,7 +1228,8 @@ def ivp_evolve_time_dep(params):
   def dψdt(t, ψ, params):  # key function for evolution
     φ_range = make_φ_range(params)
     V_t = params["potential"](t, φ_range, params)
-    return (params["KE_matx"].dot(ψ) + V_t*ψ)/(1j*ħ)
+    KE = make_tdep_KE_matx(t, params)
+    return (KE.dot(ψ) + V_t*ψ)/(1j*ħ)
 
  # if "max" parameter is provided, use it, else just uses "min"
   xmin = params["min"]
@@ -1261,6 +1278,18 @@ def make_KE_matx(params):
   Qhat_sq = make_Q_hat_squared(params)
   KE_matx = Qhat_sq/(2*params["C"])
   return KE_matx
+
+def make_tdep_KE_matx(t, params):
+  """
+  Make kinetic energy matrix
+  """
+  ωd = params["drive_freq"]
+  Qo = params["Qo"]*np.sin(ωd * t)
+  Qhat_sq = make_Q_hat_squared(params)
+  Qhat = make_Q_in_φ_basis(params)
+  KE_matx = (Qhat_sq - 2 * Qo * Qhat)/(2*params["C"])
+  return KE_matx
+
 
 def ivp_evolve_time_dep_test1():
   """
@@ -1427,20 +1456,37 @@ def plot_q_paramp_test_2():
                           num_pts = 100)
     return ani
 
+def sho_evec(n, params):
+  m = params["C"]
+  ω = 1/np.sqrt(params["C"]*params["Lo"])
+  norm = 1/np.sqrt(2**n * factorial(n))*(m*ω/π/ħ)**0.25
+  ψ = lambda Q: norm * np.exp(-m*ω*Φₒ**2*Q**2/4/π**2/2/ħ)*hermite(n)(Φₒ*Q/2/π) + 0j
+  #* np.exp(1j*E_val*t/ħ)
+  return ψ
+
+def superposition(params):
+  return lambda Q: (sho_evec(0, params)(Q) + sho_evec(1, params)(Q))/(np.sqrt(2)) + 0j
+
 def plot_q_paramp_test_3():
     """
     drive a state parametrically with a ground state phase distribution
     but with some initial momentum
     """
     params = {"min": -20, "N":100, "C":1,
-              "start_time":0, "end_time":2*π*10, "frames":200,
-              "wavefunction":make_gaussian(0, 2*π/np.sqrt(2)/Φₒ),
-              "Lo": 1, "α":0.1}
+              "start_time":0, "end_time":2*π*10, "frames":100,
+              "Lo": 1, "α":0,
+              "amp": 0.37,
+              "Qo": 0.1
+              }
+
+    params["wavefunction"] = sho_evec(1,params)
+    ωo = 1/np.sqrt(params["C"]*params["Lo"])
+    params["drive_freq"] = ωo
     def V(t, φ, params):
-      ωo = 1/np.sqrt(params["C"]*params["Lo"])
-      L_t = params["Lo"]*(1 + params["α"]*np.sin(2*ωo*t))
-      return Φₒ**2*φ**2/(2*L_t*4*π**2)
-          
+      ωd = params["drive_freq"]
+      L_t = params["Lo"]*(1 + params["α"]*np.sin(ωd*t))
+      return Φₒ**2*(φ - params["amp"]*np.sin(ωd*t))**2/(2*L_t*4*π**2)
+              
     params["potential"] = V
     params["KE_matx"] = make_KE_matx(params)
 
@@ -1457,6 +1503,6 @@ if __name__=='__main__':
   #ivp_evolve_time_dep_test3()    
   #ivp_evolve_time_dep_test4()
   #ivp_evolve_time_dep_test5()
-  plot_q_paramp_test_2()
+  plot_q_paramp_test_3()
   plt.show()
   
