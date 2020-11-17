@@ -17,6 +17,14 @@ from scipy.misc import derivative
 
 from IPython.display import HTML
 
+
+from scipy.special import factorial
+from scipy.special import hermite
+
+import matplotlib.patches as patches
+from matplotlib import cm
+
+
 ħ = 1  # h = 6.63e-34 J s or 6.58e-16 eV s
        # ħ = h / 2π = 1.05 e -34
 π = np.pi
@@ -303,7 +311,7 @@ def plot_time_dep_ψ(func_or_data,
                                   frames=new_data.shape[0],
                                   interval=100,
                                   blit=True)
-    rc('animation', html='jshtml')
+    #rc('animation', html='jshtml')
     return ani
 
   """
@@ -387,7 +395,7 @@ def plot_time_dep_ψ(func_or_data,
                                   fargs=[artists],
                                   interval=100,
                                   blit=True)
-    rc('animation', html='jshtml')
+    #rc('animation', html='jshtml')
     return ani
 
   """
@@ -521,12 +529,13 @@ def plot_time_dep_ψ(func_or_data,
             xvals = Q
             vs = np.column_stack((xvals,yvals))
             evec.set_xy(vs)
-            cmap = cm.get_cmap('Spectral')
-            if n == 0:
-              base_clock = coeff
-            rgba = cmap(np.angle(coeff - base_clock)/π+0.5)
-            evec.set_fc(rgba)
-            evec.set_ec(rgba)
+            #color stuff not implemented
+            #cmap = cm.get_cmap('Spectral')
+            #if n == 0:
+            #  base_clock = coeff
+            #rgba = cmap(np.angle(coeff - base_clock)/π+0.5)
+            #evec.set_fc(rgba)
+            #evec.set_ec(rgba)
             
             #evec.set_data(Q, np.abs(coeff*evec_array)**2*scale+offset)
 
@@ -622,7 +631,7 @@ def plot_time_dep_ψ(func_or_data,
     anim = animation.FuncAnimation(fig, update_lines,
                                   fargs=[lines], frames=frames, interval=100,
                                   blit=True)
-    rc('animation', html='jshtml')  # makes it work in colaboratory
+    #rc('animation', html='jshtml')  # makes it work in colaboratory
     return anim
 
   if method == "3d_eigen":
@@ -820,7 +829,7 @@ def plot_time_dep_ψ(func_or_data,
                                    fargs=[lines, params],
                                    frames=frames, interval=100,
                                    blit=True)
-    rc('animation', html='jshtml')  # makes it work in colaboratory
+    #rc('animation', html='jshtml')  # makes it work in colaboratory
     return anim
 
 def plot_wavefunction_discrete(vec, params, N=100, method="cartesian"):
@@ -1108,7 +1117,7 @@ def plot_time_dep_V(params,
 
     ani = animation.FuncAnimation(fig, animate, frames=new_data.shape[0], interval=100,
                                   blit=True)
-    rc('animation', html='jshtml')
+    #rc('animation', html='jshtml')
     return ani
 
 def hilbert_dot(vec1, vec2):
@@ -1398,12 +1407,56 @@ def plot_q_paramp_test():
   return ani
 
 
+def plot_q_paramp_test_2():
+    params = {"min": -20, "N":100, "C":1,
+              "start_time":0, "end_time":2*π*10, "frames":200,
+              "wavefunction":make_gaussian(0, 2*π/np.sqrt(2)/Φₒ),
+              "Lo": 1, "α":0.1}
+    def V(t, φ, params):
+      ωo = 1/np.sqrt(params["C"]*params["Lo"])
+      L_t = params["Lo"]*(1 + params["α"]*np.sin(2*ωo*t))
+      return Φₒ**2*φ**2/(2*L_t*4*π**2)
+          
+    params["potential"] = V
+    params["KE_matx"] = make_KE_matx(params)
+
+    r = ivp_evolve_time_dep(params)
+    ani = plot_time_dep_ψ(np.transpose(r.y), 
+                          params, 
+                          method="2d_eigen_full",
+                          num_pts = 100)
+    return ani
+
+def plot_q_paramp_test_3():
+    """
+    drive a state parametrically with a ground state phase distribution
+    but with some initial momentum
+    """
+    params = {"min": -20, "N":100, "C":1,
+              "start_time":0, "end_time":2*π*10, "frames":200,
+              "wavefunction":make_gaussian(0, 2*π/np.sqrt(2)/Φₒ),
+              "Lo": 1, "α":0.1}
+    def V(t, φ, params):
+      ωo = 1/np.sqrt(params["C"]*params["Lo"])
+      L_t = params["Lo"]*(1 + params["α"]*np.sin(2*ωo*t))
+      return Φₒ**2*φ**2/(2*L_t*4*π**2)
+          
+    params["potential"] = V
+    params["KE_matx"] = make_KE_matx(params)
+
+    r = ivp_evolve_time_dep(params)
+    ani = plot_time_dep_ψ(np.transpose(r.y), 
+                          params, 
+                          method="2d_eigen_full",
+                          num_pts = 100)
+    return ani
+
 if __name__=='__main__':
   #ivp_evolve_time_dep_test1()
   #ivp_evolve_time_dep_test2()
   #ivp_evolve_time_dep_test3()    
   #ivp_evolve_time_dep_test4()
   #ivp_evolve_time_dep_test5()
-  plot_q_paramp_test()
+  plot_q_paramp_test_2()
   plt.show()
   
