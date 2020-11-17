@@ -414,11 +414,11 @@ def plot_time_dep_ψ(func_or_data,
 
     # set up plots and artists
     ax = fig.add_subplot(111, xlim = (Qmin, Qmax), ylim = (0,vmax))
-    ax.set_ylabel("PDF")
-    ax.set_xlabel("charge (Q)")       
+    ax.set_ylabel("V(φ)")
+    ax.set_xlabel("phase (φ)")   
 
-    particles, = ax.plot([], [])
-    pot_parts, = ax.plot([], [])
+    particles, = ax.plot([], [], color = "silver")
+    pot_parts, = ax.plot([], [], color = "tab:orange")
     artists = [particles, pot_parts]
 
     # show the time 0 potential in the background
@@ -439,33 +439,58 @@ def plot_time_dep_ψ(func_or_data,
           if state == 0 and V(x) < E:
               xmin = x
               state = 1
+#              print(f"found min at x={xmin}")
           if state == 1 and V(x) > E:
               xmax = x
+              break
       return xmin, xmax
+    
+    ωo = 1/np.sqrt(params["C"]*params["Lo"])
 
-    for eval in [ħ*ωo*(2*n+1)/2 for n in range(5)]:
-      Q_min,Q_max = find_turning_points(Q_range,
-                                        lambda Q: V(0, Q, params),
-                                        E)
+    def sho_evec(n, params):  # FIXME replace with esystem
+        m = params["C"]
+        ω = 1/np.sqrt(params["C"]*params["Lo"])
+        norm = 1/np.sqrt(2**n * factorial(n))*(m*ω/π/ħ)**0.25
+        #E_val = ħ*ω*(2*n+1)/2
+        ψ = lambda Q: norm * np.exp(-m*ω*Φₒ**2*Q**2/4/π**2/2/ħ)*hermite(n)(Φₒ*Q/2/π) #* np.exp(1j*E_val*t/ħ)
+        return ψ
+
+    shadings=[]
+    for n in range(5):
+      eval = ħ*ωo*(2*n+1)/2
+      Q_min, Q_max = find_turning_points(Q_range,
+                                         lambda Q: V(0, Q, params),
+                                         eval)
       eval_range = np.linspace(Q_min, Q_max)
-      ax.plot(eval_range, np.full(50,eval), "--")
+      ax.plot(eval_range, np.full(50, eval), "--", lw = 0.5, 
+              color='tab:blue')
+      evec = sho_evec(n, params)(Q_range)
+      offset = np.full(np.shape(Q_range),eval)
+      new_artist, = ax.plot([], [], lw = 0.5, color='tab:blue')
+      v = np.array([[0,0]])
+      artists.append(patches.Polygon(v, closed=True, fc='tab:blue', ec='tab:blue', alpha=0.3))
+      ax.add_patch(artists[-1])
+      #artists.append(new_artist)
+      #ax.plot(Q_range, np.abs(evec)**2*vmax/pdfmax*0.025+offset,color='black')
     
     
     def animate(i, artists):
         """perform animation step"""
         # some setup
         Q = np.linspace(Qmin, Qmax, num_pts)
-        particles, pot_arts = artists
+        particles, pot_arts, evecs = artists[0], artists[1], artists[2:]
         
         # pdf.  
         try:  # did we pass a function?
-          z = np.abs(func_or_data(Q,t))**2
+          zo = np.abs(func_or_data(Q,t))**2
+          zraw = func_or_data(Q,t)
         except:  # no, raw data
-          z = np.abs(func_or_data[i])**2
+          zo = np.abs(func_or_data[i])**2
+          zraw = func_or_data[i]
 
         # resample array to get length right
         if params["N"] % num_pts == 0:
-          z = z[::params["N"]//num_pts]
+          z = zo[::params["N"]//num_pts]
         else:
           raise Except("params[N] must be an integer multiple of num_pts")
 
@@ -481,9 +506,32 @@ def plot_time_dep_ψ(func_or_data,
         z = V(t, Q, params)
         pot_parts.set_data(Q, z)
         
-        # update potential
+        # evecs
+        base_clock = 0
+        # project current wf onto evec bases
+        for n, evec in enumerate(evecs):
+          evec_array = sho_evec(n, params)(Q_range)
+          evec_array /= np.sqrt(np.transpose(np.conj(evec_array))@evec_array)
+          coeff = np.transpose(np.conj(evec_array))@zraw
+          eval = ħ*ωo*(2*n+1)/2
+          offset = np.full(np.shape(Q_range),eval)
+          scale = 0.5*vmax/pdfmax
+          if coeff > 0.1:
+            yvals = np.abs(coeff*evec_array)**2*scale+offset
+            xvals = Q
+            vs = np.column_stack((xvals,yvals))
+            evec.set_xy(vs)
+            cmap = cm.get_cmap('Spectral')
+            if n == 0:
+              base_clock = coeff
+            rgba = cmap(np.angle(coeff - base_clock)/π+0.5)
+            evec.set_fc(rgba)
+            evec.set_ec(rgba)
+            
+            #evec.set_data(Q, np.abs(coeff*evec_array)**2*scale+offset)
+
     
-        return particles,pot_parts
+        return [particles, pot_parts] + evecs
 
     ani = animation.FuncAnimation(fig,
                                   animate,
@@ -491,7 +539,7 @@ def plot_time_dep_ψ(func_or_data,
                                   fargs=[artists],
                                   interval=100,
                                   blit=True)
-    rc('animation', html='jshtml')
+    #rc('animation', html='jshtml')
     return ani
 
   if method == "animate_3d":
