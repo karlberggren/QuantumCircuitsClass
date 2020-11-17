@@ -1284,7 +1284,10 @@ def make_tdep_KE_matx(t, params):
   Make kinetic energy matrix
   """
   ωd = params["drive_freq"]
-  Qo = params["Qo"]*np.sin(ωd * t)
+  try:
+      Qo = params["Qo"]*np.sin(ωd * t)
+  except:
+      Qo = 0
   Qhat_sq = make_Q_hat_squared(params)
   Qhat = make_Q_in_φ_basis(params)
   KE_matx = (Qhat_sq - 2 * Qo * Qhat)/(2*params["C"])
