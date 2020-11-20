@@ -14,6 +14,7 @@ import scipy.sparse as sparse
 from scipy.integrate import complex_ode
 from scipy.integrate import ode
 from scipy.misc import derivative
+from scipy.optimize import fsolve
 
 from IPython.display import HTML
 
@@ -30,6 +31,7 @@ from matplotlib import cm
 π = np.pi
 𝕛 = 1j
 Φₒ = 1  # Φₒ = 2.07e-15 V s
+Φₒbar = Φₒ/2/π
 
 """
 Created on Fri Jul 12 14:04:23 2019
@@ -333,12 +335,13 @@ def plot_time_dep_ψ(func_or_data,
     # set scales
     pdfmax = np.max(np.abs(new_data)**2)
     V = params["potential"]
+    vmin = np.min([[V(t, Q, params) for t in times] for Q in Q_range])  
     vmax = np.max([[V(t, Q, params) for t in times] for Q in Q_range])
 
     # set up plots and artists
-    ax = fig.add_subplot(111, xlim = (Qmin, Qmax), ylim = (0,vmax))
+    ax = fig.add_subplot(111, xlim = (Qmin, Qmax), ylim = (vmin,vmax))
     ax.set_ylabel("PDF")
-    ax.set_xlabel("phase (φ)")       
+    ax.set_xlabel("phase (φ)")
 
     particles, = ax.plot([], [])
     pot_parts, = ax.plot([], [])
@@ -355,7 +358,7 @@ def plot_time_dep_ψ(func_or_data,
       ax.plot(Q_range, eval, "--")      
     """
     
-    def animate(i, artists):
+    def animate(i: "Step", artists: "List of artists to animate"):
         """perform animation step"""
         # some setup
         Q = np.linspace(Qmin, Qmax, num_pts)
@@ -375,6 +378,7 @@ def plot_time_dep_ψ(func_or_data,
 
         # rescale array so it looks nice
         z *= 0.5*vmax/pdfmax
+        z += vmin
         particles.set_data([Q],[z])
 
         # potential
@@ -442,15 +446,18 @@ def plot_time_dep_ψ(func_or_data,
       E: energy values to find turning points
       """
       # find left hand turning point xmin
-      state = 0  # starting from left, looking for first crossing
+      xmin = xs[0]
+      xmax = xs[-1]
       for x in xs:
-          if state == 0 and V(x) < E:
+          if V(x) < E:
               xmin = x
-              state = 1
-#              print(f"found min at x={xmin}")
-          if state == 1 and V(x) > E:
-              xmax = x
               break
+      # left hand t.p. found, now start from right
+      for x in xs[::-1]:
+          if V(x) < E:
+              xmax = x
+              #print(f"found max at x={xmax}")
+              break   
       return xmin, xmax
     
     ωo = 1/np.sqrt(params["C"]*params["Lo"])
@@ -464,7 +471,10 @@ def plot_time_dep_ψ(func_or_data,
         return ψ
 
     shadings=[]
-    for n in range(5):
+    n_max = int((vmax - ħ*ωo/2)/ħ/ωo)
+    print(n_max)
+    
+    for n in range(n_max):
       eval = ħ*ωo*(2*n+1)/2
       Q_min, Q_max = find_turning_points(Q_range,
                                          lambda Q: V(0, Q, params),
@@ -518,7 +528,9 @@ def plot_time_dep_ψ(func_or_data,
         base_clock = 0
         # project current wf onto evec bases
         for n, evec in enumerate(evecs):
-          evec_array = sho_evec(n, params)(Q_range)
+          double_well_params = params.copy()
+          double_well_params["Lo"] = Φₒbar / double_well_params["Ic"]
+          evec_array = sho_evec(n, double_well_params)(Q_range)
           evec_array /= np.sqrt(np.transpose(np.conj(evec_array))@evec_array)
           coeff = np.transpose(np.conj(evec_array))@zraw
           eval = ħ*ωo*(2*n+1)/2
@@ -1486,6 +1498,7 @@ def plot_q_paramp_test_3():
     params["wavefunction"] = sho_evec(1,params)
     ωo = 1/np.sqrt(params["C"]*params["Lo"])
     params["drive_freq"] = ωo
+    
     def V(t, φ, params):
       ωd = params["drive_freq"]
       L_t = params["Lo"]*(1 + params["α"]*np.sin(ωd*t))
@@ -1501,13 +1514,91 @@ def plot_q_paramp_test_3():
                           num_pts = 100)
     return ani
 
+def adiabatic_test():
+    params = {"min": -20, "N":100, "C":1,
+              "start_time":0, "end_time":2*π*10, "frames":100,
+              "Lo": 1, "α":0,
+              "amp": 5}
+    params["wavefunction"] = sho_evec(0, params)
+    ωo = 1/np.sqrt(params["C"]*params["Lo"])
+    params["drive_freq"] = ωo
+
+    def V(t, φ, params):
+      tstart = 30
+      tend = 31
+      slew_rate = params["amp"]/(tend - tstart)
+      if t <= tstart:
+        φ_ext = 0
+      elif tstart < t <= tend:
+        φ_ext = (t - tstart) * slew_rate
+      elif t > tend:
+        φ_ext = (tend - tstart) * slew_rate
+      ωd = params["drive_freq"]
+      L_t = params["Lo"]*(1 + params["α"]*np.sin(ωd*t))
+      return Φₒ**2*(φ - φ_ext)**2/(2*L_t*4*π**2)
+          
+    params["potential"] = V
+    params["KE_matx"] = make_KE_matx(params)
+    r = ivp_evolve_time_dep(params)
+    
+    ani = plot_time_dep_ψ(np.transpose(r.y), 
+                          params, 
+                          method="2d_eigen_full",
+                          num_pts = 100)
+    ani
+
+
+def double_well_evolution():
+    """
+    C: Josephson capacitance
+    Lo: RF SQUID inductance
+    I_C: critical current
+    """
+    params = {"min": -4, "max":2*π + 4,
+              "N":200, "C":1,
+              "start_time" :0, "end_time":5, "frames":300,
+              "Lo" : 1,
+              "Ic" : 80,
+              "Ibias" : 0,
+              "φext": π}
+    
+    #params["wavefunction"] = sho_evec(0, params)
+
+    soln0 = fsolve(lambda φ: (φ)/params["Lo"] - params["Ic"]*np.sin(φ), -3)[0] + π
+    soln1 = fsolve(lambda φ: (φ)/params["Lo"] - params["Ic"]*np.sin(φ), 3)[0] + π
+    params["wavefunction"] = make_gaussian(0.4, 1)
+    ωo = 1/np.sqrt(params["C"]*params["Lo"])
+    params["drive_freq"] = ωo
+
+    def V(t, φ, params):
+        Ibias, Ic, Lo, φext = params["Ibias"],params["Ic"],params["Lo"],params["φext"]
+        VL = (Φₒbar*(φ-φext))**2/2/Lo
+        Vbias = Ibias * φ * Φₒbar
+        Vjj = -Φₒbar * Ic * np.cos(φ)
+        return VL + Vbias + Vjj
+          
+    params["potential"] = V
+    params["KE_matx"] = make_KE_matx(params)
+
+    r = ivp_evolve_time_dep(params)
+    #plt.plot(np.transpose(r.y)[1])
+    #plt.show()
+
+    ani = plot_time_dep_ψ(np.transpose(r.y), 
+                          params, 
+                          method="2d_eigen",
+                          num_pts = 100)
+    ani
+    
+    
 if __name__=='__main__':
   #ivp_evolve_time_dep_test1()
   #ivp_evolve_time_dep_test2()
   #ivp_evolve_time_dep_test3()    
   #ivp_evolve_time_dep_test4()
   #ivp_evolve_time_dep_test5()
-  plot_q_paramp_test_2()
-  plot_q_paramp_test_3()
+  #plot_q_paramp_test_2()
+  #plot_q_paramp_test_3()
+  #adiabatic_test()
+  double_well_evolution()
   plt.show()
-  
