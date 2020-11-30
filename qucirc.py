@@ -16,6 +16,7 @@ from scipy.integrate import ode
 from scipy.misc import derivative
 from scipy.optimize import fsolve
 
+
 from IPython.display import HTML
 
 
@@ -1556,7 +1557,7 @@ def double_well_evolution():
     """
     params = {"min": -4, "max":2*π + 4,
               "N":200, "C":1,
-              "start_time" :0, "end_time":5, "frames":300,
+              "start_time" :0, "end_time":10, "frames":300,
               "Lo" : 1,
               "Ic" : 80,
               "Ibias" : 0,
@@ -1588,7 +1589,7 @@ def double_well_evolution():
                           params, 
                           method="2d_eigen",
                           num_pts = 100)
-    ani
+    return ani
     
     
 if __name__=='__main__':
@@ -1600,5 +1601,11 @@ if __name__=='__main__':
   #plot_q_paramp_test_2()
   #plot_q_paramp_test_3()
   #adiabatic_test()
-  double_well_evolution()
-  plt.show()
+  ani =  double_well_evolution()
+  #  matplotlib.use("Agg")
+  # Set up formatting for the movie files
+  Writer = animation.writers['ffmpeg']
+  writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+  ani.save('double-well.mp4', writer = writer)
+  #ani
+  #plt.show()
