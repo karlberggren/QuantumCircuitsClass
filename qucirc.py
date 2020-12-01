@@ -25,7 +25,7 @@ from scipy.special import hermite
 
 import matplotlib.patches as patches
 from matplotlib import cm
-
+from scipy.sparse.linalg import eigs
 
 ħ = 1  # h = 6.63e-34 J s or 6.58e-16 eV s
        # ħ = h / 2π = 1.05 e -34
@@ -335,7 +335,7 @@ def plot_time_dep_ψ(func_or_data,
 
     # set scales
     pdfmax = np.max(np.abs(new_data)**2)
-    V = params["potential"]
+    V = params["V"]
     vmin = np.min([[V(t, Q, params) for t in times] for Q in Q_range])  
     vmax = np.max([[V(t, Q, params) for t in times] for Q in Q_range])
 
@@ -385,7 +385,7 @@ def plot_time_dep_ψ(func_or_data,
         # potential
         duration = params["end_time"] - params["start_time"]
         t = params["start_time"] + duration/params["frames"]*i
-        V = params["potential"]
+        V = params["V"]
 
         z = V(t, Q, params)
         pot_parts.set_data(Q, z)
@@ -422,7 +422,7 @@ def plot_time_dep_ψ(func_or_data,
 
     # set scales
     pdfmax = np.max(np.abs(new_data)**2)
-    V = params["potential"]
+    V = params["V"]
     vmax = np.max([[V(t, Q, params) for t in times] for Q in Q_range])
 
     # set up plots and artists
@@ -460,31 +460,22 @@ def plot_time_dep_ψ(func_or_data,
               #print(f"found max at x={xmax}")
               break   
       return xmin, xmax
-    
-    ωo = 1/np.sqrt(params["C"]*params["Lo"])
-
-    def sho_evec(n, params):  # FIXME replace with esystem
-        m = params["C"]
-        ω = 1/np.sqrt(params["C"]*params["Lo"])
-        norm = 1/np.sqrt(2**n * factorial(n))*(m*ω/π/ħ)**0.25
-        #E_val = ħ*ω*(2*n+1)/2
-        ψ = lambda Q: norm * np.exp(-m*ω*Φₒ**2*Q**2/4/π**2/2/ħ)*hermite(n)(Φₒ*Q/2/π) #* np.exp(1j*E_val*t/ħ)
-        return ψ
 
     shadings=[]
-    n_max = int((vmax - ħ*ωo/2)/ħ/ωo)
-    print(n_max)
+    #n_max = int((vmax - ħ*ωo/2)/ħ/ωo)
+    n_max = 4
+    #print(n_max)
     
+    vals, vecs = find_esystem(params, k=n_max)
     for n in range(n_max):
-      eval = ħ*ωo*(2*n+1)/2
       Q_min, Q_max = find_turning_points(Q_range,
                                          lambda Q: V(0, Q, params),
-                                         eval)
+                                         vals[n])
       eval_range = np.linspace(Q_min, Q_max)
-      ax.plot(eval_range, np.full(50, eval), "--", lw = 0.5, 
+      ax.plot(eval_range, np.full(50, vals[n]), "--", lw = 0.5, 
               color='tab:blue')
-      evec = sho_evec(n, params)(Q_range)
-      offset = np.full(np.shape(Q_range),eval)
+      vec = np.transpose(vecs)[n]
+      offset = np.full(np.shape(Q_range), vals[n])
       new_artist, = ax.plot([], [], lw = 0.5, color='tab:blue')
       v = np.array([[0,0]])
       artists.append(patches.Polygon(v, closed=True, fc='tab:blue', ec='tab:blue', alpha=0.3))
@@ -499,7 +490,7 @@ def plot_time_dep_ψ(func_or_data,
         Q = np.linspace(Qmin, Qmax, num_pts)
         particles, pot_arts, evecs = artists[0], artists[1], artists[2:]
         
-        # pdf.  
+        # pdf
         try:  # did we pass a function?
           zo = np.abs(func_or_data(Q,t))**2
           zraw = func_or_data(Q,t)
@@ -520,7 +511,7 @@ def plot_time_dep_ψ(func_or_data,
         # potential
         duration = params["end_time"] - params["start_time"]
         t = params["start_time"] + duration/params["frames"]*i
-        V = params["potential"]
+        V = params["V_matx"]
 
         z = V(t, Q, params)
         pot_parts.set_data(Q, z)
@@ -531,11 +522,11 @@ def plot_time_dep_ψ(func_or_data,
         for n, evec in enumerate(evecs):
           double_well_params = params.copy()
           double_well_params["Lo"] = Φₒbar / double_well_params["Ic"]
-          evec_array = sho_evec(n, double_well_params)(Q_range)
+          evec_array = np.transpose(vecs)[n]
           evec_array /= np.sqrt(np.transpose(np.conj(evec_array))@evec_array)
           coeff = np.transpose(np.conj(evec_array))@zraw
-          eval = ħ*ωo*(2*n+1)/2
-          offset = np.full(np.shape(Q_range),eval)
+          eigval = vals[n]
+          offset = np.full(np.shape(Q_range),eigval)
           scale = 0.5*vmax/pdfmax
           if coeff > 0.1:
             yvals = np.abs(coeff*evec_array)**2*scale+offset
@@ -671,8 +662,8 @@ def plot_time_dep_ψ(func_or_data,
     except:
       max = 1.5 * np.max(np.abs(func_or_data)**2)
     
-    ax.set_ylim(params["potential"](0, 0, params),
-                params["potential"](0, Qmax, params))
+    ax.set_ylim(params["V_matx"](0, 0, params),
+                params["V_matx"](0, Qmax, params))
     ax.set_zlim((0, max))
 
     # artist for potential curve
@@ -791,7 +782,7 @@ def plot_time_dep_ψ(func_or_data,
         Q = np.linspace(Qmin, Qmax, num_pts)
         duration = params["end_time"] - params["start_time"]
         t = params["start_time"] + duration/params["frames"]*i
-        V = params["potential"]
+        V = params["V_matx"]
         
         # update potential
         z = V(t, Q, params)
@@ -1068,7 +1059,7 @@ def ivp_evolve(params):
   params["matx"] = make_matrix(params)
   C = params["C"]
 
-  V = params["potential"]
+  V = params["V_matx"]
   
   Q_range = np.linspace(Q_min, Q_period + Q_min, N)
   params["Q_range"] = Q_range
@@ -1098,7 +1089,7 @@ def plot_time_dep_V(params,
             animate_3d: 3d animation of wavefunction.
   num_pts -- number of points to be plotted along x axis
   """
-  func = params["potential"]
+  func = params["V_matx"]
   Qmin, Qmax = params["Q_min"], -params["Q_min"]
   Q_range = np.linspace(Qmin, Qmax, params["N"])
   frames = params["frames"]
@@ -1215,22 +1206,13 @@ def make_Q_in_φ_basis(params):
   return Qhat
     
 
-def find_esystem(params):
+def find_esystem(params, k=6):
   """ find_esystem: find eigensystem
   returns array of values and vector, aligned and ordered from low to high """
-  Qhat_sq = make_Q_hat_squared(params)
-  φhat = make_φ_hat(params)
-  cos_φhat = make_cos_φ_hat(params)
-  # V and KE should be passed to it in params, IMHO
-  I, I_C = params["I"],params["I_C"]
-  V = - Φₒ * I_C * cos_φhat / 2 / π - I * Φₒ / 2 / π * φhat
-  KE = Qhat_sq/(2*params["C"])
-  
-  # Hamiltonian
-  ℋ = KE + V
-  vals, vecs = eigs(np.real(ℋ), k=6, which='SM')
-  vecs = np.transpose(vecs)
+  ℋ = params["KE_matx"] + params["V_matx"]
+  vals, vecs = eigs(np.real(ℋ), k=k, which='SR')
   return vals, vecs
+
 
 def ivp_evolve_time_dep(params):
   """
@@ -1245,7 +1227,7 @@ def ivp_evolve_time_dep(params):
       KE = make_tdep_KE_matx(t, params)
     except:
       KE = params["KE_matx"]
-    V_t = params["potential"](t, φ_range, params)
+    V_t = params["V"](t, φ_range, params)
     return (KE.dot(ψ) + V_t*ψ)/(1j*ħ)
 
  # if "max" parameter is provided, use it, else just uses "min"
@@ -1269,7 +1251,11 @@ def ivp_evolve_time_dep(params):
   t0, t1 = params["start_time"], params["end_time"]
   xmin, xrange, N = params["min"], params["xrange"], params["N"]
   xs = np.linspace(xmin, xmax, N)  # list of our x points
-  ψo = params["wavefunction"](xs)  # starting wavevector
+  # starting wavevector
+  try:
+    ψo = params["wavefunction"](xs)  # if function
+  except:
+    ψo = params["wavefunction"]  # if list
   times = np.linspace(t0, t1, params["frames"])
   r = solve_ivp(dψdt, (t0, t1), ψo, method='RK23', 
                 t_eval = times, args = (params,))
@@ -1279,13 +1265,12 @@ def ivp_evolve_time_dep(params):
     
   return r
 
-def make_V_matx(t, params):
+def make_V_matx(t, V, params):
   """
   Make potential matrix using potential function
   """
-  V = params["potential"]
   φ_range = make_φ_range(params)
-  V_matx = sparse.diags([V(φ_range, params)],[0])
+  V_matx = sparse.diags([V(t, φ_range, params)],[0])
   return V_matx
 
 def make_KE_matx(params):
@@ -1320,7 +1305,7 @@ def ivp_evolve_time_dep_test1():
   def V(t, φ, params):
     return 0
             
-  params["potential"] = V          
+  params["V_matx"] = V          
   params["KE_matx"] = make_KE_matx(params)
   
   r = ivp_evolve_time_dep(params)
@@ -1344,7 +1329,7 @@ def ivp_evolve_time_dep_test2():
     L_t = params["Lo"]*(1 + params["α"]*np.cos(2*ωo*t))
     return φ**2/(2*L_t)
             
-  params["potential"] = V
+  params["V_matx"] = V
   params["KE_matx"] = make_KE_matx(params)
   
   r = ivp_evolve_time_dep(params)
@@ -1368,7 +1353,7 @@ def ivp_evolve_time_dep_test3():
     #return φ**2/(2*L_t)
     return Φₒ**2*φ**2/(2*L_t*4*π**2)
             
-  params["potential"] = V
+  params["V_matx"] = V
   params["KE_matx"] = make_KE_matx(params)
   
   r = ivp_evolve_time_dep(params)
@@ -1392,7 +1377,7 @@ def ivp_evolve_time_dep_test4():
     #return φ**2/(2*L_t)
     return Φₒ**2*φ**2/(2*L_t*4*π**2)
             
-  params["potential"] = V
+  params["V_matx"] = V
   params["KE_matx"] = make_KE_matx(params)
   
   r = ivp_evolve_time_dep(params)
@@ -1418,7 +1403,7 @@ def ivp_evolve_time_dep_test5():
     #return φ**2/(2*L_t)
     return Φₒ**2*φ**2/(2*L_t*4*π**2)
             
-  params["potential"] = V
+  params["V_matx"] = V
   params["KE_matx"] = make_KE_matx(params)
   
   r = ivp_evolve_time_dep(params)
@@ -1441,7 +1426,7 @@ def plot_q_paramp_test():
     L_t = params["Lo"]*(1 + params["α"]*np.sin(2*ωo*t))
     return Φₒ**2*φ**2/(2*L_t*4*π**2)
             
-  params["potential"] = V
+  params["V_matx"] = V
   params["KE_matx"] = make_KE_matx(params)
   
   r = ivp_evolve_time_dep(params)
@@ -1463,7 +1448,7 @@ def plot_q_paramp_test_2():
       L_t = params["Lo"]*(1 + params["α"]*np.sin(2*ωo*t))
       return Φₒ**2*φ**2/(2*L_t*4*π**2)
           
-    params["potential"] = V
+    params["V_matx"] = V
     params["KE_matx"] = make_KE_matx(params)
 
     r = ivp_evolve_time_dep(params)
@@ -1505,7 +1490,7 @@ def plot_q_paramp_test_3():
       L_t = params["Lo"]*(1 + params["α"]*np.sin(ωd*t))
       return Φₒ**2*(φ - params["amp"]*np.sin(ωd*t))**2/(2*L_t*4*π**2)
               
-    params["potential"] = V
+    params["V_matx"] = V
     params["KE_matx"] = make_KE_matx(params)
 
     r = ivp_evolve_time_dep(params)
@@ -1538,7 +1523,7 @@ def adiabatic_test():
       L_t = params["Lo"]*(1 + params["α"]*np.sin(ωd*t))
       return Φₒ**2*(φ - φ_ext)**2/(2*L_t*4*π**2)
           
-    params["potential"] = V
+    params["V_matx"] = V
     params["KE_matx"] = make_KE_matx(params)
     r = ivp_evolve_time_dep(params)
     
@@ -1578,7 +1563,7 @@ def double_well_evolution():
         Vjj = -Φₒbar * Ic * np.cos(φ)
         return VL + Vbias + Vjj
           
-    params["potential"] = V
+    params["V_matx"] = V
     params["KE_matx"] = make_KE_matx(params)
 
     r = ivp_evolve_time_dep(params)
@@ -1604,8 +1589,9 @@ if __name__=='__main__':
   ani =  double_well_evolution()
   #  matplotlib.use("Agg")
   # Set up formatting for the movie files
-  Writer = animation.writers['ffmpeg']
-  writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
-  ani.save('double-well.mp4', writer = writer)
-  #ani
-  #plt.show()
+  #Writer = animation.writers['ffmpeg']
+  #writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+  #ani.save('double-well.mp4', writer = writer)
+  ani
+  #
+  plt.show()
