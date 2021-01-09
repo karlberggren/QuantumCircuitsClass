@@ -7,7 +7,10 @@ Created on Wed Dec 16 17:34:28 2020
 """
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.integrate import quad
+
 π = np.pi
+oo = np.inf
 
 class Wavefunction(object):
     """
@@ -32,11 +35,12 @@ class Wavefunction(object):
         *args is a list of tuples.  Each tuple contains (Xo, σ) for one of the
         dimensions along which the gaussian is to be defined
         """
-        param_tups = []
         def result(*x):
             return_val = 1
             for i, arg in enumerate(args):
                 Xo, σ = arg
+                print(f"x[i] type is {type(x[i])}")
+                print(f"Xo type is {type(Xo)}")
                 return_val *= np.exp(-(x[i] - Xo)**2/(4*σ**2))/(2*π*σ**2)**0.25+0j
             return return_val
         return cls(result)
@@ -46,7 +50,6 @@ class Wavefunction(object):
         """
         Factory method that initializes a plane wave
         """
-        param_tups = []
         def result(*x):
             return_val = 1
             for i, arg in enumerate(args):
@@ -201,7 +204,6 @@ class Ket(Wavefunction):
             raise NotImplementedError("This code cannot multiply Kets times Bras.  You probably did this in error")
         else:
             return Wavefunction.__mul__(self, arg2)
-            
         
     def __rmatmul__(self, op1):
         """
@@ -213,7 +215,22 @@ class Ket(Wavefunction):
 class Bra(Wavefunction):
     def __init__(self, wf):
         Wavefunction.__init__(self,wf)
-        
+
+    def __mul__(self, arg2):
+        if arg2.__class__ == Ket:
+            raise NotImplementedError("""
+            '*' does not multiply Bra's times Ket's.  If you want to do this, use '@'.
+            A Bra is effectively a row vector, and a Ket is effectively a column vector,
+            so their product is effectively a dot product (i.e. a matrix operation).
+            """)
+        else:
+            return Wavefunction.__mul__(self, arg2)
+
+    def __matmul__(self, ket):
+        # first with 1d functions
+        ## FIXME: turn this into a try: to check if is 1d function
+        return quad(lambda x:np.conj(self(x))*ket(x), -oo, oo)
+    
 if __name__ == '__main__':
     from numpy.testing import assert_approx_equal
     # test init gaussian
@@ -285,7 +302,17 @@ if __name__ == '__main__':
             import os
             os.remove("wavefunction_plot_test_file_new.png")
 
+    for cls1,cls2 in ((Bra, Ket), (Ket, Bra)):        
+        wf2 = cls1.init_plane_wave((0, 1))
+        wf1 = cls2.init_gaussian((0, 1))
+        try :
+            wf1 * wf2
+        except NotImplementedError:
+            pass
+        else:
+            raise AssertionError(f"{cls2} * {cls1} worked, shouldn't have")
 
+        
     """
     test 3 D figure plot
 
@@ -297,3 +324,7 @@ if __name__ == '__main__':
     plt.show()
     """
     print("Ended Wavefunction run")
+
+    wf2 = Ket.init_gaussian((0, 1))
+    wf1 = Bra.init_gaussian((0, 1))
+    wf1 @ wf2
