@@ -1,4 +1,5 @@
 from wavefunction import *
+from numpy.testing import assert_almost_equal
 
 class Operator(object):
     """
@@ -65,8 +66,22 @@ class Operator(object):
             return NotImplemented
         return Operator(lambda ψ: op2(self(ψ)))
 
-    def __rmatmul__(self, junk):
-        print("stupid rmatmul")
+    def __rmatmul__(self, bra):
+        """Operators can operate either to the left or to the right, assuming
+        the operator is Hermitian, i.e. it is its own conjugate
+        transpose.  Any observable, i.e. any measurable physical
+        quantity, such as charge Q or flux Φ, or the energy operator
+        (i.e. the Hamiltonian), will be a Hermitian operator.  
+
+        As a result, the operator acting to the left or to the right is
+        the same operation, i.e. <bra|oper is calculated the same way
+        oper|ket> is calculated.
+        """
+        if not isinstance(bra, Bra):
+            raise TypeError("""
+            You tried to operate on a ket from the right, that is not allowed.
+            """)
+        return self(bra)
 
     def __imatmul__(self, op2):
         """
@@ -87,7 +102,7 @@ class Operator(object):
         return self / sc
 
     def __call__(self, ψ):
-        if (not (isinstance(ψ, Wavefunction) or isinstance(ψ, Ket))):
+        if not isinstance(ψ, Wavefunction):
             raise TypeError('Operator must operate on a Wavefunction or Ket instance.')
         return self.O(ψ)
         
@@ -137,4 +152,21 @@ if __name__ == '__main__':
     #test operator @ Ket
 
     assert (J @ wf1)(0) == (1j * wf1)(0), "wavefunction rmatmul not working"
+
+    #test bra @ Operator
+    bra1 = Bra.init_gaussian((0,1))
+    #assert (bra1 @ J)(0) == (1j * bra1)(0), "bra @ operator not working"
+
+    #test bra @ Operator
+    bra1 = Bra.init_gaussian((0,1))
+    ket1 = Ket.init_gaussian((0,1))
+    assert (bra1 @ J)(0) == (1j * bra1)(0), "bra @ operator not working"
+
+    #test full expectation value
+    plot_params = {"x_range": (-4, 4), "N": 40,
+                   "method": "cartesian", "x_label": "Q"}
+    (bra1 @ J).plot_wf(**plot_params)
+    plt.show()
+    assert_almost_equal(bra1 @ J @ ket1, 1j, err_msg = "Expectation value of phase shift operator not working")
+
     print("end")
