@@ -28,6 +28,7 @@ class Wavefunction(object):
         FIXME, slight concern what if someone calls Wavefunction(lambda *x: foobar(x))
         """
         self.ψ = wfunc
+        self.ndim = ndim
         if not ndim:
             self.ndim = len(signature(wfunc).parameters)
         
@@ -64,11 +65,12 @@ class Wavefunction(object):
 
 
     @classmethod
-    def init_interp(cls, ψ_vec):
+    def init_interp(cls, vec):
         raise NotImplementedError
     
     def __add__(self, wf2):
-        return self.__class__(lambda *x: self(*x) + wf2(*x))
+        retval =  self.__class__(lambda *x: self(*x) + wf2(*x))
+        return retval
 
 
     def __sub__(self, wf2):
@@ -103,7 +105,7 @@ class Wavefunction(object):
 
     def vectorize(self, *args):
         """
-        Assigns the internal variable ψ_vec to be equal to the Wavefunction's ψ, broadcasted over an array,
+        Assigns the internal variable vec to be equal to the Wavefunction's ψ, broadcasted over an array,
         startingat x_min and ending at x_max, with N total points.
 
         Each dimension is spec'd in an (xmin, xmax, N) tuple
@@ -113,10 +115,10 @@ class Wavefunction(object):
         for x_min, x_max, N in args:
             array_list.append(np.linspace(x_min, x_max, N))
         X = np.meshgrid(*array_list)
-        self.ψ_mat = self(*X)
+        self.mat = self(*X)
         self.ranges = args
-        self.ψ_vec = self.ψ_mat.copy().flatten()
-        return self.ψ_vec
+        self.vec = self.mat.copy().flatten()
+        return self.vec
 
     def plot_wf(self, **kwargs):
       """
@@ -200,12 +202,12 @@ class Wavefunction(object):
         return plt.gcf()
 
 class Ket(Wavefunction):
-    def __init__(self, wf):
+    def __init__(self, wf, ndim = None):
         if isinstance(wf, Bra):
             new_func = lambda *x: np.conj(wfunc(*x))
             Wavefunction.__init__(new_func, wf.ndim)
         else:
-            Wavefunction.__init__(self, wf)
+            Wavefunction.__init__(self, wf, ndim)
 
     def __mul__(self, arg2):
         if arg2.__class__ == Bra:
@@ -226,7 +228,7 @@ class Bra(Wavefunction):
             new_func = lambda *x: np.conj(wfunc(*x))
             Wavefunction.__init__(new_func, wf.ndim)
         else:
-            Wavefunction.__init__(self,wf)
+            Wavefunction.__init__(self,wf,ndim)
 
 
     def __mul__(self, arg2):
@@ -242,12 +244,11 @@ class Bra(Wavefunction):
     def __matmul__(self, ket):
         if not isinstance(ket, Ket):
             return NotImplemented
-        func_to_split = lambda *x:np.conj(self(*x))*ket(*x)
+        func_to_split = lambda *x:self(*x) * ket(*x)
         real_func = lambda *x: np.real(func_to_split(*x))
         imag_func = lambda *x: np.imag(func_to_split(*x))
 
         limits = [(-oo, oo) for _ in range(self.ndim)]
-        
         real_int = nquad(real_func, limits)[0]
         imag_int = nquad(imag_func, limits)[0]
         
@@ -282,7 +283,7 @@ if __name__ == '__main__':
         assert (wf1-wf2)(0) == 1/(2*π)**0.25-1+0j, "Error subtracting wf from wf"
         # test vectorization of wfs
         wf1.vectorize((-10, 10, 21))
-        assert wf1.ψ_mat[10] == 1/(2*π)**0.25+0j, "Error vectorizing wf"
+        assert wf1.mat[10] == 1/(2*π)**0.25+0j, "Error vectorizing wf"
 
         #tests init 2d gaussian
         wf3 = cls_type.init_gaussian((0,1),(0,2))    
@@ -298,11 +299,11 @@ if __name__ == '__main__':
         assert wf4(0,0) == 1+0j, "Error creating plane wave"
         # test 2d vectorization
         wf3.vectorize((-10, 10, 21),(-10, 10, 21))
-        assert wf3.ψ_mat[10][10] == 1/(2*π)**0.25/(2*π*4)**.25, "Error vectorizing 2d wf"
+        assert wf3.mat[10][10] == 1/(2*π)**0.25/(2*π*4)**.25, "Error vectorizing 2d wf"
         #make test cases for vectorization in vectorize method.n
-        assert wf3.ψ_vec[220] == 1/(2*π)**0.25/(2*π*4)**.25, "Error vectorizing 2d wf"
+        assert wf3.vec[220] == 1/(2*π)**0.25/(2*π*4)**.25, "Error vectorizing 2d wf"
         wf3.vectorize((-10, 10, 41),(-10, 10, 21))
-        assert wf3.ψ_mat[10][20] == 1/(2*π)**0.25/(2*π*4)**.25, "Error vectorizing 2d wf"
+        assert wf3.mat[10][20] == 1/(2*π)**0.25/(2*π*4)**.25, "Error vectorizing 2d wf"
         """
         # test div by int
         assert (wf3/2)(0,0) == .5/(2*π)**0.25/(2*π*4)**.25, "Error dividing by int"    
@@ -357,5 +358,7 @@ if __name__ == '__main__':
     wf2 = Ket.init_gaussian((0, 1), (0,2))
     wf1 = Bra.init_gaussian((0, 1), (0,2))
     assert_almost_equal(wf1 @ wf2, 1, err_msg = "2d Expectation value not working")
-
+    
     print("Ended Wavefunction run")
+
+    

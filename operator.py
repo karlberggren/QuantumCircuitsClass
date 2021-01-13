@@ -32,6 +32,7 @@ class Operator(object):
         Operator.
         """
         return self + (-1)*op2
+    
     def __isub__(self, op2):
         """
         Subtracts one object of class Operator from another one in place (using -=)
@@ -95,6 +96,7 @@ class Operator(object):
         Divide an operator by a scalar.
         """
         return Operator(lambda ψ: self(ψ)/sc)
+    
     def __itruediv__(self, sc):
         """
         Divide an operator by a scalar in place (using the /= command)
@@ -119,7 +121,7 @@ if __name__ == '__main__':
     J = Operator(phase_shift)
 
     wf1 = Ket.init_gaussian((0,1))
-    assert I(wf1) == wf1, "identity operator doesn't work well"
+    assert I(wf1)(0) == wf1(0), "identity operator doesn't work well"
 
     if TEST_PLOTS:
         plot_params = {"x_range": (-4, 4), "N": 40,
@@ -165,8 +167,8 @@ if __name__ == '__main__':
     #test full expectation value
     plot_params = {"x_range": (-4, 4), "N": 40,
                    "method": "cartesian", "x_label": "Q"}
-    (bra1 @ J).plot_wf(**plot_params)
-    plt.show()
+    #(bra1 @ J).plot_wf(**plot_params)
+    #plt.show()
     assert_almost_equal(bra1 @ J @ ket1, 1j, err_msg = "Expectation value of phase shift operator not working")
 
     print("end")
