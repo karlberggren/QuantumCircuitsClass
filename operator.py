@@ -1,10 +1,19 @@
 from wavefunction import *
 from numpy.testing import assert_almost_equal
+from scipy.sparse import diags
 
 class Operator(object):
     """
     Class for 6.S079 Quantum Circuits, designed to work with operators, and apply them correctly
     to Wavefunction objects.
+    
+    Here's a basic example:
+
+    >>> I = Operator(lambda x: x)
+    >>> wf = Ket.init_gaussian((0,1))
+    >>> print(I(wf)(0))
+    (0.6316187777460647+0j)
+
     """
 
     def __init__(self, ofunc):
@@ -107,9 +116,69 @@ class Operator(object):
         if not isinstance(ψ, Wavefunction):
             raise TypeError('Operator must operate on a Wavefunction or Ket instance.')
         return self.O(ψ)
+
+class Op_matx(object):
+    def __init__(self, sparse_matx)
+        """
+        create numpy array of operator matrix based on a sparse matrix
+        """
+        self.matx = sparse_matx
+
+    @classmethod
+    def from_function(cls, func, *args):
+        """ from_function::create n-dimensional sparse potential energy operator matrix
+        from a function that varies in the parameter space of the system.
+
+        arguments should be a list of tuples in the form (min, max, N) where N is the
+        number of points along that dimension.
+        """
+        axis_arrays = []
+        for arg in args:
+            axis_arrays.append(np.linspace(*arg))
+        X = np.meshgrid(*axis_arrays)
+        return cls(diags(func(*X).flatten()))
+
+    @classmethod
+    def make_KE_matx(cls, *args):
+        """ d_by_dsquared:: create n-dimensional sparse kinetic energy operator matrix
+        from the second derivative in the n-dimensional parameter space of the system, 
+
+        arguments should be a list of tuples in the form (min, max, N, m_eff) where N is the
+        number of points along that dimension and m_eff an effective mass.
+        """
+        coeffs = []
+        for x_min, x_max, Nx, m_eff in args:
+            Δx = (x_max - x_min + 1)/N
+            coeffs.append(1j*ħ/2/m_eff/Δx**2)
+
+        KE_matx_len = np.prod([N for _, _,N,_ in args])
+
+        #let's make an array for each diag/set of 2 diags
+        diag_list = []
+        placement_list = []
+        central = np.full(KE_matx_len, -2*sum(coeffs))
+        diag_list.append(central)
+        placement_list.append(0)
+        dim_offset_factor = 1
+        for (_,_,N,_),coeff in zip(args,coeffs):
+            #make an off diag, put it at 1, N0, N0*N1, respectively. Subtract that many
+            #from off diag's length. Then multiply by that dimension's coeff.
+            #Append each off diag to diag_list twice.
+            off_diag = np.full(KE_matx_len - dim_offset_factor, coeff)
+            diag_list.append(off_diag)
+            diag_list.append(off_diag)
+            placement_list.append(dim_offset_factor)
+            placement_list.append(-dim_offset_factor)
+            dim_offset_factor *= N
+        return sparse.diags(diag_list,placement_list) #no periodic b.c.
+
+
         
         
 if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
+    
     TEST_PLOTS = False
     def identity_operator(wf):
         return wf

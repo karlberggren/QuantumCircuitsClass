@@ -22,9 +22,7 @@ class Wavevector(np.ndarray):
     (a Hilbert space), and a properly normalized wavefunction would be a unit vector in such a space.
     """
     def __new__(cls, input_array, ranges = None):
-        obj = np.asarray(input_array).view(cls).astype(complex)
-        
-        return obj
+        return np.asarray(input_array).view(cls).astype(complex)
 
     def __array_finalize__(self, obj):
         """
