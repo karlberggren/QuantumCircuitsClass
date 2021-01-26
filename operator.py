@@ -1,6 +1,6 @@
 from wavefunction import *
 from numpy.testing import assert_almost_equal
-from scipy.sparse import diags
+from scipy.sparse import diags, issparse
 
 class Operator(object):
     """
@@ -66,7 +66,6 @@ class Operator(object):
         Multiplies an operator in place by a scalar (using the *= command)
         """
         return self * sc
-
         
     def __matmul__(self, op2):
         """
@@ -118,11 +117,25 @@ class Operator(object):
         return self.O(ψ)
 
 class Op_matx(object):
-    def __init__(self, sparse_matx)
+    """
+    >>> I = Op_matx(diags([1,1,1]))
+    >>> print(I.matx.todense())
+    [[1. 0. 0.]
+     [0. 1. 0.]
+     [0. 0. 1.]]
+    """
+    
+    def __init__(self, sparse_matx):
         """
         create numpy array of operator matrix based on a sparse matrix
         """
-        self.matx = sparse_matx
+        if issparse(sparse_matx):
+            self.matx = sparse_matx
+        else:
+            raise TypeError("""
+            Op_matx expects sparse matrices.  You can make a sparse matrix by taking
+            any list-like object and passing it to scipy.sparse.diags or similar method
+            """)
 
     @classmethod
     def from_function(cls, func, *args):
@@ -131,6 +144,18 @@ class Op_matx(object):
 
         arguments should be a list of tuples in the form (min, max, N) where N is the
         number of points along that dimension.
+
+        >>> I = Op_matx.from_function(lambda *x: sum(x), (0,2,3), (-2,0,3))
+        >>> print(I.matx.todense())
+        [[-2.  0.  0.  0.  0.  0.  0.  0.  0.]
+         [ 0. -1.  0.  0.  0.  0.  0.  0.  0.]
+         [ 0.  0.  0.  0.  0.  0.  0.  0.  0.]
+         [ 0.  0.  0. -1.  0.  0.  0.  0.  0.]
+         [ 0.  0.  0.  0.  0.  0.  0.  0.  0.]
+         [ 0.  0.  0.  0.  0.  1.  0.  0.  0.]
+         [ 0.  0.  0.  0.  0.  0.  0.  0.  0.]
+         [ 0.  0.  0.  0.  0.  0.  0.  1.  0.]
+         [ 0.  0.  0.  0.  0.  0.  0.  0.  2.]]
         """
         axis_arrays = []
         for arg in args:
@@ -171,8 +196,6 @@ class Op_matx(object):
             placement_list.append(-dim_offset_factor)
             dim_offset_factor *= N
         return sparse.diags(diag_list,placement_list) #no periodic b.c.
-
-
         
         
 if __name__ == '__main__':
