@@ -25,7 +25,7 @@ class Wavefunction(object):
         Initializes an instance of the Wavefunction class, given a function object.
         wfunc must return a complex NumPy value.
 
-        FIXME, slight concern what if someone calls Wavefunction(lambda *x: foobar(x))
+        FIXME, slight concern what if someone calls Wavefunction(lambda *x: foobar(*x))
         """
         self.ψ = wfunc
         self.ndim = ndim
@@ -33,6 +33,15 @@ class Wavefunction(object):
             self.ndim = len(signature(wfunc).parameters)
         
     def __call__(self, *args):
+        """
+        This code permits the wavefunction class to be callable
+
+        >>> ψ = Wavefunction(lambda x: np.exp(-x**2))
+        >>> print(ψ(0))
+        1.0
+        >>> print(ψ.ψ(0))
+        1.0
+        """
         return self.ψ(*args)
     
     @classmethod
@@ -41,6 +50,15 @@ class Wavefunction(object):
         Factory method that initializes a properly normalized Gaussian wavefunction.
         *args is a list of tuples.  Each tuple contains (Xo, σ) for one of the
         dimensions along which the gaussian is to be defined
+
+        >>> wf1 = Wavefunction.init_gaussian((0,1))
+        >>> print(wf1(0))
+        (0.6316187777460647+0j)
+
+
+        >>> wf1 = Wavefunction.init_gaussian((0,1), (1,2))
+        >>> print(wf1(0,1))
+        (0.28209479177387814+0j)
         """
         def result(*x):
             return_val = 1
@@ -69,18 +87,27 @@ class Wavefunction(object):
         raise NotImplementedError
     
     def __add__(self, wf2):
-        retval =  self.__class__(lambda *x: self(*x) + wf2(*x))
-        return retval
+        """
+        Note, the result is in general not normalized.
 
+        >>> wf1 = Wavefunction.init_gaussian((0,1))
+        >>> wf2 = Wavefunction.init_gaussian((1,2))
+        >>> wf3 = wf1 + wf2
+        >>> wf3(0)
+        (1.0511812443492508+0j)
+        >>> wf1(0) + wf2(0)
+        (1.0511812443492508+0j)
+        """
+        return  self.__class__(lambda *x: self(*x) + wf2(*x))
 
     def __sub__(self, wf2):
         return self.__class__(lambda *x: self(*x) - wf2(*x))
 
-
     def __mul__(self, arg2):
         """
-        Multiply wavefunction by another wavefunction or a complex value
+        Multiply wavefunction by a complex value coefficient
         """
+        # FIXME, I think the first case should never happen
         if isinstance(arg2, self.__class__):
             return self.__class__(lambda *x: self(*x) * arg2(*x))
         else:
@@ -358,6 +385,9 @@ if __name__ == '__main__':
     wf2 = Ket.init_gaussian((0, 1), (0,2))
     wf1 = Bra.init_gaussian((0, 1), (0,2))
     assert_almost_equal(wf1 @ wf2, 1, err_msg = "2d Expectation value not working")
+
+    import doctest
+    doctest.testmod()
     
     print("Ended Wavefunction run")
 

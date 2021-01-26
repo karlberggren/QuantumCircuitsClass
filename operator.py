@@ -7,7 +7,8 @@ class Operator(object):
     Class for 6.S079 Quantum Circuits, designed to work with operators, and apply them correctly
     to Wavefunction objects.
     
-    Here's a basic example:
+    Here's a basic example that creates an identity operator, operates with it on a simple 1-D
+    gaussian, and then prints the result.
 
     >>> I = Operator(lambda x: x)
     >>> wf = Ket.init_gaussian((0,1))
@@ -139,11 +140,16 @@ class Op_matx(object):
 
     @classmethod
     def from_function(cls, func, *args):
-        """ from_function::create n-dimensional sparse potential energy operator matrix
-        from a function that varies in the parameter space of the system.
+        """ from_function::create n-dimensional diagonal potential-energy operator matrix
+        from a function that varies in the parameter space of the system.  The function is
+        assumed to be local, i.e. to depend only on the local coordinate, and thus the
+        resulting matrix will be diagonal.
 
-        arguments should be a list of tuples in the form (min, max, N) where N is the
+        Arguments should be a list of tuples in the form (min, max, N) where N is the
         number of points along that dimension.
+
+        In this example, we create an operator from the sum of the coordinate values
+        of the row,column indices of each element.
 
         >>> I = Op_matx.from_function(lambda *x: sum(x), (0,2,3), (-2,0,3))
         >>> print(I.matx.todense())
@@ -191,8 +197,8 @@ class Op_matx(object):
             #Append each off diag to diag_list twice.
             off_diag = np.full(KE_matx_len - dim_offset_factor, coeff)
             diag_list.append(off_diag)
-            diag_list.append(off_diag)
             placement_list.append(dim_offset_factor)
+            diag_list.append(off_diag)
             placement_list.append(-dim_offset_factor)
             dim_offset_factor *= N
         return sparse.diags(diag_list,placement_list) #no periodic b.c.
