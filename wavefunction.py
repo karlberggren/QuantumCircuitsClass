@@ -64,8 +64,8 @@ class Wavefunction(object):
             return_val = 1
             for i, arg in enumerate(args):
                 Xo, σ = arg
-                return_val *= np.exp(-(x[i] - Xo)**2/(4*σ**2))/(2*π*σ**2)**0.25+0j
-            return return_val
+                return_val *= np.exp(-(x[i] - Xo)**2/(4*σ**2))/(2*π*σ**2)**0.25
+            return return_val + 0j
         return cls(result, len(args))
                    
     @classmethod
@@ -128,6 +128,25 @@ class Wavefunction(object):
             return self.__class__(lambda *x: self(*x) / arg2)
         else:
             return self.__class__(lambda *x: self(*x) / arg2(*x))
+
+    def __abs__(self, limits = None):
+        """ Calculate absolute value of wavefunction
+        >>> abs(Wavefunction.init_gaussian((0,1)))
+        1.0
+
+        """
+        real_func = lambda *x: np.real(self(*x))
+        imag_func = lambda *x: np.imag(self(*x))
+
+        if limits == None:
+            limits = [(-oo, oo) for _ in range(self.ndim)]
+        real_int = nquad(real_func, limits)[0]
+        imag_int = nquad(imag_func, limits)[0]
+        return np.sqrt(real_int**2 + imag_int**2)
+
+    def normalize(self): #  FIXME
+        pass
+        #return Wavefunction(
 
 
     def vectorize(self, *args):
