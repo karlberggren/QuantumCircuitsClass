@@ -60,11 +60,11 @@ class Wavefunction(object):
         >>> print(wf1(0,1))
         (0.28209479177387814+0j)
         """
-        def result(*x):
+        def result(*xs):
             return_val = 1
-            for i, arg in enumerate(args):
+            for x, arg in zip(xs,args):
                 Xo, σ = arg
-                return_val *= np.exp(-(x[i] - Xo)**2/(4*σ**2))/(2*π*σ**2)**0.25
+                return_val *= np.exp(-(x - Xo)**2/(4*σ**2))/(2*π*σ**2)**0.25
             return return_val + 0j
         return cls(result, len(args))
                    
@@ -129,24 +129,25 @@ class Wavefunction(object):
         else:
             return self.__class__(lambda *x: self(*x) / arg2(*x))
 
-    def __abs__(self, limits = None):
+    def __abs__(self)
         """ Calculate absolute value of wavefunction
         >>> abs(Wavefunction.init_gaussian((0,1)))
-        1.0
+        0.9999999999999997
 
+        If for some reason the user wishes to normalize over a finite
+        region (E.g. because the function is not integrable, or 
+        periodic boundary conditions are in effect over a finite range,
+        the limits can be provided as a tuple.
         """
-        real_func = lambda *x: np.real(self(*x))
-        imag_func = lambda *x: np.imag(self(*x))
+        func = lambda *x: np.real(self(*x))**2 - np.imag(self(*x))**2
+        limits = [(-oo, oo) for _ in range(self.ndim)]
 
-        if limits == None:
-            limits = [(-oo, oo) for _ in range(self.ndim)]
-        real_int = nquad(real_func, limits)[0]
-        imag_int = nquad(imag_func, limits)[0]
-        return np.sqrt(real_int**2 + imag_int**2)
+        return nquad(func, limits)[0]
+
 
     def normalize(self): #  FIXME
-        pass
-        #return Wavefunction(
+        """ FIXME write doctest """
+        return self.__class__(self.ψ, self.ndim)/abs(self)
 
 
     def vectorize(self, *args):
