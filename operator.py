@@ -81,7 +81,7 @@ class Operator(object):
         the operator is Hermitian, i.e. it is its own conjugate
         transpose.  Any observable, i.e. any measurable physical
         quantity, such as charge Q or flux Φ, or the energy operator
-        (i.e. the Hamiltonian), will be a Hermitian operator.  
+        (i.e. the Hamiltonian), will be a Hermitian matrix.  
 
         As a result, the operator acting to the left or to the right is
         the same operation, i.e. <bra|oper is calculated the same way
@@ -174,6 +174,10 @@ class Op_matx(object):
         """ d_by_dsquared:: create n-dimensional sparse kinetic energy operator matrix
         from the second derivative in the n-dimensional parameter space of the system, 
 
+        A multi-dimensional KE operator looks something like:
+
+        KE(x,y,z,...) = ⅉ ħ/(2 m_x) ∂²/∂x² +  ⅉ ħ/(2 m_y) ∂²/∂y² +  ⅉ ħ/(2 m_z) ∂²/∂z² + ...
+
         arguments should be a list of tuples in the form (min, max, N, m_eff) where N is the
         number of points along that dimension and m_eff an effective mass.
         """
@@ -182,6 +186,7 @@ class Op_matx(object):
             Δx = (x_max - x_min + 1)/N
             coeffs.append(1j*ħ/2/m_eff/Δx**2)
 
+        # We need to know how large the final (flattened) matrix is going to be
         KE_matx_len = np.prod([N for _, _,N,_ in args])
 
         #let's make an array for each diag/set of 2 diags
