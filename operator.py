@@ -2,6 +2,8 @@ from wavefunction import *
 from numpy.testing import assert_almost_equal
 from scipy.sparse import diags, issparse
 
+ħ = 1.05e-34  # planck's constant J s
+
 class Operator(object):
     """
     Class for 6.S079 Quantum Circuits, designed to work with operators, and apply them correctly
@@ -119,11 +121,25 @@ class Operator(object):
 
 class Op_matx(object):
     """
+    class for discretized operators, to be used with wavevector class.
+
+    FIXME: It might be nice to have this inherit from sparse
+
     >>> I = Op_matx(diags([1,1,1]))
     >>> print(I.matx.todense())
     [[1. 0. 0.]
      [0. 1. 0.]
      [0. 0. 1.]]
+
+    >>> KE = Op_matx.make_KE((-2, 2, 5, ħ))
+    >>> potential = Op_matx.from_function(lambda x: x**2/2, (-2,2,5))
+    >>> Hamiltonian = KE + potential
+    >>> print(Hamiltonian.matx.todense())
+    [[2. -1.j  0. +0.5j 0. +0.j  0. +0.j  0. +0.j ]
+     [0. +0.5j 0.5-1.j  0. +0.5j 0. +0.j  0. +0.j ]
+     [0. +0.j  0. +0.5j 0. -1.j  0. +0.5j 0. +0.j ]
+     [0. +0.j  0. +0.j  0. +0.5j 0.5-1.j  0. +0.5j]
+     [0. +0.j  0. +0.j  0. +0.j  0. +0.5j 2. -1.j ]]
     """
     
     def __init__(self, sparse_matx):
@@ -162,6 +178,7 @@ class Op_matx(object):
          [ 0.  0.  0.  0.  0.  0.  0.  0.  0.]
          [ 0.  0.  0.  0.  0.  0.  0.  1.  0.]
          [ 0.  0.  0.  0.  0.  0.  0.  0.  2.]]
+
         """
         axis_arrays = []
         for arg in args:
@@ -170,20 +187,27 @@ class Op_matx(object):
         return cls(diags(func(*X).flatten()))
 
     @classmethod
-    def make_KE_matx(cls, *args):
+    def make_KE(cls, *args):
         """ d_by_dsquared:: create n-dimensional sparse kinetic energy operator matrix
         from the second derivative in the n-dimensional parameter space of the system, 
 
         A multi-dimensional KE operator looks something like:
 
         KE(x,y,z,...) = ⅉ ħ/(2 m_x) ∂²/∂x² +  ⅉ ħ/(2 m_y) ∂²/∂y² +  ⅉ ħ/(2 m_z) ∂²/∂z² + ...
-
         arguments should be a list of tuples in the form (min, max, N, m_eff) where N is the
         number of points along that dimension and m_eff an effective mass.
+
+        >>> op = Op_matx.make_KE((-2, 2, 5, 1.05e-34))
+        >>> print(op.matx.todense())
+        [[0.-1.j  0.+0.5j 0.+0.j  0.+0.j  0.+0.j ]
+         [0.+0.5j 0.-1.j  0.+0.5j 0.+0.j  0.+0.j ]
+         [0.+0.j  0.+0.5j 0.-1.j  0.+0.5j 0.+0.j ]
+         [0.+0.j  0.+0.j  0.+0.5j 0.-1.j  0.+0.5j]
+         [0.+0.j  0.+0.j  0.+0.j  0.+0.5j 0.-1.j ]]
         """
         coeffs = []
         for x_min, x_max, Nx, m_eff in args:
-            Δx = (x_max - x_min + 1)/N
+            Δx = (x_max - x_min + 1)/Nx
             coeffs.append(1j*ħ/2/m_eff/Δx**2)
 
         # We need to know how large the final (flattened) matrix is going to be
@@ -206,9 +230,36 @@ class Op_matx(object):
             diag_list.append(off_diag)
             placement_list.append(-dim_offset_factor)
             dim_offset_factor *= N
-        return sparse.diags(diag_list,placement_list) #no periodic b.c.
-        
-        
+        return Op_matx(diags(diag_list,placement_list)) #no periodic b.c.
+
+    def __add__(self, arg):
+        return self.__class__(self.matx + arg.matx)
+
+    def __iadd__(self, arg):
+        self.matx += arg.matx
+
+    def __sub__(self, arg):
+        return self.__class__(self.matx - arg.matx)
+
+    def __isub__(self, arg):
+        self.matx -= arg.matx
+
+    def __matmul__(self, arg):
+        return self.__class__(self.matx @ arg.matx)
+
+    def __imatmul__(self, arg):
+        self.matx @= arg.matx
+
+    def dot(self, arg):
+        """
+        >>> I = Op_matx(diags([1,1,1]))
+        >>> wf = Wavefunction.init_gaussian((0,1))
+        >>> wv = Wavevector.from_wavefunction(wf, (-1, 1, 3))
+        >>> print(I.dot(wv))
+        [0.4919052 +0.j 0.63161878+0.j 0.4919052 +0.j]
+        """
+        return Wavevector(self.matx.dot(arg), arg.ranges)
+    
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
