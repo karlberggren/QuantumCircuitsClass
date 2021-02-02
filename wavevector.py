@@ -143,6 +143,7 @@ class Wavevector(np.ndarray):
 
       if method == "polar":
         # or equivalently, one can look at magnitude and phase
+        # this just plots phase, is this a bug?
         plt.plot(xs, np.angle(ψs), label="phase")
         plt.xlabel(x_label)
         plt.ylabel("∠ψ")
