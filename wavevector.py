@@ -21,18 +21,15 @@ class Wavevector(np.ndarray):
     Please note that a continuous wavefunction is still a vector in an infinite-dimensional space
     (a Hilbert space), and a properly normalized wavefunction would be a unit vector in such a space.
 
-<<<<<<< HEAD
     ARB: should the wavevector object also contain information about the x domain on which it is defined?
     Also, should we implement a resampling method? It might be useful to be able to quickly change the number of sample 
     points in the wavevector. 
-=======
     >>> x = np.asarray([1. + 0.j,2,3])
     >>> wv1 = Wavevector(x, [(-1, 1, 3)])
     >>> print(wv1)
     [1.+0.j 2.+0.j 3.+0.j]
     >>> print(wv1.ranges)
     [(-1, 1, 3)]
->>>>>>> afacaedf1bb818d9f7a344ad6ada1b4d5269c604
     """
     
     def __new__(cls, input_array, ranges = None):
