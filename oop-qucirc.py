@@ -29,7 +29,7 @@ from scipy.sparse.linalg import eigs
 
 from wavefunction import Wavefunction
 from wavevector import Wavevector
-from operator import *
+import operator.Op_matx as Op_matx
 
 ħ = 1  # h = 6.63e-34 J s or 6.58e-16 eV s
        # ħ = h / 2π = 1.05 e -34
@@ -1226,6 +1226,10 @@ def evolve_wv(wv_o: "initial Wavevector", Vfunc, KE_args, times, frames = 30, t_
   dimension.  Thus for a 1D function, it should be of the form ((xmin, xmax, Nx, m_eff)).
 
   times is a start,end tuple
+  >>> dim = (-2, 2, 5, ħ)
+  >>> wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), dim[:3])
+  >>> r = evolve_wv(wv_o, lambda x: 0,  dim, (0,1), t_dep = False)
+  >>> print(r.y)
   """ 
   if t_dep:
     raise NotImplementedError
@@ -1236,7 +1240,7 @@ def evolve_wv(wv_o: "initial Wavevector", Vfunc, KE_args, times, frames = 30, t_
     KE = Op_matx.make_KE(*KE_args)
     # don't need effective mass for potential arguments, so strip away mass part
     # from KE_args
-    V_args = ((a,b,c) for a, b, c, _ in KE_args)
+    V_args = (x[:3] for x in KE_args)
     potential = Op_matx.from_function(Vfunc, *V_args)
     Hamiltonian = KE + potential
 
@@ -1252,14 +1256,6 @@ def evolve_wv(wv_o: "initial Wavevector", Vfunc, KE_args, times, frames = 30, t_
     print(r.message)
     
   return r
-
-def make_V_matx(t, params):
-  """
-  Make potential matrix using potential function
-  """
-  V_t = np.aspyfunc(params["V"], 1 + len(params["dimensions"]), 1)
-  dim_list = [np.linspace(dim["x_min"], dim["x_max"], dim["N"]) for dim in params["dimensions"]]
-  return sparse.diags([V_t(t, *np.meshgrid(dim_list)).flatten()],[0])
 
 def make_KE_matx(dimensions):
   """
@@ -1615,6 +1611,9 @@ def oop_ivp_evolve_time_dep_test1():
 
     
 if __name__=='__main__':
+    import doctest
+    doctest.testmod()
+    
     wavefunction_class_test()
     #ani = oop_ivp_evolve_time_dep_test1()
     #ani
@@ -1658,12 +1657,4 @@ if __name__=='__main__':
     attempt_res = make_KE_matx(dimensions).toarray()  
     assert np.array_equal(attempt_res, correct_res), "Wrong 1d KE matx"
 
-    # test make_V_matx
-    params = {}
-    params["dimensions"] = [{"x_max":1, "x_min":-1, "N": 3, "m_eff": 1}]
-    params["V"] = lambda t, *x: 1
-    correct_res = np.array([[1,0,0],
-                            [0,1,0],
-                            [0,0,1]])
-    attempt_res = make_V_matx(0, params).toarray()  
-    assert np.array_equal(attempt_res, correct_res), "Wrong V matx"
+    print("end")

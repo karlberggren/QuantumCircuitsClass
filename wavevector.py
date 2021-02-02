@@ -60,7 +60,7 @@ class Wavevector(np.ndarray):
         self.ranges = getattr(obj, 'ranges', None)
         
     @classmethod
-    def from_wavefunction(cls, wf, *args):
+    def from_wf(cls, wf, *args):
         """
         Factory method that takes a Wavefunction and a sequence of tuples (one for each 
         dimension of the Wavefunction)
