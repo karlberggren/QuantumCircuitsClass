@@ -203,13 +203,10 @@ class Wavevector(np.ndarray):
         return np.meshgrid(*((np.linspace(x_min, x_max, N) for x_min, x_max, N in self.ranges)))
     
 if __name__ == '__main__':
-<<<<<<< HEAD
     from wavefunction import Wavefunction
-=======
     import doctest
     doctest.testmod()
 
->>>>>>> afacaedf1bb818d9f7a344ad6ada1b4d5269c604
     x = np.asarray([1. + 0.j,2,3])
     wv1 = Wavevector(x)
     assert str(wv1) == '[1.+0.j 2.+0.j 3.+0.j]', "Didn't define wavevector class correctly"
