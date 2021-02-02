@@ -129,7 +129,7 @@ class Wavefunction(object):
         else:
             return self.__class__(lambda *x: self(*x) / arg2(*x))
 
-    def __abs__(self)
+    def __abs__(self):
         """ Calculate absolute value of wavefunction
         >>> abs(Wavefunction.init_gaussian((0,1)))
         0.9999999999999997
@@ -146,8 +146,15 @@ class Wavefunction(object):
 
 
     def normalize(self): #  FIXME
-        """ FIXME write doctest """
-        return self.__class__(self.ψ, self.ndim)/abs(self)
+        """ 
+        Function returns a normalized wavefunction given an input of a non-normalized
+        wavefunction.  It is needed whenever wavefunctions are added.
+
+        >>> wf = Wavefunction.init_gaussian((0,1)) + Wavefunction.init_gaussian((0,1))
+        >>> abs(wf.normalize())
+        0.9999999999999999
+        """
+        return self.__class__(self.ψ, self.ndim)/np.sqrt(abs(self))
 
 
     def vectorize(self, *args):

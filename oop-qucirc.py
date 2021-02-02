@@ -28,11 +28,14 @@ from matplotlib import cm
 from scipy.sparse.linalg import eigs
 
 from wavefunction import Wavefunction
+from wavevector import Wavevector
+from operator import *
 
 ħ = 1  # h = 6.63e-34 J s or 6.58e-16 eV s
        # ħ = h / 2π = 1.05 e -34
 π = np.pi
 𝕛 = 1j
+ⅉ = 1j
 Φₒ = 1  # Φₒ = 2.07e-15 V s
 Φₒbar = Φₒ/2/π
 
@@ -1214,52 +1217,36 @@ def find_esystem(params, k=6):
   return vals, vecs
 
 
-def oop_ivp_evolve_time_dep(wf: Wavefunction, params):
+def evolve_wv(wv_o: "initial Wavevector", Vfunc, KE_args, times, frames = 30, t_dep = True):
   """
   evolves a probability distribution in a quantum circuit with a
   time_varying potential.
+
+  KE_args is a list of tuples containing (xmin, xmax, Nx, m_eff) for each
+  dimension.  Thus for a 1D function, it should be of the form ((xmin, xmax, Nx, m_eff)).
+
+  times is a start,end tuple
   """ 
+  if t_dep:
+    raise NotImplementedError
+    def dψdt(t, ψ, params):  # key function for evolution
+      return (KE.dot(ψ) + params["V_matx"]*ψ)/(1j*ħ)
+  else:
+    # make our Hamiltonian
+    KE = Op_matx.make_KE(*KE_args)
+    # don't need effective mass for potential arguments, so strip away mass part
+    # from KE_args
+    V_args = ((a,b,c) for a, b, c, _ in KE_args)
+    potential = Op_matx.from_function(Vfunc, *V_args)
+    Hamiltonian = KE + potential
 
-  try:
-    KE = params["KE_matx"]
-  except KeyError:
-    KE = make_KE_matx(params["dimensions"])
-  try:
-    V_matx = params["V_matx"]
-  except KeyError:
-    V_matx = make_V_matx(t, params)
-  def dψdt(t, ψ, params):  # key function for evolution
-    return (KE.dot(ψ) + params["V_matx"]*ψ)/(1j*ħ)
-
- # if "max" parameter is provided, use it, else just uses "min"
-  xmin = params["min"]
-  try:
-    xmax = params["max"]
-  except KeyError:
-    xmax = -params["min"]
-  params["xrange"] = xmax - xmin
-  
-  try:  # if "L" is provided, use it, else use "end_time"
-    ωo = np.sqrt(1/params["L"]/params["C"])
-    T = 2*π/ωo
-    params["start_time"] = 0
-    params["end_time"] = params["start_time"] + params["periods"] * T
-  except KeyError:
-    pass
+    def dψdt(t, ψ):  # key function for evolution
+      return Hamiltonian.dot(ψ)/(1j*ħ)
 
   # peform simulation
-  dt= (params["end_time"] - params["start_time"])/params["frames"] 
-  t0, t1 = params["start_time"], params["end_time"]
-  xmin, xrange, N = params["min"], params["xrange"], params["N"]
-  xs = np.linspace(xmin, xmax, N)  # list of our x points
-  # starting wavevector
-  try:
-    ψo = params["wavefunction"](xs)  # if function
-  except:
-    ψo = params["wavefunction"]  # if list
-  times = np.linspace(t0, t1, params["frames"])
-  r = solve_ivp(dψdt, (t0, t1), ψo, method='RK23', 
-                t_eval = times, args = (params,))
+  frame_times = np.linspace(*times, frames)
+  r = solve_ivp(dψdt, times, wv_o, method='RK23', 
+                t_eval = frame_times)
 
   if not (r.status == 0):  # solver did not reach the end of tspan
     print(r.message)
