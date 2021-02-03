@@ -29,9 +29,9 @@ from scipy.sparse.linalg import eigs
 
 from wavefunction import Wavefunction
 from wavevector import Wavevector
-import operator.Op_matx as Op_matx
+from q_operator import Op_matx
 
-ħ = 1  # h = 6.63e-34 J s or 6.58e-16 eV s
+ħ = 1.05e-34  # h = 6.63e-34 J s or 6.58e-16 eV s
        # ħ = h / 2π = 1.05 e -34
 π = np.pi
 𝕛 = 1j
@@ -1226,9 +1226,9 @@ def evolve_wv(wv_o: "initial Wavevector", Vfunc, KE_args, times, frames = 30, t_
   dimension.  Thus for a 1D function, it should be of the form ((xmin, xmax, Nx, m_eff)).
 
   times is a start,end tuple
-  >>> dim = (-2, 2, 5, ħ)
-  >>> wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), dim[:3])
-  >>> r = evolve_wv(wv_o, lambda x: 0,  dim, (0,1), t_dep = False)
+  >>> dim_info = ((-2, 2, 5, ħ),)
+  >>> wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), dim_info[0][:3])
+  >>> r = evolve_wv(wv_o, (lambda x: 0),  dim_info, (0,1), t_dep = False)
   >>> print(r.y)
   """ 
   if t_dep:
@@ -1237,10 +1237,13 @@ def evolve_wv(wv_o: "initial Wavevector", Vfunc, KE_args, times, frames = 30, t_
       return (KE.dot(ψ) + params["V_matx"]*ψ)/(1j*ħ)
   else:
     # make our Hamiltonian
+    print(*KE_args)
     KE = Op_matx.make_KE(*KE_args)
+    print(KE.matx.todense())
     # don't need effective mass for potential arguments, so strip away mass part
     # from KE_args
-    V_args = (x[:3] for x in KE_args)
+    V_args = [x[:3] for x in KE_args]
+    print(*V_args)
     potential = Op_matx.from_function(Vfunc, *V_args)
     Hamiltonian = KE + potential
 
@@ -1611,10 +1614,10 @@ def oop_ivp_evolve_time_dep_test1():
 
     
 if __name__=='__main__':
-    import doctest
-    doctest.testmod()
+    #import doctest
+    #doctest.testmod()
     
-    wavefunction_class_test()
+    #wavefunction_class_test()
     #ani = oop_ivp_evolve_time_dep_test1()
     #ani
     #ivp_evolve_time_dep_test2()
@@ -1657,4 +1660,8 @@ if __name__=='__main__':
     attempt_res = make_KE_matx(dimensions).toarray()  
     assert np.array_equal(attempt_res, correct_res), "Wrong 1d KE matx"
 
+    dim_info = ((-2, 2, 5, ħ),)
+    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), dim_info[0][:3])
+    r = evolve_wv(wv_o, lambda x: x-x,  dim_info, (0,1), t_dep = False)
+    print(r.y)
     print("end")

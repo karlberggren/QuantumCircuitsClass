@@ -71,7 +71,7 @@ class Wavevector(np.ndarray):
         For example, vectorizing a gaussian might look like
 
         >>> wf = Wavefunction.init_gaussian((0,1))
-        >>> wv = Wavevector.from_wavefunction(wf, (-1, 1, 3))
+        >>> wv = Wavevector.from_wf(wf, (-1, 1, 3))
         >>> print(wv)
         [0.4919052 +0.j 0.63161878+0.j 0.4919052 +0.j]
         >>> print(wv.ranges)
@@ -189,7 +189,7 @@ class Wavevector(np.ndarray):
     def meshify(self):
         """
         >>> wf = Wavefunction.init_gaussian((0,1), (0,2))
-        >>> wv = Wavevector.from_wavefunction(wf, (-1,1,3), (-1,1,3))
+        >>> wv = Wavevector.from_wf(wf, (-1,1,3), (-1,1,3))
         >>> wv.meshify()
         [array([[-1.,  0.,  1.],
                [-1.,  0.,  1.],
@@ -212,7 +212,7 @@ if __name__ == '__main__':
     assert str(3 + wv1) == '[4.+0.j 5.+0.j 6.+0.j]', "Can't add a constant to a wavevector"
 
     wf2 = Wavefunction.init_gaussian((0, 1))*1j
-    wv2 = Wavevector.from_wavefunction(wf2, (-4, 4, 40))
+    wv2 = Wavevector.from_wf(wf2, (-4, 4, 40))
     plot_params = {"x_range": (-4, 4), "N": 40,
                        "method": "pdf", "x_label": "Q"}
     plt.close()
