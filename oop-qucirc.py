@@ -1228,8 +1228,13 @@ def evolve_wv(wv_o: "initial Wavevector", Vfunc, KE_args, times, frames = 30, t_
   times is a start,end tuple
   >>> dim_info = ((-2, 2, 5, ħ),)
   >>> wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), dim_info[0][:3])
-  >>> r = evolve_wv(wv_o, (lambda x: 0),  dim_info, (0,1), t_dep = False)
+  >>> r = evolve_wv(wv_o, lambda x: x-x,  dim_info, (0,1e-32), frames = 3, t_dep = False)
   >>> print(r.y)
+  [[2.32359563e-01+0.j 4.82278714e-04+0.j 1.62011520e-06+0.j]
+   [4.91905199e-01+0.j 8.41415942e-04+0.j 3.18509494e-08+0.j]
+   [6.31618778e-01+0.j 9.64557428e-04+0.j 3.24023040e-06+0.j]
+   [4.91905199e-01+0.j 8.41415942e-04+0.j 3.18509494e-08+0.j]
+   [2.32359563e-01+0.j 4.82278714e-04+0.j 1.62011520e-06+0.j]]
   """ 
   if t_dep:
     raise NotImplementedError
@@ -1237,13 +1242,10 @@ def evolve_wv(wv_o: "initial Wavevector", Vfunc, KE_args, times, frames = 30, t_
       return (KE.dot(ψ) + params["V_matx"]*ψ)/(1j*ħ)
   else:
     # make our Hamiltonian
-    print(*KE_args)
     KE = Op_matx.make_KE(*KE_args)
-    print(KE.matx.todense())
     # don't need effective mass for potential arguments, so strip away mass part
     # from KE_args
     V_args = [x[:3] for x in KE_args]
-    print(*V_args)
     potential = Op_matx.from_function(Vfunc, *V_args)
     Hamiltonian = KE + potential
 
@@ -1614,8 +1616,8 @@ def oop_ivp_evolve_time_dep_test1():
 
     
 if __name__=='__main__':
-    #import doctest
-    #doctest.testmod()
+    import doctest
+    doctest.testmod()
     
     #wavefunction_class_test()
     #ani = oop_ivp_evolve_time_dep_test1()
@@ -1660,8 +1662,5 @@ if __name__=='__main__':
     attempt_res = make_KE_matx(dimensions).toarray()  
     assert np.array_equal(attempt_res, correct_res), "Wrong 1d KE matx"
 
-    dim_info = ((-2, 2, 5, ħ),)
-    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), dim_info[0][:3])
-    r = evolve_wv(wv_o, lambda x: x-x,  dim_info, (0,1), t_dep = False)
-    print(r.y)
+
     print("end")
