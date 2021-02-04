@@ -1,4 +1,5 @@
 from wavefunction import *
+from wavevector import *
 from numpy.testing import assert_almost_equal
 from scipy.sparse import diags, issparse
 
@@ -325,4 +326,8 @@ if __name__ == '__main__':
     #plt.show()
     assert_almost_equal(bra1 @ J @ ket1, 1j, err_msg = "Expectation value of phase shift operator not working")
 
+    op = Op_matx.make_KE((-1, 1, 5, 1.05e-34),(-1, 1, 5, 1.05e-34),(-1, 1, 5, 1.05e-34))
+    print(op.matx.todense())
+    plt.imshow(np.abs(op.matx.todense()))
+    plt.savefig("visualize.png")
     print("end")
