@@ -61,7 +61,7 @@ class Wavevector(np.ndarray):
         self.ranges = getattr(obj, 'ranges', None)
         
     @classmethod
-    def from_wavefunction(cls, wf, *args):
+    def from_wf(cls, wf, *args):
         """
         Factory method that takes a Wavefunction and a sequence of tuples (one for each 
         dimension of the Wavefunction)
@@ -72,7 +72,7 @@ class Wavevector(np.ndarray):
         For example, vectorizing a gaussian might look like
 
         >>> wf = Wavefunction.init_gaussian((0,1))
-        >>> wv = Wavevector.from_wavefunction(wf, (-1, 1, 3))
+        >>> wv = Wavevector.from_wf(wf, (-1, 1, 3))
         >>> print(wv)
         [0.4919052 +0.j 0.63161878+0.j 0.4919052 +0.j]
         >>> print(wv.ranges)
@@ -251,7 +251,7 @@ class Wavevector(np.ndarray):
     def meshify(self):
         """
         >>> wf = Wavefunction.init_gaussian((0,1), (0,2))
-        >>> wv = Wavevector.from_wavefunction(wf, (-1,1,3), (-1,1,3))
+        >>> wv = Wavevector.from_wf(wf, (-1,1,3), (-1,1,3))
         >>> wv.meshify()
         [array([[-1.,  0.,  1.],
                [-1.,  0.,  1.],

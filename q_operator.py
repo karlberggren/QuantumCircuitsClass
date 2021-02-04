@@ -1,7 +1,8 @@
+import numpy as np
 from numpy.testing import assert_almost_equal
 from scipy.sparse import diags, issparse
-#from wavefunction import *
-#from wavevector import *
+from wavefunction import *
+from wavevector import *
 
 ħ = 1.05e-34  # planck's constant J s
 
@@ -259,7 +260,7 @@ class Op_matx(object):
         >>> print(I.dot(wv))
         [0.4919052 +0.j 0.63161878+0.j 0.4919052 +0.j]
         """
-        return Wavevector(self.matx.dot(arg), arg.ranges)
+        return self.matx.dot(arg)
     
 if __name__ == '__main__':
     import doctest
@@ -326,8 +327,4 @@ if __name__ == '__main__':
     #plt.show()
     assert_almost_equal(bra1 @ J @ ket1, 1j, err_msg = "Expectation value of phase shift operator not working")
 
-    op = Op_matx.make_KE((-1, 1, 5, 1.05e-34),(-1, 1, 5, 1.05e-34),(-1, 1, 5, 1.05e-34))
-    print(op.matx.todense())
-    plt.imshow(np.abs(op.matx.todense()))
-    plt.savefig("visualize.png")
     print("end")
