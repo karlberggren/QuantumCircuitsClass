@@ -205,10 +205,12 @@ class Wavevector(np.ndarray):
       if method == "polar":
         # or equivalently, one can look at magnitude and phase
         # this just plots phase, is this a bug?
-        plt.plot(xs, np.angle(ψs), label="phase")
-        plt.xlabel(x_label)
-        plt.ylabel("∠ψ")
-        plt.title("Phase")
+        fig, (ax1, ax2) = plt.subplots(2)
+        fig.suptitle('Polar plot')
+        ax1.plot(xs, np.abs(ψs), label="magnitude")
+        ax1.set(ylabel="|ψ|")
+        ax2.plot(xs, np.angle(ψs), label="phase")
+        ax2.set(xlabel=x_label, ylabel="∠ψ")
         return plt.gcf()
     
       if method == "pdf":
@@ -274,18 +276,19 @@ if __name__ == '__main__':
     assert str(3 + wv1) == '[4.+0.j 5.+0.j 6.+0.j]', "Can't add a constant to a wavevector"
 
     wf2 = Wavefunction.init_gaussian((0, 1))*1j
-    wv2 = Wavevector.from_wavefunction(wf2, (-4, 4, 40))
+    wv2 = Wavevector.from_wf(wf2, (-4, 4, 40))
     wf3 = wv2.resample_wv(range=((-3,3, 45),), method="linear")
-    plot_params = {"method": "pdf", "x_label": "Q"}
+    plot_params = {"method": "polar", "x_label": "Q"}
     plt.close()
     plot_result = wv2.visualize1D(**plot_params)
+    plt.show()
     plot_result.savefig("wavevector_plot_test_file_new.png")
     plt.close()
     plot2 = wf3.visualize1D(**plot_params)
     plot2.savefig("wavevector_plot_test_file_resampled.png")
     from matplotlib.testing.compare import compare_images
     try:
-        assert not compare_images("wavevector_plot_test_file.png", "wavevector_plot_test_file_new.png", .01),"Error plotting wv"
+        assert not compare_images("wavevector_plot_test_file_oldest.png", "wavevector_plot_test_file_new.png", 10),"Error plotting wv"
     except AssertionError:
         print("AssertionError: Error plotting wv")
     finally:

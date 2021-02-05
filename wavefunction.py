@@ -174,7 +174,7 @@ class Wavefunction(object):
         self.vec = self.mat.copy().flatten()
         return self.vec
 
-    def plot_wf(self, **kwargs):
+    def visualize1D(self, **kwargs):
       """
       plot_wavefunction:: plot a one-dimensional wavefunction.
 
@@ -213,10 +213,12 @@ class Wavefunction(object):
 
       if method == "polar":
         # or equivalently, one can look at magnitude and phase
-        plt.plot(xs, np.angle(ψs), label="phase")
-        plt.xlabel(x_label)
-        plt.ylabel("∠ψ")
-        plt.title("Phase")
+        fig, (ax1, ax2) = plt.subplots(2)
+        fig.suptitle('Polar plot')
+        ax1.plot(xs, np.abs(ψs), label="magnitude")
+        ax1.set(ylabel="|ψ|")
+        ax2.plot(xs, np.angle(ψs), label="phase")
+        ax2.set(xlabel=x_label, ylabel="∠ψ")
         return plt.gcf()
     
       if method == "pdf":
@@ -369,7 +371,7 @@ if __name__ == '__main__':
         plot_params = {"x_range": (-4, 4), "N": 40,
                        "method": "pdf", "x_label": "Q"}
         plt.close()
-        plot_result = wf1.plot_wf(**plot_params)
+        plot_result = wf1.visualize1D(**plot_params)
         plot_result.savefig("wavefunction_plot_test_file_new.png")
         from matplotlib.testing.compare import compare_images
         try:
