@@ -8,6 +8,7 @@ Created on Wed Dec 16 17:34:28 2020
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import quad, nquad
+from scipy import interpolate
 from numpy.testing import assert_almost_equal
 from inspect import signature
 
@@ -88,20 +89,75 @@ class Wavevector(np.ndarray):
 
     def resample_wv(self, **kwargs):
         """
-        TODO implement method.
-        This method uses linear interpolation to resample the wavevector from x_min_new to x_max_new with N_new smaples. 
+        TODO implement method for dimensions greater than 1. 
+        TODO implement check for limits 
+        TODO zero padding if out of limits
+        This method uses interpolation to resample the wavevector from x_min_new to x_max_new with N_new smaples. 
         Require: x_min_new >= x_min, x_max_new <= x_max
+    
+        Both up sampling and down sampling are supported. Interpolation methods: linear and spline. 
+        For example:
+        >>> x = np.linspace(-1,1,10)
+        >>> wv_orig = Wavevector(np.exp(-x**2), [(-1,1,10)])
+        >>> wv_resampled1 = wv_orig.resample_wv(range=[(-1,1,15)], method="spline")
+        >>> wv_resampled1
+        Wavevector([0.36787944+0.j, 0.47937337+0.j, 0.60050503+0.j,
+                    0.72144476+0.j, 0.83216746+0.j, 0.92158095+0.j,
+                    0.97978967+0.j, 0.99990946+0.j, 0.97978967+0.j,
+                    0.92158095+0.j, 0.83216746+0.j, 0.72144476+0.j,
+                    0.60050503+0.j, 0.47937337+0.j, 0.36787944+0.j])
+
+        >>> wv_resampled2 = wv_orig.resample_wv(range=[(-1,1,6)], method="linear")
+        >>> wv_resampled2
+        Wavevector([0.36787944+0.j, 0.69677656+0.j, 0.95057386+0.j,
+                    0.95057386+0.j, 0.69677656+0.j, 0.36787944+0.j])
         """
-        pass
+        method = kwargs["method"]
+        domain = kwargs["range"]
+
+        # get the current mesh grid
+        array_list = []
+        for x_min, x_max, N in self.ranges:
+            array_list.append(np.linspace(x_min, x_max, N))
+        X = np.meshgrid(*array_list)
+        # get the new mesh grid
+        array_list = []
+        for x_min, x_max, N in domain:
+            array_list.append(np.linspace(x_min, x_max, N))
+        X_new = np.meshgrid(*array_list)
+        
+        if len(domain) == 1:
+          if method == "linear":
+            f = interpolate.interp1d(*X,self)
+            new_obj = self.__class__(f(*X_new), domain)
+            return new_obj
+
+          elif method == "spline":
+            real_tck = interpolate.splrep(*X, np.real(self), s=0)
+            real_f = interpolate.splev(*X_new, real_tck, der=0)
+            img_tck = interpolate.splrep(*X, np.imag(self), s=0)
+            img_f = interpolate.splev(*X_new, img_tck, der=0)
+            new_obj = self.__class__(real_f +1j*img_f, domain)
+            return new_obj
+
+        elif len(domain) == 2:
+          if method == "linear":
+            z = interpolate.griddata(np.vstack([X[0].ravel(), X[1].ravel()]).T, self, X_new, method='linear')
+            new_obj = self.__class__(z, domain)
+            return new_obj
+          elif method == "spline":
+            raise NotImplementedError
+
 
     def functionfy(self, *args):
         """
         TODO implement method.
         This method interpolates the wavevector samples and returns a wavefunction function/object defined on the domain of the wavevector
         """
+
         pass
 
-    def plot_wv(self, **kwargs):   #just name it visualize?
+    def visualize1D(self, **kwargs):   #just name it visualize?
       """
       plot_wavevector:: plot a one-dimensional wavevector.
 
@@ -116,20 +172,25 @@ class Wavevector(np.ndarray):
       range: tuple with min-max to be plotted
       N: number of plotpoints
       method: cartesian, polar, pdf, or 3d
-      """
-      x_min, x_max = kwargs["x_range"]
-      if "N" in kwargs:
-        xs = np.linspace(x_min, x_max, kwargs["N"])
-      else:
-        xs = np.linspace(x_min, x_max, len(self))
+      """ 
+
       x_label = kwargs["x_label"]
       method = kwargs["method"]
 
       # be flexible about accepting self either as a function or a vector
-      try:
-        ψs = self
-      except:
+      if not "x_range" in kwargs:
+        for x_min, x_max, N in self.ranges:
+            xs = np.linspace(x_min, x_max, N)
+        try:
+          ψs = self
+        except:
+          raise NotImplementedError
+      else:
         raise NotImplementedError
+        x_min, x_max = kwargs["x_range"]
+        N = kwargs["N"]
+        xs = np.linspace(x_min, x_max, N)
+        ψs = self.resample_wv(range=((x_min,x_max,N),), method="linear")
 
       if method == "cartesian":    
         plt.plot(xs, np.abs(ψs), label="|ψ|")
@@ -143,10 +204,13 @@ class Wavevector(np.ndarray):
 
       if method == "polar":
         # or equivalently, one can look at magnitude and phase
-        plt.plot(xs, np.angle(ψs), label="phase")
-        plt.xlabel(x_label)
-        plt.ylabel("∠ψ")
-        plt.title("Phase")
+        # this just plots phase, is this a bug?
+        fig, (ax1, ax2) = plt.subplots(2)
+        fig.suptitle('Polar plot')
+        ax1.plot(xs, np.abs(ψs), label="magnitude")
+        ax1.set(ylabel="|ψ|")
+        ax2.plot(xs, np.angle(ψs), label="phase")
+        ax2.set(xlabel=x_label, ylabel="∠ψ")
         return plt.gcf()
     
       if method == "pdf":
@@ -176,7 +240,7 @@ class Wavevector(np.ndarray):
         z = np.abs(ψs)
         ax.plot(xs, z, zs=1, zdir='y', label='|Ψ|', color='black')
 
-        x = [x_min, x_max]
+        x = [xs[0], xs[-1]]
         y = [0,0]
         z = [0,0]
         ax.plot(x, y, z, label='axis')
@@ -213,16 +277,20 @@ if __name__ == '__main__':
 
     wf2 = Wavefunction.init_gaussian((0, 1))*1j
     wv2 = Wavevector.from_wf(wf2, (-4, 4, 40))
-    plot_params = {"x_range": (-4, 4), "N": 40,
-                       "method": "pdf", "x_label": "Q"}
+    wf3 = wv2.resample_wv(range=((-3,3, 45),), method="linear")
+    plot_params = {"method": "polar", "x_label": "Q"}
     plt.close()
-    plot_result = wv2.plot_wv(**plot_params)
+    plot_result = wv2.visualize1D(**plot_params)
+    plt.show()
     plot_result.savefig("wavevector_plot_test_file_new.png")
+    plt.close()
+    plot2 = wf3.visualize1D(**plot_params)
+    plot2.savefig("wavevector_plot_test_file_resampled.png")
     from matplotlib.testing.compare import compare_images
     try:
-        assert not compare_images("wavevector_plot_test_file.png", "wavevector_plot_test_file_new.png", .001),"Error plotting wf"
+        assert not compare_images("wavevector_plot_test_file_oldest.png", "wavevector_plot_test_file_new.png", 10),"Error plotting wv"
     except AssertionError:
-        print("AssertionError: Error plotting wf")
+        print("AssertionError: Error plotting wv")
     finally:
         import os
         os.remove("wavevector_plot_test_file_new.png")
