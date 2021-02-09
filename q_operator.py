@@ -1,8 +1,6 @@
 import numpy as np
 from numpy.testing import assert_almost_equal
 from scipy.sparse import diags, issparse
-from wavefunction import *
-from wavevector import *
 
 ħ = 1.05e-34  # planck's constant J s
 
@@ -296,6 +294,8 @@ def make_operator_at_time(t, func_0, *args, t_dep = True):
         return Op_matx.from_function(func_0, *args)  # FIXME MEMOIZE THIS
     
 if __name__ == '__main__':
+    from wavefunction import *
+    from wavevector import *
     import doctest
     doctest.testmod()
     

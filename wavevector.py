@@ -11,10 +11,11 @@ from scipy.integrate import quad, nquad
 from scipy import interpolate
 from numpy.testing import assert_almost_equal
 from inspect import signature
+from scipy.integrate import solve_ivp
 
 π = np.pi
 oo = np.inf
-
+ħ = 1.05e-34 
 class Wavevector(np.ndarray):
     """
     Class for 6.S079 Quantum Circuits, designed to work with and perform simple manipulations
@@ -262,13 +263,61 @@ class Wavevector(np.ndarray):
                [ 1.,  1.,  1.]])]
         """
         return np.meshgrid(*((np.linspace(x_min, x_max, N) for x_min, x_max, N in self.ranges)))
-    
+
+
+    def evolve(self, Vfunc, masses, times, frames = 30, t_dep = True):
+        """
+        evolves a probability distribution in a quantum circuit with a
+        time_varying potential.
+
+        KE_args is a list of tuples containing (xmin, xmax, Nx, m_eff) for each
+        dimension.  Thus for a 1D function, it should be of the form ((xmin, xmax, Nx, m_eff)).
+
+        times is a start,end tuple
+        >>> dim_info = ((-2, 2, 5),)
+        >>> masses = (ħ,)
+        >>> wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
+        >>> r = wv_o.evolve(lambda x: x-x, masses, (0, 1e-32), frames = 3, t_dep = False)
+        >>> print(r.y)
+        [[2.32359563e-01+0.j 4.82278714e-04+0.j 1.62011520e-06+0.j]
+         [4.91905199e-01+0.j 8.41415942e-04+0.j 3.18509494e-08+0.j]
+         [6.31618778e-01+0.j 9.64557428e-04+0.j 3.24023040e-06+0.j]
+         [4.91905199e-01+0.j 8.41415942e-04+0.j 3.18509494e-08+0.j]
+         [2.32359563e-01+0.j 4.82278714e-04+0.j 1.62011520e-06+0.j]]
+        """ 
+        if t_dep:
+            def dψdt(t, ψ, params):  # key function for evolution
+                return (KE.dot(ψ) + params["V_matx"]*ψ)/(1j*ħ)
+            raise NotImplementedError
+        else:
+            # make our Hamiltonian
+            KE_args = [val + (m,) for val, m in zip(self.ranges, masses)]
+            KE = Op_matx.make_KE(*KE_args)
+            # don't need effective mass for potential arguments, so strip away mass part
+            # from KE_args
+            potential = Op_matx.from_function(Vfunc, *self.ranges)
+            Hamiltonian = KE + potential
+
+            def dψdt(t, ψ):  # key function for evolution
+                return Hamiltonian.dot(ψ)/(1j*ħ)
+
+            # peform simulation
+            frame_times = np.linspace(*times, frames)
+            r = solve_ivp(dψdt, times, self, method='RK23', 
+                          t_eval = frame_times)
+
+            if not (r.status == 0):  # solver did not reach the end of tspan
+                print(r.message)
+      
+            return r
+
 if __name__ == '__main__':
     from wavefunction import Wavefunction
+    from q_operator import Op_matx
     import doctest
     doctest.testmod()
 
-    x = np.asarray([1. + 0.j,2,3])
+    x = np.asarray([1. + 0.j, 2, 3])
     wv1 = Wavevector(x)
     assert str(wv1) == '[1.+0.j 2.+0.j 3.+0.j]', "Didn't define wavevector class correctly"
 
