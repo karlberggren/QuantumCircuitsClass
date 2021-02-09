@@ -311,6 +311,25 @@ class Wavevector(np.ndarray):
       
             return r
 
+class Evolution(object):
+    """ class that gathers an array of wavevectors with identical
+    range data 
+
+    FIXME, I really wonder if this shouldn't be a function instead of
+    a class
+    """
+
+    def __init__(self, wvs, time_range, frames):
+        self.ranges = wvs[0].ranges
+        self.time_range = time_range
+        self.frames = frames
+        self.wvs = wvs
+
+    def visualize_1D(self):
+        raise NotImplementedError
+
+    
+
 if __name__ == '__main__':
     from wavefunction import Wavefunction
     from q_operator import Op_matx
