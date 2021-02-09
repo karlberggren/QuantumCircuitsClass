@@ -262,6 +262,39 @@ class Op_matx(object):
         """
         return self.matx.dot(arg)
     
+
+def make_operator_at_time(t, func_0, *args, t_dep = True):
+    """
+    make_operator_at_time::create Op_matx based on func_0 at
+                           the specified time.
+
+    t::time.  If operator is not time dependent, 0 should be used
+    func_0::initialization function.  If function is time dependent,
+            should take arguments like V(t, x, y, ...).  If function
+            is not time dependent, should take args like V(x, y, ...).
+    *args::each subsequent arg should be a tuple of the form (x_min, x_max, Nx).
+    t_dep::optional boolean argument, required if function is not 
+           time dependent
+
+    >>> V = lambda t, x, y: (x**2 + y**2)*t
+    >>> new_op = make_operator_at_time(1, V, (-1, 1, 3), (-1, 1, 3))
+    >>> print(new_op.matx.todense())
+    [[2. 0. 0. 0. 0. 0. 0. 0. 0.]
+     [0. 1. 0. 0. 0. 0. 0. 0. 0.]
+     [0. 0. 2. 0. 0. 0. 0. 0. 0.]
+     [0. 0. 0. 1. 0. 0. 0. 0. 0.]
+     [0. 0. 0. 0. 0. 0. 0. 0. 0.]
+     [0. 0. 0. 0. 0. 1. 0. 0. 0.]
+     [0. 0. 0. 0. 0. 0. 2. 0. 0.]
+     [0. 0. 0. 0. 0. 0. 0. 1. 0.]
+     [0. 0. 0. 0. 0. 0. 0. 0. 2.]]
+    """
+    if t_dep:
+        V_t = lambda *x: func_0(t, *x)
+        return Op_matx.from_function(V_t, *args)
+    else:
+        return Op_matx.from_function(func_0, *args)  # FIXME MEMOIZE THIS
+    
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
