@@ -29,7 +29,6 @@ from scipy.sparse.linalg import eigs
 
 from wavefunction import Wavefunction
 from wavevector import Wavevector
-from q_operator import Op_matx
 
 ħ = 1.05e-34  # h = 6.63e-34 J s or 6.58e-16 eV s
        # ħ = h / 2π = 1.05 e -34
@@ -245,71 +244,48 @@ def plot_wavefunction(func, range = (-4,4), N = 40, method="cartesian"):
 
 
 
-def plot_time_dep_ψ(func_or_data, 
-                    params, 
-                    method="animate_2d",
-                    num_pts = 100):
+def plot_time_dep_wv(r,
+                     method = "animate_2d",
+                     frames = 60):
   """
-  plot_time_dep_ψ: plot wavefunction in time and position
+  plot_time_dep_wv: plot wavefunction in time and position
 
   arguments:
-  func_or_data -- function to be plotted, takes 2 parameters, (Q,t), or
-                  array of data as a array of wavefunction arrays at each
-                  time frame
-  params -- parameters
+  r -- solve_ivp instance with ranges attribute added
   method -- pdf: probability density function in 2 d plot
             animate_2d: 2d animation of pdf
             animate_3d: 3d animation of wavefunction.
-  num_pts -- number of points to be plotted along x axis
   """
   # some setup for use in the various methods
-  try:
-    Qmin, Qmax = params["min"], params["max"]
-  except KeyError:
-    Qmin, Qmax = params["min"], -params["min"]
-    
-  Q_range = np.linspace(Qmin, Qmax, params["N"])
-  frames = params["frames"]
-  try:
-    times = np.linspace(params["start_time"],
-                        params["end_time"],
-                        frames)
-  except KeyError:
-    raise NotImplementedError("I broke the old period-based way of timing FIXME")
+  x_min, x_max = r.ranges[0][0:2]  # assume 1D FIXME
+  x_range = np.linspace(x_min, x_max, r.ranges[0][2])
+  times = r.t
 
   if method == "pdf":
-    for time in make_time_series(params):
-      try:
-        state = func_or_data(Q_range, time)
-      except :
-        raise NotImplementedError('pdf with data type not implemented')
-      finally :
-        plt.plot(Q_range, np.abs(state)**2, label=f"{time:.2f}")
-        plt.legend(loc = 'best')
-        plt.xlabel("Charge (Q)")
-        plt.ylabel("PDF")
-        plt.show()
-    return
+      line_objects = plt.plot(x_range,r.y)
+      t_str = (str(f"{time:.2e}") for time in r.t)
+      plt.legend(line_objects, t_str)
+      plt.xlabel("Q or Φ")
+      plt.ylabel("PDF")
+      plt.show()
+      return
   
+
   if method == "animate_2d":
     fig = plt.figure()
-    
-    try:
-      new_data = np.array([func_or_data(Q_range, t)
-                           for t in make_time_series(params)])
-    except:
-      new_data = func_or_data
+    new_data = r.y.T
     ymax = np.max(np.abs(new_data)**2)
-    ax = fig.add_subplot(111, xlim = (Qmin, Qmax), ylim = (0,ymax))
-    #ax.plot(i_L, 1/2*params["L"]*i_L**2)
+    ax = fig.add_subplot(111, xlim = (x_min, x_max), ylim = (0,ymax))
     particles, = ax.plot([], [])
     ax.set_ylabel("PDF")
-    ax.set_xlabel("charge (Q)")
+    ax.set_xlabel("Q or Φ")
+
+
     def animate(i):
         """perform animation step"""
         data = new_data[i]
         data = np.abs(data)**2
-        particles.set_data([Q_range],[data])
+        particles.set_data([x_range],[data])
         return particles,
 
     ani = animation.FuncAnimation(fig,
@@ -329,12 +305,7 @@ def plot_time_dep_ψ(func_or_data,
   """
   if method == "2d_eigen":
     fig = plt.figure()
-    
-    try:
-      new_data = np.array([func_or_data(Q_range, t)
-                           for t in make_time_series(params)])
-    except:
-      new_data = func_or_data
+    new_data = r.y.T
 
     # set scales
     pdfmax = np.max(np.abs(new_data)**2)
@@ -343,7 +314,7 @@ def plot_time_dep_ψ(func_or_data,
     vmax = np.max([[V(t, Q, params) for t in times] for Q in Q_range])
 
     # set up plots and artists
-    ax = fig.add_subplot(111, xlim = (Qmin, Qmax), ylim = (vmin,vmax))
+    ax = fig.add_subplot(111, xlim = (x_min, x_max), ylim = (vmin,vmax))
     ax.set_ylabel("PDF")
     ax.set_xlabel("phase (φ)")
 
@@ -365,7 +336,7 @@ def plot_time_dep_ψ(func_or_data,
     def animate(i: "Step", artists: "List of artists to animate"):
         """perform animation step"""
         # some setup
-        Q = np.linspace(Qmin, Qmax, num_pts)
+        Q = np.linspace(x_min, x_max, num_pts)
         particles, pot_arts = artists
         
         # pdf.  
@@ -429,7 +400,7 @@ def plot_time_dep_ψ(func_or_data,
     vmax = np.max([[V(t, Q, params) for t in times] for Q in Q_range])
 
     # set up plots and artists
-    ax = fig.add_subplot(111, xlim = (Qmin, Qmax), ylim = (0,vmax))
+    ax = fig.add_subplot(111, xlim = (x_min, x_max), ylim = (0,vmax))
     ax.set_ylabel("V(φ)")
     ax.set_xlabel("phase (φ)")   
 
@@ -490,7 +461,7 @@ def plot_time_dep_ψ(func_or_data,
     def animate(i, artists):
         """perform animation step"""
         # some setup
-        Q = np.linspace(Qmin, Qmax, num_pts)
+        Q = np.linspace(x_min, x_max, num_pts)
         particles, pot_arts, evecs = artists[0], artists[1], artists[2:]
         
         # pdf
@@ -564,8 +535,8 @@ def plot_time_dep_ψ(func_or_data,
     ax = fig.gca(projection='3d')
 
     # set plot limits somewhat automatically
-    ax.set_xlim((Qmin, Qmax))
-    x = np.linspace(Qmin, Qmax, num_pts)
+    ax.set_xlim((x_min, x_max))
+    x = np.linspace(x_min, x_max, num_pts)
     times = make_time_series(params)
     try:
       max = 1.5 * np.max(np.abs([[func_or_data(Q, t)
@@ -592,7 +563,7 @@ def plot_time_dep_ψ(func_or_data,
     def update_lines(i, lines):
         line1, line2, line3,line4 = lines
         
-        Q = np.linspace(Qmin, Qmax, num_pts)
+        Q = np.linspace(x_min, x_max, num_pts)
         ωo, T, duration, dt = extract_times(params)
         t_start = 0
         dt = (duration)/(frames-1)
@@ -629,7 +600,7 @@ def plot_time_dep_ψ(func_or_data,
 
         return (line1, line2, line3,line4)
 
-    x = [Qmin, Qmax]
+    x = [x_min, x_max]
     y = [0,0]
     z = [0,0]
     ax.plot(x, y, z, label='axis')
@@ -653,8 +624,8 @@ def plot_time_dep_ψ(func_or_data,
     ax = fig.gca(projection='3d')
 
     # set plot limits somewhat automatically
-    ax.set_xlim((Qmin, Qmax))
-    x = np.linspace(Qmin, Qmax, num_pts)
+    ax.set_xlim((x_min, x_max))
+    x = np.linspace(x_min, x_max, num_pts)
     times = np.linspace(params["start_time"],
                         params["end_time"],
                         params["frames"])
@@ -666,7 +637,7 @@ def plot_time_dep_ψ(func_or_data,
       max = 1.5 * np.max(np.abs(func_or_data)**2)
     
     ax.set_ylim(params["V_matx"](0, 0, params),
-                params["V_matx"](0, Qmax, params))
+                params["V_matx"](0, x_max, params))
     ax.set_zlim((0, max))
 
     # artist for potential curve
@@ -782,7 +753,7 @@ def plot_time_dep_ψ(func_or_data,
     def update_lines(i, lines, params):
         line1, line4 = lines
         
-        Q = np.linspace(Qmin, Qmax, num_pts)
+        Q = np.linspace(x_min, x_max, num_pts)
         duration = params["end_time"] - params["start_time"]
         t = params["start_time"] + duration/params["frames"]*i
         V = params["V_matx"]
@@ -1093,8 +1064,8 @@ def plot_time_dep_V(params,
   num_pts -- number of points to be plotted along x axis
   """
   func = params["V_matx"]
-  Qmin, Qmax = params["Q_min"], -params["Q_min"]
-  Q_range = np.linspace(Qmin, Qmax, params["N"])
+  x_min, x_max = params["Q_min"], -params["Q_min"]
+  Q_range = np.linspace(x_min, x_max, params["N"])
   frames = params["frames"]
 
   if method == "2d":
@@ -1112,7 +1083,7 @@ def plot_time_dep_V(params,
     new_data = np.array([func(Q_range, t, params) for 
                          t in make_time_series(params)])
     ymax = np.max(new_data)
-    ax = fig.add_subplot(111, xlim = (Qmin, Qmax), ylim = (0,ymax))
+    ax = fig.add_subplot(111, xlim = (x_min, x_max), ylim = (0,ymax))
     particles, = ax.plot([], [])
     ax.set_ylabel("V(Q)")
     ax.set_xlabel("charge (Q)")
@@ -1216,51 +1187,6 @@ def find_esystem(params, k=6):
   vals, vecs = eigs(np.real(ℋ), k=k, which='SR')
   return vals, vecs
 
-
-def evolve_wv(wv_o: "initial Wavevector", Vfunc, KE_args, times, frames = 30, t_dep = True):
-  """
-  evolves a probability distribution in a quantum circuit with a
-  time_varying potential.
-
-  KE_args is a list of tuples containing (xmin, xmax, Nx, m_eff) for each
-  dimension.  Thus for a 1D function, it should be of the form ((xmin, xmax, Nx, m_eff)).
-
-  times is a start,end tuple
-  >>> dim_info = ((-2, 2, 5, ħ),)
-  >>> wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), dim_info[0][:3])
-  >>> r = evolve_wv(wv_o, lambda x: x-x,  dim_info, (0,1e-32), frames = 3, t_dep = False)
-  >>> print(r.y)
-  [[2.32359563e-01+0.j 4.82278714e-04+0.j 1.62011520e-06+0.j]
-   [4.91905199e-01+0.j 8.41415942e-04+0.j 3.18509494e-08+0.j]
-   [6.31618778e-01+0.j 9.64557428e-04+0.j 3.24023040e-06+0.j]
-   [4.91905199e-01+0.j 8.41415942e-04+0.j 3.18509494e-08+0.j]
-   [2.32359563e-01+0.j 4.82278714e-04+0.j 1.62011520e-06+0.j]]
-  """ 
-  if t_dep:
-    raise NotImplementedError
-    def dψdt(t, ψ, params):  # key function for evolution
-      return (KE.dot(ψ) + params["V_matx"]*ψ)/(1j*ħ)
-  else:
-    # make our Hamiltonian
-    KE = Op_matx.make_KE(*KE_args)
-    # don't need effective mass for potential arguments, so strip away mass part
-    # from KE_args
-    V_args = [x[:3] for x in KE_args]
-    potential = Op_matx.from_function(Vfunc, *V_args)
-    Hamiltonian = KE + potential
-
-    def dψdt(t, ψ):  # key function for evolution
-      return Hamiltonian.dot(ψ)/(1j*ħ)
-
-  # peform simulation
-  frame_times = np.linspace(*times, frames)
-  r = solve_ivp(dψdt, times, wv_o, method='RK23', 
-                t_eval = frame_times)
-
-  if not (r.status == 0):  # solver did not reach the end of tspan
-    print(r.message)
-    
-  return r
 
 def make_KE_matx(dimensions):
   """
@@ -1662,5 +1588,12 @@ if __name__=='__main__':
     attempt_res = make_KE_matx(dimensions).toarray()  
     assert np.array_equal(attempt_res, correct_res), "Wrong 1d KE matx"
 
-
-    print("end")
+    from q_operator import Op_matx
+    dim_info = ((-20, 20, 200),)
+    masses = (ħ,)
+    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
+    r = wv_o.evolve(lambda x: x-x, masses, (0, 5e-33), frames = 7, t_dep = False)
+    plot_time_dep_wv(r, method="pdf")
+    ani = plot_time_dep_wv(r)
+    plt.show()
+    print("end oop-qucirc")

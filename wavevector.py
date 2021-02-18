@@ -12,6 +12,7 @@ from scipy import interpolate
 from numpy.testing import assert_almost_equal
 from inspect import signature
 from scipy.integrate import solve_ivp
+from q_operator import Op_matx
 
 π = np.pi
 oo = np.inf
@@ -157,6 +158,7 @@ class Wavevector(np.ndarray):
         """
 
         pass
+
 
     def visualize1D(self, **kwargs):   #just name it visualize?
       """
@@ -308,9 +310,13 @@ class Wavevector(np.ndarray):
 
             if not (r.status == 0):  # solver did not reach the end of tspan
                 print(r.message)
-      
+
+            r.ranges = self.ranges
             return r
 
+    def evolve_1d(self):
+        return NotImplementedError
+    
 class Evolution(object):
     """ class that gathers an array of wavevectors with identical
     range data 
@@ -332,7 +338,6 @@ class Evolution(object):
 
 if __name__ == '__main__':
     from wavefunction import Wavefunction
-    from q_operator import Op_matx
     import doctest
     doctest.testmod()
 
@@ -355,11 +360,11 @@ if __name__ == '__main__':
     plot2 = wf3.visualize1D(**plot_params)
     plot2.savefig("wavevector_plot_test_file_resampled.png")
     from matplotlib.testing.compare import compare_images
-    try:
-        assert not compare_images("wavevector_plot_test_file_oldest.png", "wavevector_plot_test_file_new.png", 10),"Error plotting wv"
-    except AssertionError:
-        print("AssertionError: Error plotting wv")
-    finally:
-        import os
-        os.remove("wavevector_plot_test_file_new.png")
+#    try:
+#        assert not compare_images("wavevector_plot_test_file_oldest.png", "wavevector_plot_test_file_new.png", 10),"Error plotting wv"
+#    except AssertionError:
+#        print("AssertionError: Error plotting wv")
+#    finally:
+#        import os
+#        os.remove("wavevector_plot_test_file_new.png")
     print("end")
