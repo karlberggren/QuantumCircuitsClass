@@ -9,7 +9,6 @@ from matplotlib.patches import Circle
 from matplotlib.widgets import Slider, Button, CheckButtons
 import time
 import copy
-​
 pause = False
 SHOW_TEST_PLOTS = False
 ħ = 1  # h = 6.63e-34 J s or 6.58e-16 eV s
@@ -18,7 +17,7 @@ SHOW_TEST_PLOTS = False
 Φₒ = 1  # Φₒ = 2.07 e -15 in reality.
 ⅉ = 1j
 plt.ion()
-​
+
 class Classical_circuit(object):
     """
     Class for simple one-dimensional (i.e. 2nd order) classical circuit simulation.
@@ -33,7 +32,7 @@ class Classical_circuit(object):
            8.36136051e-01, 1.17519805e+00]), array([1.        , 1.0000005 , 1.00006038, 1.0061545 , 1.30352833,
            1.54309856]))
     """
-​
+
     def __init__(self, x_o, p_o, m_eff, V, dVdx, analog = "admittance"):
         """
         x_o, p_o, m_eff::parameters that map onto charge, flux, capacitance and indcutance
@@ -60,13 +59,13 @@ class Classical_circuit(object):
         analog_mapping = {"impedance": ("charge","flux","capacitance","inductance"),
                           "admittance": ("flux","charge","inductance","capacitance")
         }
-​
+
         self.x_o = x_o
         self.p_o = p_o
         self.m_eff = m_eff
         self.V = V
         self.dVdx = dVdx
-​
+
         
     def sim(self, times):
         """
@@ -74,16 +73,16 @@ class Classical_circuit(object):
         params: dictionary of parameters
         times: tuple of start and end times (t_o, t_end)
         """
-​
+
         def dvdt(t: "time", v: "Vector (x,p)"):
             """ helper function for solver that gives time derivative of state.
             Note 2nd parameter is in form of a tuple as shown. """
             x, p = v
             return (p/self.m_eff, -self.dVdx(t,x))
-​
+
         r = solve_ivp(dvdt, times, (self.x_o, self.p_o), t_eval = None)
         return r.t, r.y[0], r.y[1]
-​
+
 L = 1
 LC_V = lambda t, i: 1/2 * L * i**2
 LC_dVdx = lambda t, i:  L * i
@@ -92,28 +91,28 @@ if SHOW_TEST_PLOTS:
     fig, ax = plt.subplots()
     ax.plot(*cc.sim((0,10)))
     fig.show()
-​
+
 L = 1
 LC_V = lambda t, i: 1/2 * L * i**2
 LC_dVdx = lambda t, i:  L * i
 fig, ax = plt.subplots()
 plt.subplots_adjust(left=0.25, bottom=0.25)  # make room for widgets
-​
+
 axcolor = 'white' # 'lightgoldenrodyellow'
 slidercolor = 'grey'
-​
+
 # create widget to change x limits
-ax_xlim = plt.axes([0.25, 0.05, 0.64, 0.006], facecolor = axcolor)
+ax_xlim = plt.axes([0.25, 0.05, 0.64, 0.008], facecolor = axcolor)
 xlims = Slider(ax_xlim, 'x limit', 0.1, 5, valinit = 1.5, valstep = 0.2, color=slidercolor)
-​
+
 # widget to change capacitance
-ax_cap = plt.axes([0.25, 0.1, 0.64, 0.006], facecolor = axcolor)
+ax_cap = plt.axes([0.25, 0.1, 0.64, 0.008], facecolor = axcolor)
 cap = Slider(ax_cap, 'capacitance', 0.2, 3, valinit = 1, valstep = 0.2, color=slidercolor)
-​
+
 # widget to change inductance
-ax_ind = plt.axes([0.25, 0.15, 0.64, 0.006], facecolor = axcolor)
+ax_ind = plt.axes([0.25, 0.15, 0.64, 0.008], facecolor = axcolor)
 ind = Slider(ax_ind, 'inductance', 0.2, 3, valinit = 1, valstep = 0.2, color=slidercolor)
-​
+
 # add a pause button
 ax_pause = plt.axes([0.8, 0.825, 0.08, 0.04])
 pause_button = Button(ax_pause, 'Pause', color=axcolor, hovercolor='lightblue')
@@ -121,7 +120,7 @@ def pause_event(event):
     global pause
     pause ^= True
 pause_button.on_clicked(pause_event)
-​
+
 # add radio buttons for each of the points
 ax_points = plt.axes([0.025, 0.5, 0.15, 0.15], facecolor=axcolor)
 points = CheckButtons(ax_points, ('yellow', 'blue', 'green', 'red'), actives=[True,True,True,True])
@@ -130,14 +129,14 @@ def change_points(label):
     i = points_labels.index(label)
     visibility[i] ^= True
 points.on_clicked(change_points)
-​
+
 ccs = []
 for starting_pos in [0.25, 0.5, 0.75, 1]:
     ccs.append(Classical_circuit(starting_pos, 0, 1, LC_V, LC_dVdx))
-​
+
 colors = ['yo', 'bo', 'go', 'ro']
 visibility = [True, True, True, True]
-​
+
 Δt = 50  # in ms
 def anim_func(i):
     if not pause:
@@ -158,21 +157,21 @@ def anim_func(i):
             cc.x_o, cc.p_o = xs[-1], ps[-1]
             x = cc.x_o
             ax.plot(x, V(t_f, x), colors[n], visible = visibility[n])
-​
+
     
 ani = FuncAnimation(fig, anim_func, interval = Δt)
 fig.show()
-​
+
 def LC_pot(t, φ, params):
   """ LC_pot: potential for an LC circuit """
   return φ**2/2/params["L"](t)
-​
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
     # params["potential"] = LC_pot
-​
+
 # anim(params)
 # plt.show()
-​
+
 print("this is running")
