@@ -13,6 +13,10 @@ from numpy.testing import assert_almost_equal
 from inspect import signature
 from scipy.integrate import solve_ivp
 from q_operator import Op_matx
+from matplotlib.animation import FuncAnimation
+from matplotlib.widgets import Slider, Button, CheckButtons
+
+pause = False
 
 π = np.pi
 oo = np.inf
@@ -314,9 +318,72 @@ class Wavevector(np.ndarray):
             r.ranges = self.ranges
             return r
 
-    def evolve_1d(self):
-        return NotImplementedError
-    
+    def _evolve_frame_1d(self):
+        """
+        """
+        return
+
+
+    def realtime_evolve(self, Vfunc, masses, timescale, n = 20, t_dep = True, method = "pdf"):
+        """
+        evolves a wavefunction in "real" time.  Permits pausing and resuming.
+
+        timescale::characteristic time scale like period or decay time, will take
+                   about 2π seconds to run
+        n::framerate at which you wish to run the simulation, in frames/sec
+        """
+        # first set up the axes, leaving some room for widgets
+        fig, ax = plt.subplots()
+        plt.subplots_adjust(left=0.25, bottom=0.25)
+        
+        # add a pause button
+        axcolor = 'white'
+        ax_pause = plt.axes([0.775, 0.825, 0.1, 0.04])  # define loc and dim of pause button
+        pause_button = Button(ax_pause, 'Pause', color=axcolor, hovercolor='lightblue')
+        pause = False  # initiate state unpaused
+        pause_dict = {False: "Pause", True: "Resume"}
+
+
+        def pause_event(event):
+            nonlocal pause
+            pause ^= True  # toggle pause status
+            pause_button.label.set_text(pause_dict[pause])
+
+        pause_button.on_clicked(pause_event)
+        
+        # set duration of each frame in simulation time
+        Δt = timescale/(2*π*n)
+        t_o = 0
+
+        #
+        new_wv_lst = [Wavevector(self, self.ranges)]  # horrible kludge to pass reference
+        new_wv = Wavevector(self, self.ranges)
+
+        def anim_func(i):
+            nonlocal t_o, pause, new_wv
+
+            if pause:  # skip out of pause button pressed
+                return
+            t_f = t_o + Δt  # increment end time
+            # run simulation
+
+            r = new_wv.evolve(Vfunc, masses, (t_o, t_f), frames = 2, t_dep = t_dep)
+            t_o = t_f  # prepare for next step in simulation
+
+            # plot
+            ax.cla()  # first clear old axes
+            if method == "pdf":
+                ax.plot(np.linspace(*new_wv.ranges[0]), np.abs(r.y.T[-1])**2, color='tab:blue')
+            elif method == "polar":
+                raise NotImplementedError
+            ax.set_ylabel('|ψ²|')
+            ax.set_xlabel('Q or Φ')
+            new_wv = Wavevector(r.y.T[-1], new_wv.ranges)
+
+        ani = FuncAnimation(fig, anim_func, interval = 1000//n)
+        return ani, pause_button
+        
+
 class Evolution(object):
     """ class that gathers an array of wavevectors with identical
     range data 
@@ -348,6 +415,7 @@ if __name__ == '__main__':
     assert str(wv1 + wv1) == '[2.+0.j 4.+0.j 6.+0.j]', "Can't add two wavevectors"
     assert str(3 + wv1) == '[4.+0.j 5.+0.j 6.+0.j]', "Can't add a constant to a wavevector"
 
+    """
     wf2 = Wavefunction.init_gaussian((0, 1))*1j
     wv2 = Wavevector.from_wf(wf2, (-4, 4, 40))
     wf3 = wv2.resample_wv(range=((-3,3, 45),), method="linear")
@@ -360,6 +428,7 @@ if __name__ == '__main__':
     plot2 = wf3.visualize1D(**plot_params)
     plot2.savefig("wavevector_plot_test_file_resampled.png")
     from matplotlib.testing.compare import compare_images
+    """
 #    try:
 #        assert not compare_images("wavevector_plot_test_file_oldest.png", "wavevector_plot_test_file_new.png", 10),"Error plotting wv"
 #    except AssertionError:
@@ -367,4 +436,11 @@ if __name__ == '__main__':
 #    finally:
 #        import os
 #        os.remove("wavevector_plot_test_file_new.png")
-    print("end")
+
+    dim_info = ((-20, 20, 200),)
+    masses = (ħ,)
+    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
+    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1e-33, n=4, t_dep = False)
+    plt.show()
+    print("end wavevector")
+    

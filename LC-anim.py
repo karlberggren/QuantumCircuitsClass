@@ -7,9 +7,7 @@ import scipy.integrate as integrate
 from scipy.integrate import solve_ivp
 from matplotlib.patches import Circle
 from matplotlib.widgets import Slider, Button, CheckButtons
-import time
-import copy
-pause = False
+
 SHOW_TEST_PLOTS = False
 ħ = 1  # h = 6.63e-34 J s or 6.58e-16 eV s
        # ħ = h / 2π = 1.05 e -34
@@ -75,6 +73,7 @@ class Classical_circuit(object):
         """
 
         def dvdt(t: "time", v: "Vector (x,p)"):
+
             """ helper function for solver that gives time derivative of state.
             Note 2nd parameter is in form of a tuple as shown. """
             x, p = v
@@ -114,11 +113,16 @@ ax_ind = plt.axes([0.25, 0.15, 0.64, 0.008], facecolor = axcolor)
 ind = Slider(ax_ind, 'inductance', 0.2, 3, valinit = 1, valstep = 0.2, color=slidercolor)
 
 # add a pause button
+pause = False
 ax_pause = plt.axes([0.8, 0.825, 0.08, 0.04])
 pause_button = Button(ax_pause, 'Pause', color=axcolor, hovercolor='lightblue')
+pause_dict = {False: "Pause", True: "Resume"}
+
 def pause_event(event):
     global pause
     pause ^= True
+    pause_button.label.set_text(pause_dict[pause])
+
 pause_button.on_clicked(pause_event)
 
 # add radio buttons for each of the points
@@ -138,25 +142,30 @@ colors = ['yo', 'bo', 'go', 'ro']
 visibility = [True, True, True, True]
 
 Δt = 50  # in ms
+t_o = 0
+
 def anim_func(i):
-    if not pause:
-        for cc in ccs:  # update mass when slider moves
-            cc.m_eff = cap.val
-            cc.dVdx = lambda t, i:  ind.val * i
-            cc.V = lambda t, i: 1/2 * ind.val * i**2
-        t_o = i * Δt / 1000
-        t_f = (i + 1) * Δt / 1000
-        ax.clear()
-        ax.set_xlim(-xlims.val, xlims.val)
-        xs = np.linspace(-xlims.val, xlims.val)
-        V = ccs[0].V
-        ax.set_ylim(V(0,0), V(0, xlims.val))
-        ax.plot(xs, V(0, xs), color='tab:blue')  # potential
-        for n, cc in enumerate(ccs):
-            _, xs, ps = cc.sim((t_o, t_f))
-            cc.x_o, cc.p_o = xs[-1], ps[-1]
-            x = cc.x_o
-            ax.plot(x, V(t_f, x), colors[n], visible = visibility[n])
+    global t_o
+    if pause:
+        return
+    
+    for cc in ccs:  # update mass when slider moves
+        cc.m_eff = cap.val
+        cc.dVdx = lambda t, i:  ind.val * i
+        cc.V = lambda t, i: 1/2 * ind.val * i**2
+    t_f = t_o + Δt / 1000
+    ax.clear()
+    ax.set_xlim(-xlims.val, xlims.val)
+    xs = np.linspace(-xlims.val, xlims.val)
+    V = ccs[0].V
+    ax.set_ylim(V(0,0), V(0, xlims.val))
+    ax.plot(xs, V(0, xs), color='tab:blue')  # potential
+    for n, cc in enumerate(ccs):
+        _, xs, ps = cc.sim((t_o, t_f))
+        cc.x_o, cc.p_o = xs[-1], ps[-1]
+        x = cc.x_o
+        ax.plot(x, V(t_f, x), colors[n], visible = visibility[n])
+    t_o += Δt/1000
 
     
 ani = FuncAnimation(fig, anim_func, interval = Δt)
