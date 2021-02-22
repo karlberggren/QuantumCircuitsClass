@@ -115,11 +115,11 @@ ind = Slider(ax_ind, 'inductance', 0.2, 3, valinit = 1, valstep = 0.2, color=sli
 
 # widget to change mu
 ax_mu = plt.axes([0.25, 0.08, 0.64, 0.008], facecolor = axcolor)
-mu = Slider(ax_mu, 'x_0', -5, 5, valinit = 0, valstep = 0.2, color=slidercolor)
+mu = Slider(ax_mu, 'x_0', -5, 5, valinit = 0, valstep = 0.1, color=slidercolor)
 
 # widget to change sigma
 ax_sigma = plt.axes([0.25, 0.04, 0.64, 0.008], facecolor = axcolor)
-sigma = Slider(ax_sigma, 'σ', 0.1, 1, valinit = 0.5, valstep = 0.1, color=slidercolor)
+sigma = Slider(ax_sigma, 'σ', 0.05, 1, valinit = 0.5, valstep = 0.05, color=slidercolor)
 
 
 # add a pause button
@@ -168,6 +168,13 @@ t_o = 0
 def anim_func(i):
     global t_o
     
+    if not started:
+        ax[0].clear()
+        ax[0].set_ylim([0, 10])
+        t_gauss = np.linspace(-xlims.val,xlims.val,num=size)
+        gauss = norm.pdf(t_gauss,mu.val,sigma.val)
+        ax[0].plot(t_gauss, gauss, linewidth=2, color='r')
+        return    
     if pause:
         return
     
@@ -188,7 +195,7 @@ def anim_func(i):
         x = cc.x_o
         ax[1].plot(x, V(t_f, x), 'bo', visible = True, alpha=0.2)
     t_o += Δt/1000
-    
+
     # For histogram
     ax[0].clear()
     ax[0].set_xlim(-xlims.val, xlims.val)
