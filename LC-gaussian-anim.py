@@ -5,6 +5,7 @@ import matplotlib.animation as animation
 from matplotlib import rc
 import scipy.integrate as integrate
 from scipy.integrate import solve_ivp
+from scipy.stats import norm
 from matplotlib.patches import Circle
 from matplotlib.widgets import Slider, Button, CheckButtons
 
@@ -94,7 +95,7 @@ if SHOW_TEST_PLOTS:
 L = 1
 LC_V = lambda t, i: 1/2 * L * i**2
 LC_dVdx = lambda t, i:  L * i
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(nrows=2,ncols=1,sharex=True,gridspec_kw={'height_ratios': [1, 4]})
 plt.subplots_adjust(left=0.25, bottom=0.25)  # make room for widgets
 
 axcolor = 'white' # 'lightgoldenrodyellow'
@@ -125,7 +126,8 @@ def pause_event(event):
 
 pause_button.on_clicked(pause_event)
 
-# add radio buttons for each of the points
+"""
+# add check buttons for each of the points
 ax_points = plt.axes([0.025, 0.5, 0.15, 0.15], facecolor=axcolor)
 points = CheckButtons(ax_points, ('yellow', 'blue', 'green', 'red'), actives=[True,True,True,True])
 def change_points(label):
@@ -133,14 +135,16 @@ def change_points(label):
     i = points_labels.index(label)
     visibility[i] ^= True
 points.on_clicked(change_points)
+"""
+
+size = 50
+mu, sigma = 0, 0.2
+g_points = np.random.normal(mu, sigma, size)
 
 ccs = []
-for starting_pos in [0.25, 0.5, 0.75, 1]:
+for starting_pos in g_points:
     ccs.append(Classical_circuit(starting_pos, 0, 1, LC_V, LC_dVdx))
 
-# colors and visibility lists correspond to each point plotted
-colors = ['yo', 'bo', 'go', 'ro']
-visibility = [True, True, True, True]
 
 Δt = 50  # in ms
 t_o = 0
@@ -155,19 +159,31 @@ def anim_func(i):
         cc.dVdx = lambda t, i:  ind.val * i
         cc.V = lambda t, i: 1/2 * ind.val * i**2
     t_f = t_o + Δt / 1000
-    ax.clear()
-    ax.set_xlim(-xlims.val, xlims.val)
+    ax[1].clear()
+    ax[1].set_xlim(-xlims.val, xlims.val)
     xs = np.linspace(-xlims.val, xlims.val)
     V = ccs[0].V
-    ax.set_ylim(V(0,0), V(0, xlims.val))
-    ax.plot(xs, V(0, xs), color='tab:blue')  # potential
+    ax[1].set_ylim(V(0,0), V(0, xlims.val))
+    ax[1].plot(xs, V(0, xs), color='tab:blue')  # potential
     for n, cc in enumerate(ccs):
         _, xs, ps = cc.sim((t_o, t_f))
         cc.x_o, cc.p_o = xs[-1], ps[-1]
         x = cc.x_o
-        ax.plot(x, V(t_f, x), colors[n], visible = visibility[n])
+        ax[1].plot(x, V(t_f, x), 'bo', visible = True, alpha=0.2)
     t_o += Δt/1000
-
+    
+    # For histogram
+    ax[0].clear()
+    ax[0].set_xlim(-xlims.val, xlims.val)
+    data = []
+    for cc in ccs:
+        data.append(cc.x_o)
+    count, bins, ignored = ax[0].hist(data, bins=12, density=True, stacked=True)
+    new_mu, new_sigma = norm.fit(data)
+    t_gauss = np.linspace(-xlims.val,xlims.val,num=size)
+    gauss = norm.pdf(t_gauss,new_mu,new_sigma)
+    ax[0].plot(t_gauss, gauss, linewidth=2, color='r')
+    
     
 ani = FuncAnimation(fig, anim_func, interval = Δt)
 fig.show()
