@@ -96,31 +96,54 @@ L = 1
 LC_V = lambda t, i: 1/2 * L * i**2
 LC_dVdx = lambda t, i:  L * i
 fig, ax = plt.subplots(nrows=2,ncols=1,sharex=True,gridspec_kw={'height_ratios': [1, 4]})
-plt.subplots_adjust(left=0.25, bottom=0.25)  # make room for widgets
+plt.subplots_adjust(left=0.25, bottom=0.3)  # make room for widgets
 
 axcolor = 'white' # 'lightgoldenrodyellow'
 slidercolor = 'grey'
 
 # create widget to change x limits
-ax_xlim = plt.axes([0.25, 0.05, 0.64, 0.008], facecolor = axcolor)
+ax_xlim = plt.axes([0.25, 0.12, 0.64, 0.008], facecolor = axcolor)
 xlims = Slider(ax_xlim, 'x limit', 0.1, 5, valinit = 1.5, valstep = 0.2, color=slidercolor)
 
 # widget to change capacitance
-ax_cap = plt.axes([0.25, 0.1, 0.64, 0.008], facecolor = axcolor)
+ax_cap = plt.axes([0.25, 0.16, 0.64, 0.008], facecolor = axcolor)
 cap = Slider(ax_cap, 'capacitance', 0.2, 3, valinit = 1, valstep = 0.2, color=slidercolor)
 
 # widget to change inductance
-ax_ind = plt.axes([0.25, 0.15, 0.64, 0.008], facecolor = axcolor)
+ax_ind = plt.axes([0.25, 0.2, 0.64, 0.008], facecolor = axcolor)
 ind = Slider(ax_ind, 'inductance', 0.2, 3, valinit = 1, valstep = 0.2, color=slidercolor)
 
+# widget to change mu
+ax_mu = plt.axes([0.25, 0.08, 0.64, 0.008], facecolor = axcolor)
+mu = Slider(ax_mu, 'x_0', -5, 5, valinit = 0, valstep = 0.2, color=slidercolor)
+
+# widget to change sigma
+ax_sigma = plt.axes([0.25, 0.04, 0.64, 0.008], facecolor = axcolor)
+sigma = Slider(ax_sigma, 'σ', 0.1, 1, valinit = 0.5, valstep = 0.1, color=slidercolor)
+
+
 # add a pause button
-pause = False
+pause = True
+started = False
 ax_pause = plt.axes([0.8, 0.825, 0.09, 0.04])
-pause_button = Button(ax_pause, 'Pause', color=axcolor, hovercolor='lightblue')
+pause_button = Button(ax_pause, 'Start', color=axcolor, hovercolor='lightblue')
 pause_dict = {False: "Pause", True: "Resume"}
 
 def pause_event(event):
     global pause
+    global started
+    
+    if not started:
+        # Build points distribution
+        g_points = np.random.normal(mu.val,sigma.val,size)
+        print(mu.val,sigma.val)
+        for starting_pos in g_points:
+            ccs.append(Classical_circuit(starting_pos, 0, 1, LC_V, LC_dVdx))  
+        # Hide x_0 and σ sliders 
+        started = True
+        ax_mu.set_visible(False)
+        ax_sigma.set_visible(False)
+
     pause ^= True
     pause_button.label.set_text(pause_dict[pause])
 
@@ -137,20 +160,14 @@ def change_points(label):
 points.on_clicked(change_points)
 """
 
-size = 50
-mu, sigma = 0, 0.2
-g_points = np.random.normal(mu, sigma, size)
-
 ccs = []
-for starting_pos in g_points:
-    ccs.append(Classical_circuit(starting_pos, 0, 1, LC_V, LC_dVdx))
-
-
+size = 50 # number of points in distribution
 Δt = 50  # in ms
 t_o = 0
 
 def anim_func(i):
     global t_o
+    
     if pause:
         return
     
@@ -175,6 +192,7 @@ def anim_func(i):
     # For histogram
     ax[0].clear()
     ax[0].set_xlim(-xlims.val, xlims.val)
+    ax[0].set_ylim([0, 10])
     data = []
     for cc in ccs:
         data.append(cc.x_o)
