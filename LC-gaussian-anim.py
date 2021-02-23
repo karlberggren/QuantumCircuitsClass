@@ -102,23 +102,23 @@ axcolor = 'white' # 'lightgoldenrodyellow'
 slidercolor = 'grey'
 
 # create widget to change x limits
-ax_xlim = plt.axes([0.25, 0.12, 0.64, 0.008], facecolor = axcolor)
+ax_xlim = plt.axes([0.25, 0.12, 0.64, 0.01], facecolor = axcolor)
 xlims = Slider(ax_xlim, 'x limit', 0.1, 5, valinit = 1.5, valstep = 0.2, color=slidercolor)
 
 # widget to change capacitance
-ax_cap = plt.axes([0.25, 0.16, 0.64, 0.008], facecolor = axcolor)
+ax_cap = plt.axes([0.25, 0.16, 0.64, 0.01], facecolor = axcolor)
 cap = Slider(ax_cap, 'capacitance', 0.2, 3, valinit = 1, valstep = 0.2, color=slidercolor)
 
 # widget to change inductance
-ax_ind = plt.axes([0.25, 0.2, 0.64, 0.008], facecolor = axcolor)
+ax_ind = plt.axes([0.25, 0.2, 0.64, 0.01], facecolor = axcolor)
 ind = Slider(ax_ind, 'inductance', 0.2, 3, valinit = 1, valstep = 0.2, color=slidercolor)
 
 # widget to change mu
-ax_mu = plt.axes([0.25, 0.08, 0.64, 0.008], facecolor = axcolor)
+ax_mu = plt.axes([0.25, 0.08, 0.64, 0.01], facecolor = axcolor)
 mu = Slider(ax_mu, 'x_0', -5, 5, valinit = 0, valstep = 0.1, color=slidercolor)
 
 # widget to change sigma
-ax_sigma = plt.axes([0.25, 0.04, 0.64, 0.008], facecolor = axcolor)
+ax_sigma = plt.axes([0.25, 0.04, 0.64, 0.01], facecolor = axcolor)
 sigma = Slider(ax_sigma, 'σ', 0.05, 1, valinit = 0.5, valstep = 0.05, color=slidercolor)
 
 
@@ -136,7 +136,6 @@ def pause_event(event):
     if not started:
         # Build points distribution
         g_points = np.random.normal(mu.val,sigma.val,size)
-        print(mu.val,sigma.val)
         for starting_pos in g_points:
             ccs.append(Classical_circuit(starting_pos, 0, 1, LC_V, LC_dVdx))  
         # Hide x_0 and σ sliders 
@@ -148,17 +147,6 @@ def pause_event(event):
     pause_button.label.set_text(pause_dict[pause])
 
 pause_button.on_clicked(pause_event)
-
-"""
-# add check buttons for each of the points
-ax_points = plt.axes([0.025, 0.5, 0.15, 0.15], facecolor=axcolor)
-points = CheckButtons(ax_points, ('yellow', 'blue', 'green', 'red'), actives=[True,True,True,True])
-def change_points(label):
-    points_labels = ('yellow', 'blue', 'green', 'red')
-    i = points_labels.index(label)
-    visibility[i] ^= True
-points.on_clicked(change_points)
-"""
 
 ccs = []
 size = 50 # number of points in distribution
