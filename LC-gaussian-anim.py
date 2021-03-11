@@ -8,6 +8,7 @@ from scipy.integrate import solve_ivp
 from scipy.stats import norm
 from matplotlib.patches import Circle
 from matplotlib.widgets import Slider, Button, CheckButtons
+import mpld3
 
 SHOW_TEST_PLOTS = False
 ħ = 1  # h = 6.63e-34 J s or 6.58e-16 eV s
@@ -15,7 +16,7 @@ SHOW_TEST_PLOTS = False
 π = np.pi
 Φₒ = 1  # Φₒ = 2.07 e -15 in reality.
 ⅉ = 1j
-plt.ion()
+#plt.ion()
 
 class Classical_circuit(object):
     """
@@ -199,7 +200,8 @@ def anim_func(i):
     
     
 ani = FuncAnimation(fig, anim_func, interval = Δt)
-fig.show()
+mpld3.show()
+#fig.show()
 
 def LC_pot(t, φ, params):
   """ LC_pot: potential for an LC circuit """
@@ -213,4 +215,7 @@ if __name__ == '__main__':
 # anim(params)
 # plt.show()
 
-print("this is running")
+# print("this is running")
+# fig, ax = plt.subplots()
+# ax.plot([3,1,4,1,5], 'ks-', mec='w', mew=5, ms=20)
+# mpld3.show()
