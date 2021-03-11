@@ -24,8 +24,8 @@ Q_0 = 0
 phi = np.linspace(-x_range, x_range, N)
 energy = (phi - phi_0)**2/(2*L)
 t_initial = 0
-t_final = np.pi/8
-time_t = np.linspace(t_initial, t_final, 15)
+t_final = np.pi/16
+time_t = np.linspace(t_initial, t_final, 7)
 psi = np.exp(-(phi - phi_0)**2/(L*C))
 
 source = ColumnDataSource(data=dict(phi=phi, energy=energy, psi=psi))
@@ -75,8 +75,8 @@ def callback():
         psi = np.exp(-(phi - phi_0 - np.sin(t*np.sqrt(L*C)))**2/np.sqrt(L*C))
         source.data['psi'] = psi
     t_initial = time_t[-1]
-    t_final = time_t[-1]+np.pi/8
-    time_t = np.linspace(t_initial, t_final, 15)
+    t_final = time_t[-1]+np.pi/16
+    time_t = np.linspace(t_initial, t_final, 7)
     time_source.data['time'] = time_t   
 
 for w in [inductance, capacitance, offset]:
@@ -88,4 +88,4 @@ inputs = column(text, inductance, capacitance, offset)
 
 curdoc().add_root(row(inputs, plot, width=800))
 curdoc().title = "Sliders"
-curdoc().add_periodic_callback(callback, 100)
+curdoc().add_periodic_callback(callback, 150)
