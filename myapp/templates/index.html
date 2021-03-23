@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include 'navbar.html' %}
+    <div class="container">
+        <div class="row mt-5">
+            <h2 >Wavefunctions and Probability Amplitude</h2>
+            <div class="col-7">
+                <h3>Wavefunction </h3>
+                <p>In the previous section, we went over probability density functions. Here, we introduce the concept of a system wavefunction, \( \psi(\phi) \), which is defined as follows: 
+                    \[ \psi^*(\phi) \psi(\phi) = P(\phi) \]
+                    where \( \psi^* \) is the complex conjugate of \( \psi \) and \( P(\phi) \) is the probability density function of the system with respect to the random variable \( \phi \). </p>
+                <p> The probability density \( P(\phi) \) has to be real. However, \( \psi(\phi) \) can be complex because it will always get multiplied by its complex conjugate when we do measurements.
+                    As a complex quantity, \( \psi \) has an amplitude and a phase. 
+                    \[ |\psi(\phi)| = \sqrt{P(\phi)} \]  
+                    \( |\psi(\phi)| \) is commonly referred to as the probability amplitude of the system. 
+                 </p>
+
+            </div>
+            <div class="col-5">
+                
+               <!-- {{ div_Classical_LC | safe }}
+                <input type="range" id="L" name="L" 
+                min="0" max="100" value="90" step="10">
+         <label for="cowbell">Inductance</label> -->
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-6">
+            <h3>Position and Momentum Analog</h3>
+            <p>In physics, quantum mechanics is typically introduced by describing a mass on a spring as the harmonic oscillator. Instead of flux\current and momentum, the wavefunction is in terms of position and momentum. 
+                While a mass on a spring and an LC circuit don't seem to have much in common, the mathematical formulation that describes their behavior is identical.
+                </p>
+            <p>Here, we'll use the flux in an inductor, \( \phi \), in analogy with the position \( x \). We'll use the charge on the capacitor \( Q \), in analogy with the momentum \( p \).</p>
+            <p>The hamiltonian of the spring system is:
+                \[ \mathcal{H} = \frac{1}{2} kx^2 + \frac{1}{2m} p^2\]
+                where the momentum is defined as, \( p = m \dot{x}\). 
+                The hamiltonian of the L-C system is
+                \[ \mathcal{H} = \frac{1}{2L} \phi^2 + \frac{1}{2C} Q^2\]
+                where \( \phi = L \dot{Q} \).
+            </p>
+            </div>
+            <div class="col-6"> 
+            {{ div_Probability_dens | safe }}
+        </div>
+        </div>
+        <div class="row mt-5">
+            <h2>Measurements </h2>
+            <div class="col-12">
+            <h3>Classical Measurements</h3>
+            <p>When we perform a measurement in a classical LC system, the probability distributions on the flux and on the charge collapse into dirac delta distributions. A classical measurement provides full certainty both in the measured domain and the domain coupled to it. 
+                Measuring the flux alone, gives all the information about the charge. After the measurement, the state of the L-C system is fully known for all time.</p>
+            <p><b>! insert classical simulation with measurements !</b></p>
+        </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-12">
+            <h3>Quantum Measurements</h3>
+            <p>When we perform a measurement on a quantum system, we change the probability density and its corresponding wavefunction to reflect our new knowledge of the system. Here, we notice 2 very interesting effects:
+                <ul style="list-style: none;">
+                <li>1. The wavefunction collapse in the measured domain causes a broadening of the wavefunction in the coupled domain. This means that knowledge about one variable comes at the expense of knowledge of the other. </li>
+                <li>2. After the measurement, the modified wavefunction doesn't continue to evolve in the LC potential like in the classical case. Instead, the wavefunction starts broadening out immediately after the measurement. The wavefunction post measurement has almost no resemblance to itself pre-measurement.</li> 
+            </ul>
+            </p>
+            <p><b>! insert  quantum measurement simulation !</b></p>
+        </div>
+        </div>
+        <div class="row mt-5">
+            <h2>Uncertainty</h2>
+            <div class="col-8">
+                <h3></h3>
+            </div>
+        </div>
+        <div class="row mt-5">
+            {{ div_Quantum_state | safe }}
+        </div>
+    </div>
+
+    {{ script_Classical_LC | safe }}
+    {{ script_Probability_dens | safe }}
+    {{ script_Quantum_state | safe }}
+{% endblock %}
