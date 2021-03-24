@@ -53,8 +53,20 @@ def plot_styler(p):
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET', 'POST'])
-def chart():
+@app.route('/',methods=['GET'] )
+def home():
+    return render_template("home.html")
+
+@app.route('/Classical_LC',methods=['GET'] )
+def classical_LC():
+    return render_template("classical_LC.html")
+
+@app.route('/teaching_staff', methods=['GET'])
+def teaching_staff():
+    return render_template("teaching_staff.html")
+
+@app.route('/Prob_amplitiude', methods=['GET', 'POST'])
+def Prob_amplitiude():
     selected_class = request.form.get('dropdown-select')
     if selected_class == 0 or selected_class == None:
         Classical_LC, Probability_dens, Quantum_state = redraw(1)
