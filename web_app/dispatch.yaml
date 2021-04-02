@@ -1,0 +1,8 @@
+dispatch:
+  # Send all mobile traffic to the mobile frontend.
+  - url: "*/LC_circuit_bokeh/*"
+    service: bokeh1
+
+  # Send all work to the one static backend.
+  - url: "*/.*"
+    service: default

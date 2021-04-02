@@ -6,37 +6,35 @@
             <h2 >Wavefunctions and Probability Amplitude</h2>
             <div class="col-7">
                 <h3>Wavefunction </h3>
-                <p>In the previous section, we went over probability density functions. Here, we introduce the concept of a system wavefunction, \( \psi(\phi) \), which is defined as follows: 
-                    \[ \psi^*(\phi) \psi(\phi) = P(\phi) \]
-                    where \( \psi^* \) is the complex conjugate of \( \psi \) and \( P(\phi) \) is the probability density function of the system with respect to the random variable \( \phi \). </p>
-                <p> The probability density \( P(\phi) \) has to be real. However, \( \psi(\phi) \) can be complex because it will always get multiplied by its complex conjugate when we do measurements.
+                <p>In the previous section, we went over probability density functions. Here, we introduce the concept of a system wavefunction, \( \psi(\Phi) \), which is defined as follows: 
+                    \[ \psi^*(\Phi) \psi(\Phi) = P(\Phi) \]
+                    where \( \psi^* \) is the complex conjugate of \( \psi \) and \( P(\Phi) \) is the probability density function of the system with respect to the random variable \( \Phi \). </p>
+                <p> The probability density \( P(\Phi) \) has to be real. However, \( \psi(\Phi) \) can be complex because it will always get multiplied by its complex conjugate when we do measurements.
                     As a complex quantity, \( \psi \) has an amplitude and a phase. 
-                    \[ |\psi(\phi)| = \sqrt{P(\phi)} \]  
-                    \( |\psi(\phi)| \) is commonly referred to as the probability amplitude of the system. 
+                    \[ |\psi(\Phi)| = \sqrt{P(\Phi)} \]  
+                    \( |\psi(\Phi)| \) is commonly referred to as the probability amplitude of the system. 
                  </p>
 
             </div>
             <div class="col-5">
                 
-               <!-- {{ div_Classical_LC | safe }}
-                <input type="range" id="L" name="L" 
-                min="0" max="100" value="90" step="10">
-         <label for="cowbell">Inductance</label> -->
+               <!--{{ div_Classical_LC | safe }} -->
+                
             </div>
         </div>
         <div class="row mt-5">
             <div class="col-6">
             <h3>Position and Momentum Analog</h3>
-            <p>In physics, quantum mechanics is typically introduced by describing a mass on a spring as the harmonic oscillator. Instead of flux\current and momentum, the wavefunction is in terms of position and momentum. 
+            <p>In physics, quantum mechanics is typically introduced by describing a mass on a spring as the harmonic oscillator. Instead of flux\current and charge, the wavefunction is in terms of position and momentum. 
                 While a mass on a spring and an LC circuit don't seem to have much in common, the mathematical formulation that describes their behavior is identical.
                 </p>
-            <p>Here, we'll use the flux in an inductor, \( \phi \), in analogy with the position \( x \). We'll use the charge on the capacitor \( Q \), in analogy with the momentum \( p \).</p>
+            <p>Here, we'll use the charge on the capacitor \( Q \), in analogy with the position \( x\) and we'll use the flux in an inductor, \( \Phi \), in analogy with the momentum \( p \).</p>
             <p>The hamiltonian of the spring system is:
                 \[ \mathcal{H} = \frac{1}{2} kx^2 + \frac{1}{2m} p^2\]
                 where the momentum is defined as, \( p = m \dot{x}\). 
                 The hamiltonian of the L-C system is
-                \[ \mathcal{H} = \frac{1}{2L} \phi^2 + \frac{1}{2C} Q^2\]
-                where \( \phi = L \dot{Q} \).
+                \[ \mathcal{H} = \frac{1}{2L} \Phi^2 + \frac{1}{2C} Q^2\]
+                where \( \Phi = L \dot{Q} \).
             </p>
             </div>
             <div class="col-6"> 
@@ -73,9 +71,9 @@
         <div class="row mt-5">
             {{ div_Quantum_state | safe }}
         </div>
+        <img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" width="270" height="100" align="left">
+        <img src="{{url_for('static', filename='eecs.png')}}" alt="EECS" width="auto" height="100" align="right"> 
     </div>
-
-    {{ script_Classical_LC | safe }}
     {{ script_Probability_dens | safe }}
     {{ script_Quantum_state | safe }}
 {% endblock %}

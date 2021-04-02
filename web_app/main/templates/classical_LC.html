@@ -4,12 +4,12 @@
     <div class="container">
         <div class="row mt-5">
             <h2>Classical LC Circuits</h2>
-            <div class="col-12">
+            <div class="col-8">
                 <h3>Inductor </h3>
                 <p> Inductors store energy of the magnetic field in a circuit. The fundamental quantity is flux. 
                  </p>
                 <p><b> insert equations </b></p>
-            </div>
+                </div>
         </div>
         <div class="row mt-5">
             <div class="col-12">
@@ -27,5 +27,14 @@
             <p> <b> tutorial?</b> </p>
             </div>
         </div>
+        {{ script | safe }}
+        <p> 
+
+        </p>
     </div>
+    <div>
+        <img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" width="270" height="100" align="left">
+        <img src="{{url_for('static', filename='eecs.png')}}" alt="EECS" width="auto" height="100" align="right"> 
+    </div>
+    
 {% endblock %}

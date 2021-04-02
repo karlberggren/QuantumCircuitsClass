@@ -1,7 +1,7 @@
 import numpy as np
 #import pandas as pd
 
-from bokeh.embed import components
+from bokeh.embed import components, server_document
 from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, HoverTool, PrintfTickFormatter, Slider, TextInput
 from bokeh.plotting import figure
@@ -9,6 +9,11 @@ from bokeh.transform import factor_cmap
 from bokeh.io import curdoc
 from bokeh.client import pull_session
 from bokeh.embed import server_session
+from bokeh.embed import server_document
+
+from threading import Thread
+from tornado.ioloop import IOLoop
+from bokeh.server.server import Server
 
 from flask import Flask, render_template, request
 
@@ -59,26 +64,37 @@ def home():
 
 @app.route('/Classical_LC',methods=['GET'] )
 def classical_LC():
-    return render_template("classical_LC.html")
+    script = server_document('https://bokeh1-dot-quantum-circuits-307315.uc.r.appspot.com/LC_circuit_bokeh')
+    #script = server_document('http://localhost:5006/LC_circuit_bokeh')
+    return render_template("classical_LC.html", script=script)
 
 @app.route('/teaching_staff', methods=['GET'])
 def teaching_staff():
     return render_template("teaching_staff.html")
 
+@app.route('/probability',methods=['GET'] )
+def probability():
+    Probability_dens, Quantum_state = redraw(0)
+    script_Probability_dens, div_Probability_dens = components(Probability_dens)
+    script_Quantum_state , div_Quantum_state  = components(Quantum_state )
+    return render_template("probability.html",     
+            div_Probability_dens=div_Probability_dens,
+            script_Probability_dens=script_Probability_dens,
+            div_Quantum_state=div_Quantum_state,
+            script_Quantum_state=script_Quantum_state)
+
 @app.route('/Prob_amplitiude', methods=['GET', 'POST'])
 def Prob_amplitiude():
     selected_class = request.form.get('dropdown-select')
     if selected_class == 0 or selected_class == None:
-        Classical_LC, Probability_dens, Quantum_state = redraw(1)
+        Probability_dens, Quantum_state = redraw(1)
     else:
-        Classical_LC, Probability_dens, Quantum_state = redraw(selected_class)
+        Probability_dens, Quantum_state = redraw(selected_class)
 
     #script_Classical_LC, div_Classical_LC = components(Classical_LC)
     script_Probability_dens, div_Probability_dens = components(Probability_dens)
     script_Quantum_state , div_Quantum_state  = components(Quantum_state )
-    return render_template('index.html', 
-            div_Classical_LC = Classical_LC,
-            script_Classical_LC = Classical_LC,
+    return render_template('index.html',
             div_Probability_dens=div_Probability_dens,
             script_Probability_dens=script_Probability_dens,
             div_Quantum_state=div_Quantum_state,
@@ -86,7 +102,7 @@ def Prob_amplitiude():
             selected_class=selected_class)
 
 
-def Classical_LC(data, pass_class):
+def animated_interactive(data, pass_class):
     # with pull_session(url="http://localhost:5006/LC_circuit_bokeh") as session:
 
     #     # update or customize that session
@@ -142,14 +158,20 @@ def Quantum_state(dataset, pass_class, color=palette[1]):
 
 
 def redraw(p_class):
-    LC_circuit = Classical_LC(0, p_class)
     p_dens = Probability_dens(0, 1, p_class)
     q_state = Quantum_state(0, p_class)
     return (
-        LC_circuit,
         p_dens,
         q_state
     )
+
+def bk_worker():
+    # Can't pass num_procs > 1 in this configuration. If you need to run multiple
+    # processes, see e.g. flask_gunicorn_embed.py
+    server = Server({'/bkapp': bkapp}, io_loop=IOLoop(), allow_websocket_origin=["localhost:8000"])
+    server.start()
+    server.io_loop.start()
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

@@ -32,7 +32,7 @@ source = ColumnDataSource(data=dict(phi=phi, energy=energy, psi=psi))
 time_source = ColumnDataSource(data=dict(time=time_t))
 
 # Set up plot
-plot = figure(name="LC_sim", plot_height=400, plot_width=400, title="LC potential",
+plot = figure(plot_height=400, plot_width=400, title="LC potential",
               tools="crosshair,pan,reset,save,wheel_zoom",
               x_range=[-x_range, x_range], y_range=[-0.5, 1.5])
 
@@ -87,5 +87,5 @@ for w in [inductance, capacitance, offset]:
 inputs = column(text, inductance, capacitance, offset)
 
 curdoc().add_root(row(inputs, plot, width=800))
-curdoc().title = "LC with Sliders"
+curdoc().title = "Sliders"
 curdoc().add_periodic_callback(callback, 150)
