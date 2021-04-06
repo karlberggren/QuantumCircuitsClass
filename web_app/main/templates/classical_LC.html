@@ -2,30 +2,162 @@
 {% block content %}
     {% include 'navbar_classical.html' %}
     <div class="container">
-        <div class="row mt-5">
-            <h2>Classical LC Circuits</h2>
-            <div class="col-8">
+        <p>
+
+        </p>
+        <h1>Classical LC Circuits</h1>
+        <div class="row mt-3">
+            <div class="col-10">
                 <h3>Inductor </h3>
-                <p> Inductors store energy of the magnetic field in a circuit. The fundamental quantity is flux. 
-                 </p>
-                <p><b> insert equations </b></p>
+                <p> An inductor is a passive two-terminal electrical component that stores energy in a magnetic field when electric current flows through it. 
+				Inductor is characterized by its inductance, which is the ratio of the voltage to the rate of change of current. The SI unit of inductance 
+				is the Henry (H).
+				An electric current flowing through a conductor generates a magnetic field surrounding it. The magnetic flux linkage \( \Phi \) generated 
+				by a given current \( I \) is related by the inductance \( L \), thus \( L = \Phi / I \).
+				<p> Any change in the current through an inductor creates a changing flux, hence induces a voltage across the inductor. From Faraday's 
+				law of induction, the voltage induced by any change in magnetic flux through the circuit is given by \( V_L = d{\Phi} / dt = L d{I} / dt \).
+				<p> In a pure inductor, the energy is stored in its magnetic field without loss and is returned to the rest of the circuit when the current 
+				through the inductor decreases. The inductive energy is given by \( W_L = \frac{1}{2}LI^2 = \Phi^2/(2L) \).
+                </div>
+                <div class="col-2">
+                    <img src="{{url_for('static', filename='Inductor.jpg')}}" alt="Inductor" width="auto" height="220" align="center">
                 </div>
         </div>
+
         <div class="row mt-5">
-            <div class="col-12">
+            <div class="col-10">
             <h3>Capacitors</h3>
-            <p>Capacitors store energy of an electric field in a circuit. The fundamental quantity is charge. 
+            <p> A capacitor is a passive electronic component with two terminals and it stores electric charge in an electric field. A capacitor consists of 
+                two conductors separated by a non-conductive region. The non-conductive region can either be a vacuum or an electrical insulator material known 
+                as a dielectric. The capacitor is defined by a term called capacitance \( C \) which is defined as the ratio of the positive or negative charge 
+                \( Q \) on each conductor to the voltage \( V \) between them: \( C = Q / V \). The current-voltage relation of a capacitor is given by 
+                \( I = dQ / dt = C d{V} / dt \).
+                </p> To increase the charge and voltage on a capacitor, work must be done by an external power source to move charge from the negative to the 
+                positive plate against the opposing force of the electric field. The total energy \( W_C \) is stored in the increased electric field between the 
+                plates and is given by \( W_C = \frac{1}{2}CV^2 = Q^2/(2C) \).
                 </p>
-            <p> <b> insert equations</b> </p>
+            </div>
+            <div class="col-2">
+                <img src="{{url_for('static', filename='Capacitor.jpg')}}" alt="Capacitor" width="auto" height="220" class="center">
             </div>
         </div>
         <div class="row mt-5">
             <div class="col-12">
-            <h3>LT Spice</h3>
-            <p>It does circuit simulations and stuff like that
+            <h3>Classical LC Circuit</h3>
+            <p> An LC circuit is an electric circuit consisting of an inductor and a capacitor connected together. The circuit acts as an electrical 
+                resonator, an electrical analog of a classical harmonic oscillator, storing energy oscillating at the circuit's resonant frequency.
+                </p> 
+                <p> Consider the undriven LC circuit as shown here. The state variables for this system are considered to be the charge on its capacitor, 
+                \( Q(t) = CV(t) \), and the flux through its inductor, \( \Phi(t) = LI(t) \). Furthermore, we will consider the behavior of this system for 
+                \( t ≥ 0 \) when one or both of the initial state variables are non-zero, i.e., \( Q(0) ≠ 0 \) and/or \( \Phi(0) ≠ 0 \). The circuit will 
+                then undergo simple harmonic motion, i.e., the energy stored in the circuit will move back and forth between being electrical (stored in the 
+                capacitor) and magnetic (stored in the inductor) as the voltage and current oscillate sinusoidally at the resonant frequency \( \omega = 1 / LC \).
+                The equations of motion for our LC circuit are </p>
+                <p>  \[ dQ(t) / dt = C d{V}(t) / dt = I(t) = \Phi (t) / L\] 
+                 \[ d\Phi (t) / dt = L d{I}(t) / dt = -V(t) = Q(t) / C\] </p>
+                <p> The energy stored in the capacitor and the inductor are, respectively, \( \frac{1}{2}CV(t)^2\) and \( \frac{1}{2}LI(t)^2\), so that the 
+                total energy (the Hamiltonian) for the circuit is
+                 <b> \[ \mathcal{H} = \frac{1}{2}CV(t)^2 + \frac{1}{2}LI(t)^2\ = Q^2/(2C) + \Phi^2/(2L) \]</b> </p>
+                <p> Here, the Hamiltonian is a constant, because the LC circuit is both undriven and undamped, i.e., it is passive and lossless.
                 </p>
-            <p> <b> tutorial?</b> </p>
             </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12">
+            <h3>Mechanical Analog of Classical LC Circuit</h3>
+			</p> The analogous mechanical system to the LC oscillator is a simple mass-spring system with mass m and inverse-spring constant \( k^{-1} \). 
+			In this oscillator, the displacement of the spring \( x \) and the momentum of the mass \( p \) form the equivalent conjugate variables to the 
+			system as charge and flux in the electrical circuit. The mechanical oscillator has the resonant frequency \( \omega = k / m \). </p>
+			<p> In the classical LC circuit, energy changes between the capacitive energy \( E_C = Q^2/2C \) and the inductive energy \( E_L = \Phi^2/(2L)\). 
+			For the mass-spring system, the energy also oscillates between kinetic energy (\( p^2/2m \)) and potential energy (\( \frac{1}{2}kx^2 \)). 
+			Therefore, we have a classical Hamiltonian for this system: 
+			 \[H = p^2/2m + \frac{1}{2}kx^2 \]  
+             which is a constant, as expected.</p>
+			
+            <img src="{{url_for('static', filename='Mech_Analog.png')}}" alt="Mech_Analog" width="auto" height="200" align="middle" class="center"> 
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-8">
+            <h3>Differential Equation of LC Circuit</h3>
+            <p> The two-element LC circuit is also referred to as a second order LC circuit to distinguish it from more complicated (higher order) 
+			LC networks with more inductors and capacitors. We assume that the circuit is energized with the initial conditions of \( V_C(0−) = V_0 \)
+			and \( I_L(0−) = 0 \). The goal is to analyze this circuit for \( t ≥ 0 \) without any external source.  </p>
+            <p> By Kirchhoff's voltage law, we can write \( V_C + V_L = 0 \)
+			 By Kirchhoff's current law, we can write \( I_C + I_L = 0 \) </p>
+			<p> From the constitutive relations for the circuit elements, we also know that
+			 \[ V_L(t) = L (d{I_L} / dt) \] 
+			\[ I_C(t) = C (d{V_C} / dt) \]
+			 Rearranging and substituting gives the second order differential equation \( (d^2 / dt) I(t) + (1 / LC) I(t) = 0 \)</p> 
+             <p> Thus, the resulting solution becomes:
+			 \[ I(t) = I_0 cos(\omega t + \phi) \]
+			\[ V(t) = L d{I_L} / dt = -\omega L I_0 sin(\omega t + \phi) \] 
+			 where angular frequency \( \omega = 1 / LC \) and \( \phi \) is the phase angle. </p>
+            </div>
+            <div class="col-4">
+                <p>
+
+                </p>
+            <img src="{{url_for('static', filename='LC_Ckt.jpg')}}" alt="LC_Ckt" width="auto" height="auto" class="center">    
+        </div>
+		</div>
+
+        <div class="row mt-7">
+            <div class="col-12">
+            <h3>Simulating Second Order Circuits in LTspice</h3>
+			<p> We can simulate the natural response of a source free LC circuit using LTspice. We performed the analysis of a source free series 
+			LC circuit. In this example, we set the initial inductor current to \( 0 A \) and the initial capacitor voltage to \( 0.2 V \). After 
+			entering the schematic, the initial conditions of capacitor and inductor are entered in the IC box. Then a transient analysis with a 
+			stop time of \( 10 \) seconds is initialized. After the simulation is complete a graph of the output voltage and current will appear which 
+			agrees with the solutions of second order LC circuit equations. </p>
+			</div>
+		</div>
+        <div class="row mt-5">
+            <div class="col-12">
+            <img src="{{url_for('static', filename='Spice01.png')}}" alt="Spice01" width="auto" height="auto" align="left">
+            <img src="{{url_for('static', filename='Spice02.png')}}" alt="Spice02" width="auto" height="auto" align="right"> 
+        </div>
+        </div>
+
+        <div class="row mt-7">
+            <div class="col-12">
+            <h5>LTspice Analysis of LC Circuit</h5>
+			<p> <ol>
+
+            <li> The current in a LC circuit is described by \( (d^2 / dt) I(t) + 10 I(t) = 0 \). If \( I(0) = 10 A \) and \( d{I(0)} / dt = 0 \), 
+			     find \( I(t) \) for \( t > 0 \). </li>
+			 <li> The differential equation that describes the voltage in a LC circuit is \( (d^2 / dt) V(t) + 5 V(t) = 0 \). Given that \( V(0) = 0 \) 
+				and \( d{V(0)} / dt = 10 V /s \), find \( V(t) \) for \( t > 0 \). </li>
+			<li> 3. A series LC circuit is described by \( L (d^2 / dt) I(t) + (I(t)/C) = 10 \). Find the response when \( L = 0.5 H \), 
+				and \( C = 0.2 F \). Let \( I(0) = 1A \) and \( d{I(0)} / dt = 0 \). </li>
+            </ol>
+        </p>
+			</div>
+		</div>
+
+        <div class="row mt-7">
+            <div class="col-12">
+            <h5>Numerical Analysis of LC Circuit</h5>
+			<p> For many of the differential equations we need to solve in the real world, there is no nice algebraic solution. As a result, 
+			we need to resort to using numerical methods for solving such DEs. So to find the numerical solutions of second-order differential 
+			equations of the LC circuit, we can use numerical methods for example Euler method, Heun’s method and Runge-Kutta method.  </p>
+			</div>
+		</div>
+
+        <div class="row mt-7">
+            <div class="col-8">
+            <h5>Forward Euler Method</h5>
+			<p> Here, we are trying to solve problems that are presented in the following way:	</p>
+			</div>
+            <div class="col-4">
+				<img src="{{url_for('static', filename='Euler01.png')}}" alt="Euler01" width="auto" height="auto" align="right">
+			</div>
+        </div>
+
+        <div class="row mt-7">
+            <h3>Interactive Simulation</h3>
         </div>
         {{ script | safe }}
         <p> 
