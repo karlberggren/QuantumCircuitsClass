@@ -3,6 +3,133 @@
     {% include 'navbar_prob_ampl.html' %}
     <div class="container">
         <div class="row mt-5">
+            <h2>Probability Distributions</h2>
+            <div class="col-12">
+                <h3>Discrete Probability Distribution Functions</h3>
+                <p> 
+                    Suppose that \(N(j)\) represents the number of people that are \(j\) years old in a room.
+                    We cannot look inside the room but instead can call people out one at a time.
+                    After asking them what their ages are we can plot the following histogram:
+                 </p>
+                <p><b> insert bokeh histogram </b></p>
+                <p>
+                    Note for instance that \(N(17)\) is zero while we see that:
+                    \(N(14) = 1\), \(N(15) = 1\), \(N(16) = 3\), \(N(22) = 2\), \(N(24) = 2\), and \(N(25) = 5\)
+
+                    The total number of people in a room is therefore:
+                    \[N = \sum_{j=0}^{\infty} N(j)\]
+                </p>
+                <p>
+                    We can then ask what is the probaility \(P(j)\) of selecting one person of age \(j\). Which in general is:
+                    \[P(j) = \frac{N(j)}{N}\]
+                    In particular, the sum of *all* probabilities is 1. We are certain to get someone of some age:
+                    \[ \sum_{j=1}^{\infty} P(j) = 1\]
+                </p>
+                <p><b> insert code later </b></p>
+
+                <h4> What do we expect? </h4>
+                <p>
+                    If we want to think about what is the most probable age, we need to think about the age value that we <i>expect</i> to see when we call someone out from the room.
+                    In quantum mechanics we denote this via the "bra" \(⟨\) and "ket" \(⟩\) symbols around our variable of interest:
+
+                    \[ ⟨j⟩ \]
+
+                    In general, we will write the 'expectation' value of \(j\) as:
+
+                    \[ ⟨j⟩ = \frac{\sum j N(j)}{N} = \sum_{j=0}^{\infty} j P(j) \]
+
+                    Notice that this expression can give us values that are not included in our original dataset. 
+                    While this is numerically the same as the average value, in the context of quantum mechanics this is termed the <b>expectation value</b>.
+                    It is mathematically equivalent to a weighted average.
+
+                    We can extend this expression to also ask: what is the average of the squares of the age? We can write this as: 
+
+                    \[ ⟨j^2⟩ = \frac{\sum j^2 N(j)}{N} = \sum_{j=0}^{\infty} j^2 P(j) \]
+
+                    In general, we can also ask this question for any function of \(j\): 
+
+                    \[ ⟨f(j)⟩ = \sum_{j=0}^{\infty} f(j) P(j) \]
+                </p>
+                <p><b> insert code later </b></p>
+
+                <h4>Characterizing the distribution</h4>
+                <p>
+                    It is also important to ask how a distribution looks. Take for example these two distributions:
+                </p>
+                <p><b>insert bokeh plots later</b></p>
+                <p>
+                    By visual inspection, we can determine that the graphs are both centered around the same value.
+                    Thus, it is reasonable to say that we expect to obtain the same average.
+                    We can measure the spread of each distribution with the variance, which we can write using our special notation as:
+                    \[ \sigma^2  = ⟨j^2⟩ - ⟨j⟩^2 \]
+
+                    This seems really simple because we can just calculate \(⟨j⟩^2\) and then \(⟨j^2⟩\) using the formulas from before. 
+                </p>
+                <p><b>insert code of calculaiton of classical expectation values</b></p>
+
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-12">
+            <h3>Continous Probability Distribution Functions</h3>
+            <p>
+                It is simple enough to generalize what we have learned to the continous case. What if we ask: 
+            </p>
+            <ul>
+                <li>What is the probability that someone's age is exactly 21 years, 21 days, 21 minutes, and 21 seconds?</li>
+                <li>What is the probability that someone's age is between 20 years and 364 days and 20 years?</li>
+            </ul>
+            <p>
+                To be able to answer these questions we need to refer to infinitesimal intervals:
+                The probability that the chosen value is between \(x\) and \(x+dx\)  is given by \(\rho(x)dx\)
+            </p>
+            <img src="{{url_for('static', filename='continous.png')}}" alt="Continous Distribution"  width="250" height="300" align="left">
+            <p>
+                The continous distribution is made from infinitesimall small \(dx\) elements that make up the line representing the function \(f(x)\).
+                The important thing to note here is that this analogy extends to the other components of the distribution.
+                The function \(\rho(x)\) $ is termed the <b>probability density</b>. The probability that \(x\) lies between \(a\) and \(b\) is thus given by the integral of \(\rho(x)\) for the interval \([a,b]\) 
+
+                \[ P_{[a,b]} = \int_a^b \rho(x) dx \]
+            </p>
+            <p> <b> insert code for calculating continous probabilities </b> </p>
+            <p>
+                Our investigation from the previous section is also applicable in this section in an straightforward way.
+                The discrete summations are integrals and the discrete values that are summed become infinitesimal intervals. 
+
+                \[\int_{-\infty}^\infty \rho(x) dx = 1\]
+
+                and
+
+                \[ ⟨x⟩ = \int_{-\infty}^\infty x \rho(x) dx \]
+                \[ ⟨f(x)⟩ = \int_{-\infty}^\infty f(x) \rho(x) dx \]
+            </p>
+            <p> <b> insert code for calculating continous expectation values </b> </p>
+            <h4>Units of the probability density function</h4>
+            <p>
+                We have to be careful to understand the units of \(\rho(x)\). If we look at the integral: 
+                \[\int_{-\infty}^\infty \rho(x) dx = 1 \]
+                We notice that the integration leads to a unitless quantity. Thus, we can deduce that \( \rho(x) dx \) must have no units.
+                If \(dx\) has units of $distance$ for example, then \(\rho(x)\) must have units of \(\frac{1}{distance}\)
+            </p>
+            <p> <b> insert code for calculating units </b> </p>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-12">
+            <h3>Normalization</h3>
+            <p>
+                We have to be careful of the fact that \(\int_{-\infty}^\infty \rho(x) dx = 1\).
+                This means that not every function that we can come up with can be a probability density function.
+                In fact, this statement is a statement of <b>normalization</b>.
+                It is analogous to the fact that the sum of all the probabilites in a discrete problem should add up to one. 
+
+                Quantum mechanics enforces the normalization of the porbability density functions. So we have to learn to normalize functions
+            </p>
+            <p> <b> code for normalization of functions</b> </p>
+            </div>
+        </div>
+
+        <div class="row mt-5">
             <h2 >Placeholder</h2>
             <div class="col-7">
                 <h3>Placeholder </h3>
