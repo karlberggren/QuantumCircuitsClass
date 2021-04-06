@@ -13,7 +13,7 @@ web_app
             |__ Dockerfile
             |__ LC_circuit_bokeh.py
             |__ requirements.txt
-    |__ maingit
+    |__ main
             |__ main.yaml
             |__ app.py
             |__ requirements.txt
