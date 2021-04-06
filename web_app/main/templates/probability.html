@@ -10,7 +10,15 @@
                     Suppose that \(N(j)\) represents the number of people that are \(j\) years old in a room.
                     We cannot look inside the room but instead can call people out one at a time.
                     After asking them what their ages are we can plot the following histogram:
-                 </p>
+                </p>
+                <p>
+                    <pre>
+                        <code>
+    ages = [14,15,16,22,24,25]
+    frequency = [1,1,3,2,2,5]
+                        </code>
+                    </pre>
+                </p>
                 <p><b> insert bokeh histogram </b></p>
                 <p>
                     Note for instance that \(N(17)\) is zero while we see that:
@@ -25,8 +33,18 @@
                     In particular, the sum of *all* probabilities is 1. We are certain to get someone of some age:
                     \[ \sum_{j=1}^{\infty} P(j) = 1\]
                 </p>
-                <p><b> insert code later </b></p>
-
+                <p>
+                    With this code snippet we show that the total probabillity does really sum to 1.
+                    <pre>
+                        <code>
+    data = zip(ages,frequency)
+    N = sum(frequency)
+    sum = 0
+    for age, freq in data:
+        sum += freq/N
+                        </code>
+                    </pre>
+                </p>
                 <h4> What do we expect? </h4>
                 <p>
                     If we want to think about what is the most probable age, we need to think about the age value that we <i>expect</i> to see when we call someone out from the room.
@@ -50,7 +68,19 @@
 
                     \[ ⟨f(j)⟩ = \sum_{j=0}^{\infty} f(j) P(j) \]
                 </p>
-                <p><b> insert code later </b></p>
+                <p>
+                    With this code snippet we calculate the expectation value of ages and the square of the ages.
+                    <pre>
+                        <code>
+    E_j = 0
+    for age, freq in data:
+        E_j += (age)*freq/N
+    E_j2 = 0
+    for age, freq in data:
+        E_j2 += (age**2)*freq/N
+                        </code>
+                    </pre>
+                </p>
 
                 <h4>Characterizing the distribution</h4>
                 <p>
@@ -65,7 +95,17 @@
 
                     This seems really simple because we can just calculate \(⟨j⟩^2\) and then \(⟨j^2⟩\) using the formulas from before. 
                 </p>
-                <p><b>insert code of calculaiton of classical expectation values</b></p>
+                <p>
+                    With this code snippet we calculate the standard deviation of the two distributions.
+                    <pre>
+                        <code>
+    E1_j = 0
+    E2_j = 0
+    E1_j2 = 0
+    E2_j2 = 0
+                        </code>
+                    </pre>
+                </p>
 
             </div>
         </div>
@@ -83,9 +123,9 @@
                 To be able to answer these questions we need to refer to infinitesimal intervals:
                 The probability that the chosen value is between \(x\) and \(x+dx\)  is given by \(\rho(x)dx\)
             </p>
-            <img src="{{url_for('static', filename='continous.png')}}" alt="Continous Distribution"  width="250" height="300" align="left">
+            <img src="{{url_for('static', filename='continous.png')}}" alt="Continous Distribution"  width="550" height="300" align="left">
             <p>
-                The continous distribution is made from infinitesimall small \(dx\) elements that make up the line representing the function \(f(x)\).
+                The continous distribution is made from infinitesimally small \(dx\) elements that make up the line representing the function \(f(x)\).
                 The important thing to note here is that this analogy extends to the other components of the distribution.
                 The function \(\rho(x)\) $ is termed the <b>probability density</b>. The probability that \(x\) lies between \(a\) and \(b\) is thus given by the integral of \(\rho(x)\) for the interval \([a,b]\) 
 
