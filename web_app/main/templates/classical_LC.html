@@ -38,7 +38,7 @@
                 </p>
             </div>
             <div class="col-2">
-                <img src="{{url_for('static', filename='Capacitor.jpg')}}" alt="Capacitor" width="auto" height="220" class="center">
+                <img src="{{url_for('static', filename='Capacitor.jpg')}}" alt="Capacitor" width="auto" height="200" class="center">
             </div>
         </div>
         <div class="row mt-5">
@@ -100,7 +100,7 @@
                 <p>
 
                 </p>
-            <img src="{{url_for('static', filename='LC_Ckt.jpg')}}" alt="LC_Ckt" width="auto" height="auto" class="center">    
+            <img src="{{url_for('static', filename='LC_Ckt.jpg')}}" alt="LC_Ckt" width="auto" height="100" class="center">    
         </div>
 		</div>
 
@@ -149,15 +149,30 @@
         <div class="row mt-7">
             <div class="col-8">
             <h5>Forward Euler Method</h5>
-			<p> Here, we are trying to solve problems that are presented in the following way:	</p>
-			</div>
+			<p> Here, we are trying to solve problems that are presented in the following way: \( dy/dx = f(x, y) \); and \(y(a)\) (the initial value) is 
+                    known where \( f(x, y) \) is some function of the variables \( x \) and \( y \) that are involved in this problem. In the form of a Taylor's 
+                    Series, we can assume the solution \( y(x + h) = y(x) + hy′(x) + (h^2y′′(x)/2!) + (h^3y′′′(x)/3!) + ... \) This gives us a reasonably good 
+                    approximation if we take plenty of terms, and if the value of \( h \) is reasonably small. But for Euler’s method, we just consider the first 2 
+                    terms only, \( y(x + h) = y(x) + hy′(x) = y(x) + h(dy/dx) \). We start with some known value for \( y \), which we call \( y_0 \), when \( x = x_0 \). 
+                    Using the above forward Euler method, we can calculate the value of \( y \) that is one \( h \) step forward to the current value, so we get 
+                    \( y_1 = y_0 + h f(x_0, y_0) \). We continue this process for as many steps as required. </p>
+                    <p> Now we will solve the differential equations of LC circuit using Forward Euler method. By KVL, we can write \( v(t) + L (di(t)/dt) = 0  \). 
+                        Rearranging it, we get	\( di(t)/dt = i′(t) = -v(t)/L  \). Capacitor voltage over time will be \( dv(t)/dt = v′(t) = i(t)/C  \). Putting 
+                        these DE in Forward Euler form (\( y_{i+1} = y_i + h f′(t_i, y_i) \)), we will end up with \( i_{i+1} = i_i + h (-v_i/L) \) 
+                        and \( v_{i+1} = v_{i} + h (i_{i}/C)\). For a given initial value of \( (i_i, v_i)\), we can solve the values of \( (i_{i+1}, v_{i+1})\). </p>
+                        This can also be expressed in the following matrix form 	
+                    <p><b>! insert matrix here!</b></p>
+                    </div>
+
             <div class="col-4">
 				<img src="{{url_for('static', filename='Euler01.png')}}" alt="Euler01" width="auto" height="auto" align="right">
+                <img src="{{url_for('static', filename='Euler02.png')}}" alt="Euler02" width="auto" height="auto" align="right"> 
 			</div>
         </div>
 
         <div class="row mt-7">
             <h3>Interactive Simulation</h3>
+            <p>This simulation serves as an example for a dynamic plot which recalculates the plotted data at each update of the screen. Chabging the parameter values updates the calculation on the backend</p>
         </div>
         {{ script | safe }}
         <p> 
@@ -168,5 +183,4 @@
         <img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" width="270" height="100" align="left">
         <img src="{{url_for('static', filename='eecs.png')}}" alt="EECS" width="auto" height="100" align="right"> 
     </div>
-    
 {% endblock %}
