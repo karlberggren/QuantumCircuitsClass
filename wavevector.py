@@ -1,9 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Dec 16 17:34:28 2020
+"""enables working with quantum wavefunctions
 
-@author: pmbpanther
+Work with, evolve, and plot wavevectors
+
+  Typical usage:
+
+  FIXME put example here
+
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,20 +25,25 @@ oo = np.inf
 ħ = 1.05e-34 
 class Wavevector(np.ndarray):
     """
+
     Class for 6.S079 Quantum Circuits, designed to work with and perform simple manipulations
     of wavevectors (the discretized equivalent of wavefunctions), e.g. add, subtract, divide, multiply.
     Please note that a continuous wavefunction is still a vector in an infinite-dimensional space
     (a Hilbert space), and a properly normalized wavefunction would be a unit vector in such a space.
 
     ARB: should the wavevector object also contain information about the x domain on which it is defined?
-    Also, should we implement a resampling method? It might be useful to be able to quickly change the number of sample 
-    points in the wavevector. 
+
+    Also, should we implement a resampling method? It might be useful
+    to be able to quickly change the number of sample points in the
+    wavevector.
+
     >>> x = np.asarray([1. + 0.j,2,3])
     >>> wv1 = Wavevector(x, [(-1, 1, 3)])
     >>> print(wv1)
     [1.+0.j 2.+0.j 3.+0.j]
     >>> print(wv1.ranges)
     [(-1, 1, 3)]
+
     """
     
     def __new__(cls, input_array, ranges = None):
@@ -67,13 +74,16 @@ class Wavevector(np.ndarray):
         self.ranges = getattr(obj, 'ranges', None)
         
     @classmethod
-    def from_wf(cls, wf, *args):
-        """
+    def from_wf(cls, wf: Wavefunction, *args):
+        """make wavevector from wavefunction
+
         Factory method that takes a Wavefunction and a sequence of tuples (one for each 
         dimension of the Wavefunction)
         and creates a discrete N-dimensional array in the Wavevector class.
 
-        Each dimension is spec'd in an (xmin, xmax, N) tuple.
+        Args:
+            wf: wavefunction to be converted into wavevector
+            *args: iterator of tuples, where each dimension is spec'd in an (xmin, xmax, N) tuple.
 
         For example, vectorizing a gaussian might look like
 
@@ -83,6 +93,9 @@ class Wavevector(np.ndarray):
         [0.4919052 +0.j 0.63161878+0.j 0.4919052 +0.j]
         >>> print(wv.ranges)
         ((-1, 1, 3),)
+
+        Returns:
+            New n-dimensional wavevector with appropriately defined ranges etc.
         """
         # make arrays
         array_list = []
@@ -158,7 +171,8 @@ class Wavevector(np.ndarray):
     def functionfy(self, *args):
         """
         TODO implement method.
-        This method interpolates the wavevector samples and returns a wavefunction function/object defined on the domain of the wavevector
+        This method interpolates the wavevector samples and returns a wavefunction function/object 
+        defined on the domain of the wavevector
         """
 
         pass
@@ -271,15 +285,27 @@ class Wavevector(np.ndarray):
         return np.meshgrid(*((np.linspace(x_min, x_max, N) for x_min, x_max, N in self.ranges)))
 
 
-    def evolve(self, Vfunc, masses, times, frames = 30, t_dep = True):
-        """
-        evolves a probability distribution in a quantum circuit with a
-        time_varying potential.
+    def evolve(self, Vfunc,
+               masses: tuple,
+               times: tuple,
+               frames: int = 30,
+               t_dep: bool = True) -> np.array:
+        """evolves wavevector in a (possibly time_varying) potential.
 
-        KE_args is a list of tuples containing (xmin, xmax, Nx, m_eff) for each
-        dimension.  Thus for a 1D function, it should be of the form ((xmin, xmax, Nx, m_eff)).
+        Evolves the wavevector, changing its value continuously in time, and 
+        storing in a history array the value at certain snapshots.
 
-        times is a start,end tuple
+        Args:
+            Vfunc: A potential energy function
+            masses: list of tuples containing m_eff for each dimension. 
+                    Thus for a 1D function, it should be of the form (m1,)
+
+            times: tuple in form "start time", "end time"
+
+            frames: number of frames to record the evolution at
+
+            t_dep: boolean specifies whether Vfunc is time dependent
+
         >>> dim_info = ((-2, 2, 5),)
         >>> masses = (ħ,)
         >>> wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
@@ -292,7 +318,7 @@ class Wavevector(np.ndarray):
          [2.32359563e-01+0.j 4.82278714e-04+0.j 1.62011520e-06+0.j]]
         """ 
         if t_dep:
-            def dψdt(t, ψ, params):  # key function for evolution
+            def dψdt(t, ψ):  # key function for evolution
                 return (KE.dot(ψ) + params["V_matx"]*ψ)/(1j*ħ)
             raise NotImplementedError
         else:

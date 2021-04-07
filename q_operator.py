@@ -188,13 +188,16 @@ class Op_matx(object):
 
     @classmethod
     def make_KE(cls, *args):
-        """ d_by_dsquared:: create n-dimensional sparse kinetic energy operator matrix
-        from the second derivative in the n-dimensional parameter space of the system, 
+        """create operator (Op_matx) corresponding to kinetic energy operator
+
+        Create n-dimensional sparse kinetic energy operator matrix
+        from the second derivative in the n-dimensional parameter
+        space of the system,
 
         A multi-dimensional KE operator looks something like:
 
         KE(x,y,z,...) = ⅉ ħ/(2 m_x) ∂²/∂x² +  ⅉ ħ/(2 m_y) ∂²/∂y² +  ⅉ ħ/(2 m_z) ∂²/∂z² + ...
-        arguments should be a list of tuples in the form (min, max, N, m_eff) where N is the
+        arguments should be a list of tuples in the form (xmin, xmax, N, m_eff) where N is the
         number of points along that dimension and m_eff an effective mass.
 
         >>> op = Op_matx.make_KE((-2, 2, 5, 1.05e-34))
@@ -204,6 +207,7 @@ class Op_matx(object):
          [0.+0.j  0.+0.5j 0.-1.j  0.+0.5j 0.+0.j ]
          [0.+0.j  0.+0.j  0.+0.5j 0.-1.j  0.+0.5j]
          [0.+0.j  0.+0.j  0.+0.j  0.+0.5j 0.-1.j ]]
+
         """
         coeffs = []
         for x_min, x_max, Nx, m_eff in args:
@@ -214,8 +218,7 @@ class Op_matx(object):
         KE_matx_len = np.prod([N for _, _,N,_ in args])
 
         #let's make an array for each diag/set of 2 diags
-        diag_list = []
-        placement_list = []
+        diag_list, placement_list = [], []
         central = np.full(KE_matx_len, -2*sum(coeffs))
         diag_list.append(central)
         placement_list.append(0)
