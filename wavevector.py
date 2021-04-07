@@ -17,6 +17,7 @@ from scipy.integrate import solve_ivp
 from q_operator import Op_matx
 from matplotlib.animation import FuncAnimation
 from matplotlib.widgets import Slider, Button, CheckButtons
+import random
 
 pause = False
 
@@ -30,12 +31,6 @@ class Wavevector(np.ndarray):
     of wavevectors (the discretized equivalent of wavefunctions), e.g. add, subtract, divide, multiply.
     Please note that a continuous wavefunction is still a vector in an infinite-dimensional space
     (a Hilbert space), and a properly normalized wavefunction would be a unit vector in such a space.
-
-    ARB: should the wavevector object also contain information about the x domain on which it is defined?
-
-    Also, should we implement a resampling method? It might be useful
-    to be able to quickly change the number of sample points in the
-    wavevector.
 
     >>> x = np.asarray([1. + 0.j,2,3])
     >>> wv1 = Wavevector(x, [(-1, 1, 3)])
@@ -105,6 +100,27 @@ class Wavevector(np.ndarray):
         new_wavevector = cls(wf(*X))
         new_wavevector.ranges = args
         return new_wavevector
+
+    def simple_measure_1d(self, M: int, seed: int = 0):
+        """collapse wavefunction into a subspace
+
+        Perform a simulated measurement on the wavevector that projects it into
+        a simple subspace and then renormalizes the output to return the post-measurement
+        wavevector.
+
+        The subspaces will just be those spanned by adjacent groups of the 
+        full function's unit vectors.  e.g. if function is defined 
+        
+        Args:
+            M: number of subspaces onto which measurement is projected
+
+        Returns:
+            Wavevector consisting of normalized post-measurement
+
+        >>> wf = Wavefunction.init_gaussian((0,1))
+        >>> wv = Wavevector.from_wf(wf, (-1, 1, 4))
+        >>> wv.simple_measure_1d(2)
+        """
 
     def resample_wv(self, **kwargs):
         """
