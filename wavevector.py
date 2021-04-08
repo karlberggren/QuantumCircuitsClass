@@ -119,8 +119,28 @@ class Wavevector(np.ndarray):
 
         >>> wf = Wavefunction.init_gaussian((0,1))
         >>> wv = Wavevector.from_wf(wf, (-1, 1, 4))
-        >>> wv.simple_measure_1d(2)
+        >>> print(wv.simple_measure_1d(2))
+        [0.5+0.j 0.5+0.j 0. +0.j 0. +0.j]
         """
+        np.random.seed(seed) 
+        
+        # for every region:
+        for i in range(M):
+            inds = [j for j in range(round(i*len(self)/M), round((i+1)*len(self)/M))]
+            exclude_inds = list(set(range(len(self))) - set(inds))
+            # create a matrix x:
+            x = np.identity(len(self), dtype=np.float32)
+            x[exclude_inds, exclude_inds] = 0
+            # find probability of flux being in that region by taking <phi^* | x | phi> 
+            prob = np.matmul(np.matmul(np.transpose(np.conjugate(self)), x), self)
+            # is flux in that region? generate R.V that's 1 with prob  <phi^* | x | phi>  and 0 o.w. populate new wavevector with R.V in  that region
+            self[inds] = np.random.binomial(1, np.real(prob))
+        # normalize and retun 
+        if sum(self) == 0:
+            self[:] = 1/len(self) 
+        else:
+            self /= sum(self)
+        return self
 
     def resample_wv(self, **kwargs):
         """
@@ -190,7 +210,6 @@ class Wavevector(np.ndarray):
         This method interpolates the wavevector samples and returns a wavefunction function/object 
         defined on the domain of the wavevector
         """
-
         pass
 
 
