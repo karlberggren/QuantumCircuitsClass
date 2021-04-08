@@ -132,7 +132,7 @@ class Wavevector(np.ndarray):
             x = np.identity(len(self), dtype=np.float32)
             x[exclude_inds, exclude_inds] = 0
             # find probability of flux being in that region by taking <phi^* | x | phi> 
-            prob = np.matmul(np.matmul(np.transpose(np.conjugate(self)), x), self)
+            prob = np.transpose(np.conjugate(self)) @ x @ self
             # is flux in that region? generate R.V that's 1 with prob  <phi^* | x | phi>  and 0 o.w. populate new wavevector with R.V in  that region
             self[inds] = np.random.binomial(1, np.real(prob))
         # normalize and retun 
