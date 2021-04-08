@@ -8,16 +8,26 @@
         <h1>Classical LC Circuits</h1>
         <div class="row mt-3">
             <div class="col-10">
-                <h3>Inductor </h3>
+                <h3>Inductor</h3>
                 <p> An inductor is a passive two-terminal electrical component that stores energy in a magnetic field when electric current flows through it. 
-				Inductor is characterized by its inductance, which is the ratio of the voltage to the rate of change of current. The SI unit of inductance 
-				is the Henry (H).
-				An electric current flowing through a conductor generates a magnetic field surrounding it. The magnetic flux linkage \( \Phi \) generated 
-				by a given current \( I \) is related by the inductance \( L \), thus \( L = \Phi / I \).
-				<p> Any change in the current through an inductor creates a changing flux, hence induces a voltage across the inductor. From Faraday's 
-				law of induction, the voltage induced by any change in magnetic flux through the circuit is given by \( V_L = d{\Phi} / dt = L d{I} / dt \).
-				<p> In a pure inductor, the energy is stored in its magnetic field without loss and is returned to the rest of the circuit when the current 
-				through the inductor decreases. The inductive energy is given by \( W_L = \frac{1}{2}LI^2 = \Phi^2/(2L) \).
+		  Inductor is characterized by its inductance, which is the ratio of the voltage to the rate of change of current. The SI unit of inductance 
+		  is the Henry (H).
+
+		  An electric current flowing through a conductor generates a magnetic field surrounding it. The magnetic flux linkage \( \Phi \) generated 
+		  by a given current \( I \) is related by the inductance \( L \), thus \( L = \Phi / I \).
+
+		  <b>FIXME: We don't want to suggest that flux is only
+		  due to magnetic field... then kinetic inductance will be confusing later.  it stores energy, but that isn't necessarily only magnetic, it can also be kinetic FIXME.</b>
+
+		<p> Any change in the current through an inductor creates a changing flux, hence induces a voltage across the inductor. From Faraday's 
+		  law of induction, the voltage induced by any change in magnetic flux through the circuit is given by \( V_L = d{\Phi} / dt = L d{I} / dt \).
+
+		  <b>FIXME: it is really important that we consider the possibility that L is a function of t or i, thus  we should use dΦ/dt and then specify only that if L is not a function of t or i, you can write L di/dt</b>
+
+		  <b>FIXME: we should be careful about notation.  IEEE standard requires lowercase for variables and upper strength only for parameters (e.g. current source strength).</b>
+		  
+		<p> In a perfect inductor, the energy is stored in its magnetic field without loss and is returned to the rest of the circuit when the current 
+		  through the inductor decreases. The inductive energy is given by \( W_L = \frac{1}{2}LI^2 = \Phi^2/(2L) \).
                 </div>
                 <div class="col-2">
                     <img src="{{url_for('static', filename='Inductor.jpg')}}" alt="Inductor" width="auto" height="220" align="center">
