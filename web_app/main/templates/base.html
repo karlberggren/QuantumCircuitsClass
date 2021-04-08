@@ -9,15 +9,8 @@
     <link href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-2.3.0.min.css" rel="stylesheet"> 
     
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/prism.css') }}"/>
     <title>Quantum Circuits</title>
-    <style>
-      pre code {
-        background-color: #eee;
-        border: 1px solid #999;
-        display: block;
-        padding: 10px;
-      }
-    </style>
 </head>
 <body>
 
@@ -33,5 +26,6 @@
     <script id="MathJax-script" async
             src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
+    <script src="{{ url_for('static', filename='js/prism.js') }}"></script>
 </body>
 </html>

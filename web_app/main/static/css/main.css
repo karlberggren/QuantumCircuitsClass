@@ -24,9 +24,15 @@ img {
     margin-right: auto;
     width: 50%;
   }
+/*
 pre code {
     background-color: #eee;
     border: 1px solid #999;
     display: block;
     padding: 20px;
+}
+*/
+.output_code {
+  font-size: 1em;
+  padding-top: 2em;
 }
