@@ -1,5 +1,5 @@
 # Website source code
-If you are reading this, congradulations! Your income potential just rose by 20k because now you are a "wEb DeVelOpEr"
+If you are reading this, congratulations! Your income potential just rose by 20k because now you are a "wEb DeVelOpEr"
 
 ## Code Structure 
 ### General 
