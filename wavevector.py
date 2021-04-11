@@ -69,8 +69,7 @@ class Wavevector(np.ndarray):
         self.ranges = getattr(obj, 'ranges', None)
         
     @classmethod
-    def from_wf(cls, wf, *args):
-    #def from_wf(cls, wf: Wavefunction, *args):
+    def from_wf(cls, wf: Wavefunction, *args):
         """make wavevector from wavefunction
 
         Factory method that takes a Wavefunction and a sequence of tuples (one for each 
@@ -102,8 +101,7 @@ class Wavevector(np.ndarray):
         new_wavevector.ranges = args
         return new_wavevector
 
-    def simple_measure_1d(self, M, seed = 0):
-    #def simple_measure_1d(self, M: int, seed: int = 0):
+    def simple_measure_1d(self, M: int, seed: int = 0):
         """collapse wavefunction into a subspace
 
         Perform a simulated measurement on the wavevector that projects it into
