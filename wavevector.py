@@ -69,7 +69,8 @@ class Wavevector(np.ndarray):
         self.ranges = getattr(obj, 'ranges', None)
         
     @classmethod
-    def from_wf(cls, wf: Wavefunction, *args):
+    def from_wf(cls, wf, *args):
+    #def from_wf(cls, wf: Wavefunction, *args):
         """make wavevector from wavefunction
 
         Factory method that takes a Wavefunction and a sequence of tuples (one for each 
@@ -101,7 +102,8 @@ class Wavevector(np.ndarray):
         new_wavevector.ranges = args
         return new_wavevector
 
-    def simple_measure_1d(self, M: int, seed: int = 0):
+    def simple_measure_1d(self, M, seed = 0):
+    #def simple_measure_1d(self, M: int, seed: int = 0):
         """collapse wavefunction into a subspace
 
         Perform a simulated measurement on the wavevector that projects it into
@@ -120,26 +122,43 @@ class Wavevector(np.ndarray):
         >>> wf = Wavefunction.init_gaussian((0,1))
         >>> wv = Wavevector.from_wf(wf, (-1, 1, 4))
         >>> print(wv.simple_measure_1d(2))
-        [0.5+0.j 0.5+0.j 0. +0.j 0. +0.j]
+        [0. +0.j 0. +0.j 0.5+0.j 0.5+0.j]
+
+        >>> wf2 = Wavefunction.init_gaussian((1,0.5))
+        >>> wv2 = Wavevector.from_wf(wf2, (-1, 3, 16))
+        >>> print(wv2.simple_measure_1d(4))
+        [0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.25+0.j 0.25+0.j 0.25+0.j 0.25+0.j
+         0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j]
         """
+        # set the seed to get predictable results
         np.random.seed(seed) 
-        
+        # initiate a table of probabilities to store the probability of the flux being found in each region
+        probability_table = []
+        # get del x
+        for xmin, xmax, N in self.ranges:
+            delx = (xmax - xmin)/(N-1) 
         # for every region:
         for i in range(M):
             inds = [j for j in range(round(i*len(self)/M), round((i+1)*len(self)/M))]
             exclude_inds = list(set(range(len(self))) - set(inds))
-            # create a matrix x:
-            x = np.identity(len(self), dtype=np.float32)
+            # create a  projection matrix x:
+            x = np.identity(len(self), dtype=np.float32)*delx
             x[exclude_inds, exclude_inds] = 0
-            # find probability of flux being in that region by taking <phi^* | x | phi> 
-            prob = np.transpose(np.conjugate(self)) @ x @ self
-            # is flux in that region? generate R.V that's 1 with prob  <phi^* | x | phi>  and 0 o.w. populate new wavevector with R.V in  that region
-            self[inds] = np.random.binomial(1, np.real(prob))
-        # normalize and retun 
-        if sum(self) == 0:
-            self[:] = 1/len(self) 
-        else:
-            self /= sum(self)
+            # find probability of flux being in that region by taking <phi^* | x | phi> and store in the probability table 
+            prob = np.real(np.transpose(np.conjugate(self)) @ x @ self)
+            probability_table.append(prob)
+        # Use multinomial RV to get the resul of throwing a weighted cube. Multinomial returns an array of size p.size where the entry in each index is the number of times
+        # the cube landed on that face
+        cube_throw = np.random.multinomial(1, probability_table)
+        region_number = int((np.where(cube_throw ==1)[0][0]))  # for some odd reason numpy returns the array index s a float which needs to be converted to an int for indexing
+        inds = [j for j in range(round(region_number*len(self)/M), round((region_number+1)*len(self)/M))]
+        exclude_inds = list(set(range(len(self))) - set(inds))
+
+        # collaps the wavefunction 
+        self[inds] = 1
+        self[exclude_inds] = 0
+        # normalize it
+        self /= sum(self)
         return self
 
     def resample_wv(self, **kwargs):
@@ -498,6 +517,7 @@ if __name__ == '__main__':
 #        import os
 #        os.remove("wavevector_plot_test_file_new.png")
 
+             
     dim_info = ((-20, 20, 200),)
     masses = (ħ,)
     wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
