@@ -11,7 +11,7 @@ import numpy as np
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
-from bokeh.models import ColumnDataSource, Slider, TextInput
+from bokeh.models import ColumnDataSource, Slider, TextInput, Toggle
 from bokeh.plotting import figure
 
 # Set up data
@@ -45,6 +45,7 @@ text = TextInput(title="title", value='LC potential')
 offset = Slider(title="offset", value=0.0, start=-5.0, end=5.0, step=0.1)
 inductance = Slider(title="L", value=1.0, start=0.1, end=5.0, step=0.1)
 capacitance = Slider(title="C", value=1.0, start=0.1, end=5.0)
+toggle = Toggle(label = "start/ pause", button_type = "success")
 
 
 # Set up callbacks
@@ -67,24 +68,25 @@ def update_data(attrname, old, new):
     source.data = dict(phi=phi, energy=energy, psi=psi)
 
 def callback():
-    L = inductance.value
-    C = capacitance.value
-    phi_0 = offset.value
-    time_t = time_source.data['time']
-    for t in time_t:
-        psi = np.exp(-(phi - phi_0 - np.sin(t*np.sqrt(L*C)))**2/np.sqrt(L*C))
-        source.data['psi'] = psi
-    t_initial = time_t[-1]
-    t_final = time_t[-1]+np.pi/16
-    time_t = np.linspace(t_initial, t_final, 7)
-    time_source.data['time'] = time_t   
+    if toggle.active:
+        L = inductance.value
+        C = capacitance.value
+        phi_0 = offset.value
+        time_t = time_source.data['time']
+        for t in time_t:
+            psi = np.exp(-(phi - phi_0 - np.sin(t*np.sqrt(L*C)))**2/np.sqrt(L*C))
+            source.data['psi'] = psi
+        t_initial = time_t[-1]
+        t_final = time_t[-1]+np.pi/16
+        time_t = np.linspace(t_initial, t_final, 7)
+        time_source.data['time'] = time_t   
 
 for w in [inductance, capacitance, offset]:
     w.on_change('value', update_data)
 
 
 # Set up layouts and add to document
-inputs = column(text, inductance, capacitance, offset)
+inputs = column(text, inductance, capacitance, offset, toggle)
 
 curdoc().add_root(row(inputs, plot, width=800))
 curdoc().title = "Sliders"

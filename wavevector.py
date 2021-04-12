@@ -69,7 +69,8 @@ class Wavevector(np.ndarray):
         self.ranges = getattr(obj, 'ranges', None)
         
     @classmethod
-    def from_wf(cls, wf: Wavefunction, *args):
+    #def from_wf(cls, wf: Wavefunction, *args):
+    def from_wf(cls, wf, *args):
         """make wavevector from wavefunction
 
         Factory method that takes a Wavefunction and a sequence of tuples (one for each 
@@ -127,6 +128,12 @@ class Wavevector(np.ndarray):
         >>> print(wv2.simple_measure_1d(4))
         [0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.25+0.j 0.25+0.j 0.25+0.j 0.25+0.j
          0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j]
+
+        >>> wf3 = Wavefunction.init_gaussian((1,0.1))
+        >>> wv3 = Wavevector.from_wf(wf2, (-0.5, 2, 12))
+        >>> print(wv3.simple_measure_1d(6))
+        [0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0.5+0.j
+         0.5+0.j 0. +0.j 0. +0.j]
         """
         # set the seed to get predictable results
         np.random.seed(seed) 
@@ -147,6 +154,7 @@ class Wavevector(np.ndarray):
             probability_table.append(prob)
         # Use multinomial RV to get the resul of throwing a weighted cube. Multinomial returns an array of size p.size where the entry in each index is the number of times
         # the cube landed on that face
+        probability_table = np.array(probability_table)/np.sum(probability_table)   # normalize probabilities in case wavevctor isn't normalized
         cube_throw = np.random.multinomial(1, probability_table)
         region_number = int((np.where(cube_throw ==1)[0][0]))  # for some odd reason numpy returns the array index s a float which needs to be converted to an int for indexing
         inds = [j for j in range(round(region_number*len(self)/M), round((region_number+1)*len(self)/M))]
@@ -337,11 +345,12 @@ class Wavevector(np.ndarray):
         return np.meshgrid(*((np.linspace(x_min, x_max, N) for x_min, x_max, N in self.ranges)))
 
 
-    def evolve(self, Vfunc,
-               masses: tuple,
-               times: tuple,
-               frames: int = 30,
-               t_dep: bool = True) -> np.array:
+    # def evolve(self, Vfunc,
+    #            masses: tuple,
+    #            times: tuple,
+    #            frames: int = 30,
+    #            t_dep: bool = True) -> np.array:
+    def evolve(self, Vfunc, masses, times, frames = 30, t_dep = True):
         """evolves wavevector in a (possibly time_varying) potential.
 
         Evolves the wavevector, changing its value continuously in time, and 
