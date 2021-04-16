@@ -17,7 +17,7 @@ from scipy.integrate import solve_ivp
 from q_operator import Op_matx
 from matplotlib.animation import FuncAnimation
 from matplotlib.widgets import Slider, Button, CheckButtons
-import random
+from wavefunction import Wavefunction
 
 pause = False
 
@@ -69,8 +69,7 @@ class Wavevector(np.ndarray):
         self.ranges = getattr(obj, 'ranges', None)
         
     @classmethod
-    #def from_wf(cls, wf: Wavefunction, *args):
-    def from_wf(cls, wf, *args):
+    def from_wf(cls, wf: Wavefunction, *args):
         """make wavevector from wavefunction
 
         Factory method that takes a Wavefunction and a sequence of tuples (one for each 
@@ -121,19 +120,20 @@ class Wavevector(np.ndarray):
         >>> wf = Wavefunction.init_gaussian((0,1))
         >>> wv = Wavevector.from_wf(wf, (-1, 1, 4))
         >>> print(wv.simple_measure_1d(2))
-        [0. +0.j 0. +0.j 0.5+0.j 0.5+0.j]
+        [0.70710678+0.j 0.70710678+0.j 0.        +0.j 0.        +0.j]
 
         >>> wf2 = Wavefunction.init_gaussian((1,0.5))
         >>> wv2 = Wavevector.from_wf(wf2, (-1, 3, 16))
         >>> print(wv2.simple_measure_1d(4))
-        [0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.25+0.j 0.25+0.j 0.25+0.j 0.25+0.j
-         0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j]
+        [0. +0.j 0. +0.j 0. +0.j 0. +0.j 0.5+0.j 0.5+0.j 0.5+0.j 0.5+0.j 0. +0.j
+         0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j]
 
         >>> wf3 = Wavefunction.init_gaussian((1,0.1))
         >>> wv3 = Wavevector.from_wf(wf2, (-0.5, 2, 12))
         >>> print(wv3.simple_measure_1d(6))
-        [0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0.5+0.j
-         0.5+0.j 0. +0.j 0. +0.j]
+        [0.        +0.j 0.        +0.j 0.        +0.j 0.        +0.j
+         0.        +0.j 0.        +0.j 0.        +0.j 0.        +0.j
+         0.70710678+0.j 0.70710678+0.j 0.        +0.j 0.        +0.j]
         """
         # set the seed to get predictable results
         np.random.seed(seed) 
@@ -162,9 +162,9 @@ class Wavevector(np.ndarray):
 
         # collaps the wavefunction 
         self[inds] = 1
-        self[exclude_inds] = 0
+        self[exclude_inds] = 0  
         # normalize it
-        self /= sum(self)
+        self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)))
         return self
 
     def resample_wv(self, **kwargs):
@@ -345,12 +345,11 @@ class Wavevector(np.ndarray):
         return np.meshgrid(*((np.linspace(x_min, x_max, N) for x_min, x_max, N in self.ranges)))
 
 
-    # def evolve(self, Vfunc,
-    #            masses: tuple,
-    #            times: tuple,
-    #            frames: int = 30,
-    #            t_dep: bool = True) -> np.array:
-    def evolve(self, Vfunc, masses, times, frames = 30, t_dep = True):
+    def evolve(self, Vfunc,
+               masses: tuple,
+               times: tuple,
+               frames: int = 30,
+               t_dep: bool = True) -> np.array:
         """evolves wavevector in a (possibly time_varying) potential.
 
         Evolves the wavevector, changing its value continuously in time, and 
@@ -491,7 +490,7 @@ class Evolution(object):
     
 
 if __name__ == '__main__':
-    from wavefunction import Wavefunction
+    
     import doctest
     doctest.testmod()
 

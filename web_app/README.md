@@ -13,6 +13,14 @@ web_app
             |__ Dockerfile
             |__ LC_circuit_bokeh.py
             |__ requirements.txt
+    
+    |__ bokeh2 
+            |__ bokeh2.yaml
+            |__ Dockerfile
+            |__ wavevector_measure_bokeh.py
+            |__ utils 
+                |__ wavevector.py 
+                |__ q_operator.py
     |__ main
             |__ main.yaml
             |__ app.py
@@ -49,9 +57,17 @@ For example `<img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" wi
 All the figures included in the text must be placed in the static folder. 
 I really don't know how CSS works. So, whenever I have a question, I just google it and copy and paste the code.
 
+### Bokeh 
+#### Bokeh1
+Bokeh1 service contains the interactive LC circuit simulation. The main entry point for the simulation is in the `LC_circuit_bokeh.py` script. The Google app engine uses `bokeh1.yaml` and `Dockerfile` to define the production environment.
+
+#### Bokeh2 
+Bokeh2 service contains the interactive wavefunction measurement simulation. The main entry point for the simulation is in the `wavevector_measure_bokeh.py` script. The Google app engine uses `bokeh2.yaml` and `Dockerfile` to define the production environment.
 
 ## Deploying
 ### Locally
-To deploy the site locally, navigate to `main` and run `app.py` by typing `python app.py` into the command line.
+To deploy the bokeh simulation, navigate to the bokeh directory and run `bokeh serve --<port number> <script>` or `python -m bokeh serve --<port number> <script>` if the former doesn't work. if you don't specify the port number, it will get deployed to port 5006.
+
+To deploy the main site locally, navigate to `main` and uncomment line 68 and comment line 67 in `app.py`. In `web_app/main` and run `app.py` by typing `python app.py` into the command line.
 ### Google App Engine
 To deploy to google app engine, you need to be signed into a Google Cloud account with administrative permissions to a project. You need to download the Gcloud command line tool and authenticate your credentials. Once that is all done, navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 

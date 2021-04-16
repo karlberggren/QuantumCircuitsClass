@@ -3,6 +3,9 @@ dispatch:
   - url: "*/LC_circuit_bokeh/*"
     service: bokeh1
 
+  - url: "*/wavevector_measure_bokeh/*"
+    service: bokeh2
+
   # Send all work to the one static backend.
   - url: "*/.*"
     service: default

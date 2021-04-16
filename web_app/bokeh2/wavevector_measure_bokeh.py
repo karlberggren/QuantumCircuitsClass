@@ -13,8 +13,8 @@ from bokeh.io import curdoc
 from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, Slider, Toggle, Button
 from bokeh.plotting import figure
-from wavevector import Wavevector
-from wavefunction import Wavefunction
+from utils.wavevector import Wavevector
+from utils.wavefunction import Wavefunction
 import time
 
 # global constants
