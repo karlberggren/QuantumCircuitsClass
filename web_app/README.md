@@ -70,4 +70,13 @@ To deploy the bokeh simulation, navigate to the bokeh directory and run `bokeh s
 
 To deploy the main site locally, navigate to `main` and uncomment line 68 and comment line 67 in `app.py`. In `web_app/main` and run `app.py` by typing `python app.py` into the command line.
 ### Google App Engine
-To deploy to google app engine, you need to be signed into a Google Cloud account with administrative permissions to a project. You need to download the Gcloud command line tool and authenticate your credentials. Once that is all done, navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
+#### If you already have a Google Cloud Project set up and the SDK downloaded
+Navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml bokeh2/bokeh2.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
+
+#### Getting started with App Engine
+1. Navigate to your [cloud console](https://console.cloud.google.com).
+2. Create a new project by clicking on the 'select project' dropdown menu on the banner and choose to make a new project.
+3. Enable billing for the app engine in the newly created project. 
+4. Follow [these](https://cloud.google.com/sdk/docs/install) instructions to download and install the Gcloud SDK. 
+5. Once installed, you'll need to authenticate your credentials and select a project to link the SDK. 
+6. Now you can navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml bokeh2/bokeh2.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
