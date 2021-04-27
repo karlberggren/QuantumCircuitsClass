@@ -5,40 +5,33 @@
     <div class="container">
         <div class="row mt-5">
             <h2 >Wavefunctions and Probability Amplitude</h2>
-            <div class="col-7">
+            <div class="col-12">
                 <h3>Wavefunction </h3>
-                <p>In the previous section, we went over probability density functions. Here, we introduce the concept of a system wavefunction, \( \psi(\Phi) \), which is defined as follows: 
+                <p>In the previous section, we covered probability density functions. Here, we introduce the concept of a system wavefunction, \( \psi(\Phi) \), which is defined as follows: 
                     \[ \psi^*(\Phi) \psi(\Phi) = P(\Phi) \]
                     where \( \psi^* \) is the complex conjugate of \( \psi \) and \( P(\Phi) \) is the probability density function of the system with respect to the random variable \( \Phi \). </p>
-                <p> The probability density \( P(\Phi) \) has to be real. However, \( \psi(\Phi) \) can be complex because it will always get multiplied by its complex conjugate when we do measurements.
-                    As a complex quantity, \( \psi \) has an amplitude and a phase. 
-                    \[ |\psi(\Phi)| = \sqrt{P(\Phi)} \]  
+                <p> The probability density \( P(\Phi) \) has to be a real valued function. However, \( \psi(\Phi) \) can be complex because it will always get multiplied by its complex conjugate when we make observations on the system.
+                    As a complex quantity, \( \psi \) has an amplitude and a phase and can be written as \( \psi = |\psi|e^{-j\angle \psi} \). 
                     \( |\psi(\Phi)| \) is commonly referred to as the probability amplitude of the system. 
+                 </p>
+                 <p>Below are interactive plots in which the wavefunction \[ \psi(\Phi) = \frac{1}{\sqrt[\leftroot{-2}\uproot{2}4]{\sigma^2 2 \pi}} e^{-(\Phi - \Phi_0)^2/4\sigma}e^{jk\Phi} \] is ploted on a 3 dimensional axis. 
+                     The flux, \(\Phi\), lies along the x axis; the real part of \(\psi\) lies along the y axis and the imaginary part of \(\psi \) lies along the z axis. The probability density function is plotted on the xy plane. Notice that 
+                     \[P(\Phi) \ = \ \psi^*\psi \ = \ \frac{1}{\sqrt[\leftroot{-2}\uproot{2}4]{\sigma^2 2 \pi}} \frac{1}{\sqrt[\leftroot{-2}\uproot{2}4]{\sigma^2 2 \pi}} e^{-(\Phi - \Phi_0)^2/4\sigma}e^{-jk\Phi} e^{-(\Phi - \Phi_0)^2/4\sigma}e^{jk\Phi} \ = \ \frac{1}{\sqrt{\sigma^2 2\pi}}e^{-(\Phi - \Phi_0)^2/2\sigma}\]. 
+                     The PDF of the wavefunction is a gaussian distribution with mean \( \Phi_0\) and standard diviation \(\sigma \). In each one of the interactive plots below, you can vary either \(k\), \(\sigma\), or \(\Phi_0 \) and observe the effect on the wavefunction and the probability distribution. 
                  </p>
 
             </div>
-            <div class="col-5">
-                <script>
-                let svg = d3.select('body').append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
-            let plot = d3.plot3d()
-                   .scale({scale: 10})
-                   .origin({origin: {x: 0, y: 0, z: 0}})
-                   .axes({xRange: 10, yRange: 10, zRange: 10})
-                   .plot({type: 'line', data: [{x: 5, y: 10, z: 10}, {x: 10, y: 15, z: 10}], attributes: {stroke: 'purple'}}) 
-                   .plot({type: 'polygon', data: [{x: 0, y: 0, z: 0}, {x: 10, y: 10, z: 10}, {x: 0, y: 10, z: 0}], attributes: {fill: 'orange'}}) 
-                   .plot({type: 'curve', data: {x: (t) => 3*Math.cos(t), y: (t) => 3*Math.sin(t), z: (t) => t, tMin: -10, tMax: 10, tStep: 0.1}, attributes: {stroke: 'brown'}})
-                   .plot({type: 'curve', data: {x: (t) => -3*Math.cos(t), y: (t) => 3*Math.sin(t), z: (t) => t, tMin: -10, tMax: 10, tStep: 0.1}, attributes: {stroke: 'maroon'}})
-                   .plot({type: 'point', data: [{x: 10, y:0 , z:0}], attributes: {stroke: 'maroon'}})
-                   .plot({type: 'surface', data: {z: (x, y) => Math.sin((x*x+y*y))}, attributes: {fill: 'purple'}})
-
-svg.call(plot)
-
-plot.draw()
-</script>
+            <div class="col-6">
                <!--{{ div_Classical_LC | safe }} -->
+               {% include 'wavefunction_changing_k.html' %}
                 
+            </div>
+            <div class="col-6">
+                {% include 'wavefunction_changing_sig.html' %}
+            </div>
+
+            <div class="col-6">
+                {% include 'wavefunction_changing_mu.html' %}
             </div>
         </div>
         <div class="row mt-5">
@@ -57,7 +50,7 @@ plot.draw()
             </p>
             </div>
             <div class="col-6"> 
-            {{ div_Probability_dens | safe }}
+            
         </div>
         </div>
         <div class="row mt-5">
@@ -88,11 +81,10 @@ plot.draw()
             </div>
         </div>
         <div class="row mt-5">
-            {{ div_Quantum_state | safe }}
+        
         </div>
         <img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" width="270" height="100" align="left">
         <img src="{{url_for('static', filename='eecs.png')}}" alt="EECS" width="auto" height="100" align="right"> 
     </div>
-    {{ script_Probability_dens | safe }}
-    {{ script_Quantum_state | safe }}
+    
 {% endblock %}
