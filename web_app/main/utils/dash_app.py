@@ -78,28 +78,28 @@ k= np.linspace(-5, 5, 21)
 phi_0 = 0
 sig = 1
 x = np.linspace(-5, 5, 400)
-data = {'x': np.array([]), 'y': np.array([]), 'z': np.array([]), 'k': np.array([])}
+data = {'phi': np.array([]), 'real': np.array([]), 'imaginary': np.array([]), 'k': np.array([])}
 
 for i, k_i in enumerate(k):
     k_arr = np.array([k_i]*len(x))
     psi = np.multiply(np.exp(1j*k_i*x), np.sqrt(np.exp(-np.power(x-phi_0, 2)/(2*sig**2))/(sig*np.sqrt(2*np.pi))))
     y = np.real(psi)
     z = np.imag(psi)
-    data['x'] = np.append(data['x'], x)
-    data['y'] = np.append(data['y'], y)
-    data['z'] = np.append(data['z'], z)
+    data['phi'] = np.append(data['phi'], x)
+    data['real'] = np.append(data['real'], y)
+    data['imaginary'] = np.append(data['imaginary'], z)
     data['k'] = np.append(data['k'], k_arr)
 
-data['trace'] = ["wavefunction" for i in range(len(data['x']))]
+data['trace'] = ["wavefunction" for i in range(len(data['phi']))]
 
 
 df = pd.DataFrame(data=data)
-fig = px.line_3d(df, x="x", y="y", z="z", animation_frame="k", color="trace")
+fig = px.line_3d(df, x="phi", y="real", z="imaginary", animation_frame="k", color="trace")
 
 #df2 = pd.DataFrame(dict(x=np.linspace(-5, 5, 300), y=np.exp(-np.power(x-phi_0, 2)/(2*sig[2]**2))/(sig[2]*np.sqrt(2*np.pi)), z=np.zeros(x.shape)))
 x2 = np.linspace(-5, 5, 300)
 y2 = np.exp(-np.power(x-phi_0, 2)/(2*sig**2))/(sig*np.sqrt(2*np.pi))
-z2 = z=np.zeros(x2.shape)
+z2 =-np.ones(x2.shape)
 #fig2 = px.line_3d(df2, x="x", y="y", z="z",color="z")
 fig.add_trace(go.Scatter3d(x=x2, y=y2, z=z2, name="pdf", mode="lines", line=dict(color='red', width=1)))
 
@@ -110,31 +110,31 @@ fig.write_html("wavefunction_changing_k.html")
 ## changing sig
 k = 3
 sig = np.logspace(-1, 1, 5)
-data2 = {'x': np.array([]), 'y': np.array([]), 'z': np.array([]), 'sig': np.array([])}
+data2 = {'phi': np.array([]), 'real': np.array([]), 'imaginary': np.array([]), 'sig': np.array([])}
 for i, sig_i in enumerate(sig):
     sig_arr = np.array([sig_i]*len(x))
     psi = np.multiply(np.exp(1j*k*x), np.sqrt(np.exp(-np.power(x-phi_0, 2)/(2*sig_i**2))/(sig_i*np.sqrt(2*np.pi))))
     y = np.real(psi)
     z = np.imag(psi)
-    data2['x'] = np.append(data2['x'], x)
-    data2['y'] = np.append(data2['y'], y)
-    data2['z'] = np.append(data2['z'], z)
+    data2['phi'] = np.append(data2['phi'], x)
+    data2['real'] = np.append(data2['real'], y)
+    data2['imaginary'] = np.append(data2['imaginary'], z)
     data2['sig'] = np.append(data2['sig'], sig_arr)
 
-data2['trace'] = ["wavefunction" for i in range(len(data2['x']))]
+data2['trace'] = ["wavefunction" for i in range(len(data2['phi']))]
 
 for i, sig_i in enumerate(sig):
     sig_arr = np.array([sig_i]*len(x))
     y = np.exp(-np.power(x-phi_0, 2)/(2*sig_i**2))/(sig_i*np.sqrt(2*np.pi))
-    z = np.zeros(x.shape)
-    data2['x'] = np.append(data2['x'], x)
-    data2['y'] = np.append(data2['y'], y)
-    data2['z'] = np.append(data2['z'], z)
+    z = -np.ones(x.shape)
+    data2['phi'] = np.append(data2['phi'], x)
+    data2['real'] = np.append(data2['real'], y)
+    data2['imaginary'] = np.append(data2['imaginary'], z)
     data2['sig'] = np.append(data2['sig'], sig_arr)
 
-data2['trace'] = data2['trace'] + ["pdf" for i in range(len(data2['x']) - len(data2['trace']))]
+data2['trace'] = data2['trace'] + ["pdf" for i in range(len(data2['phi']) - len(data2['trace']))]
 df2 = pd.DataFrame(data = data2)
-fig2 = px.line_3d(df2, x="x", y="y", z="z", animation_frame="sig", color="trace")
+fig2 = px.line_3d(df2, x="phi", y="real", z="imaginary", animation_frame="sig", color="trace")
 fig2["layout"].pop("updatemenus") # optional, drop animation buttons
 fig2.write_html("wavefunction_changing_sig.html")
 
@@ -143,30 +143,30 @@ fig2.write_html("wavefunction_changing_sig.html")
 k = 2
 sig = 1
 mu = np.linspace(-3, 3, 13)
-data3 = {'x': np.array([]), 'y': np.array([]), 'z': np.array([]), 'mu': np.array([])}
+data3 = {'phi': np.array([]), 'real': np.array([]), 'imaginary': np.array([]), 'mu': np.array([])}
 for i, mu_i in enumerate(mu):
     mu_arr = np.array([mu_i]*len(x))
     psi = np.multiply(np.exp(1j*k*x), np.sqrt(np.exp(-np.power(x-mu_i, 2)/(2*sig**2))/(sig*np.sqrt(2*np.pi))))
     y = np.real(psi)
     z = np.imag(psi)
-    data3['x'] = np.append(data3['x'], x)
-    data3['y'] = np.append(data3['y'], y)
-    data3['z'] = np.append(data3['z'], z)
+    data3['phi'] = np.append(data3['phi'], x)
+    data3['real'] = np.append(data3['real'], y)
+    data3['imaginary'] = np.append(data3['imaginary'], z)
     data3['mu'] = np.append(data3['mu'], mu_arr)
 
-data3['trace'] = ["wavefunction" for i in range(len(data3['x']))]
+data3['trace'] = ["wavefunction" for i in range(len(data3['phi']))]
 
 for i, mu_i in enumerate(mu):
     mu_arr = np.array([mu_i]*len(x))
     y = np.exp(-np.power(x-mu_i, 2)/(2*sig**2))/(sig*np.sqrt(2*np.pi))
-    z = np.zeros(x.shape)
-    data3['x'] = np.append(data3['x'], x)
-    data3['y'] = np.append(data3['y'], y)
-    data3['z'] = np.append(data3['z'], z)
+    z = -np.ones(x.shape)
+    data3['phi'] = np.append(data3['phi'], x)
+    data3['real'] = np.append(data3['real'], y)
+    data3['imaginary'] = np.append(data3['imaginary'], z)
     data3['mu'] = np.append(data3['mu'], mu_arr)
 
-data3['trace'] = data3['trace'] + ["pdf" for i in range(len(data3['x']) - len(data3['trace']))]
+data3['trace'] = data3['trace'] + ["pdf" for i in range(len(data3['phi']) - len(data3['trace']))]
 df3 = pd.DataFrame(data = data3)
-fig3 = px.line_3d(df3, x="x", y="y", z="z", animation_frame="mu", color="trace")
+fig3 = px.line_3d(df3, x="phi", y="real", z="imaginary", animation_frame="mu", color="trace")
 fig3["layout"].pop("updatemenus") # optional, drop animation buttons
 fig3.write_html("wavefunction_changing_mu.html")

@@ -59,6 +59,7 @@ for i in range(0, len(fig_k.data)-1, 3):
         method="update",
         args=[{"visible": [False] * len(fig_k.data)},
               {"title": "k= " + str(k[i//3])}],  # layout attribute
+        label=str(k[i//3])
     )
     step["args"][0]["visible"][i] = True  # Toggle i'th trace to "visible"
     step["args"][0]["visible"][i+1] = True  # Toggle i'th trace to "visible"
@@ -155,7 +156,8 @@ for i in range(0, len(fig_sig.data), 4):
     step = dict(
         method="update",
         args=[{"visible": [False] * len(fig_sig.data)},
-              {"title": "Sigma: " + str(sig_arr[i//4])}],  # layout attribute
+              {"title": "Sigma: " + str(round(sig_arr[i//4],2))}],  # layout attribute
+        label=str(round(sig_arr[i//4],2))
     )
     step["args"][0]["visible"][i] = True  # Toggle i'th trace to "visible"
     step["args"][0]["visible"][i+1] = True  # Toggle i'th trace to "visible"
@@ -253,6 +255,7 @@ for i in range(0, len(fig_mean.data), 4):
         method="update",
         args=[{"visible": [False] * len(fig_mean.data)},
               {"title": "Phi_0= " + str(phi_0[i//4])}],  # layout attribute
+        label=str(phi_0[i//4])
     )
     step["args"][0]["visible"][i] = True  # Toggle i'th trace to "visible"
     step["args"][0]["visible"][i+1] = True  # Toggle i'th trace to "visible"
@@ -262,7 +265,7 @@ for i in range(0, len(fig_mean.data), 4):
 
 sliders = [dict(
     active=6,
-    currentvalue={"prefix": "Standard diviation: "},
+    currentvalue={"prefix": "Mean: "},
     pad={"t": 40},
     steps=steps
 )]

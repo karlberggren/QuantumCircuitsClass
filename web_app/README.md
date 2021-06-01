@@ -31,6 +31,8 @@ web_app
                             |__ main.css
             |__ templates
                     |__ All the HTML files
+            |__ utils
+                    |__ Sandbox files
 
 ```
 The `dispatch.yaml` file is responsible for defining service allocation for the Google app deployment. To be perfectly honest, I don't have the slightest idea how it works or what it does, but I know through trial and error (lots and lots of error) that it makes things work. I'll explain how to use it in the [Deploying on Google App Engine](https://github.com/karlberggren/QuantumCircuitsClass/tree/main/web_app#deploying) section. 
@@ -80,3 +82,19 @@ Navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bo
 4. Follow [these](https://cloud.google.com/sdk/docs/install) instructions to download and install the Gcloud SDK. 
 5. Once installed, you'll need to authenticate your credentials and select a project to link the SDK. 
 6. Now you can navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml bokeh2/bokeh2.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
+
+## Sandboxes 
+#### Classical LC circuit 
+*Need more information about this sandbox*
+Implemented using a bokeh server which utilizes callbacks to update the visualization. Because the number of varying parameters is large (k=5), precomputing all possible data points will require an unreasonable number of calculations (n^k). Therefore, callback was prefferd for this task. 
+#### Complex wavefunction visualization 
+*Need more information about this sandbox*
+#### Gaussian Wave-packet
+**Learning goal:** introduce the gaussian wavepacket as a wavefunction of special interest and show how the wavefunction and the probaility amplitude change when varying the wavefunction's parameters. 
+**Implementation:** plotly with precomputed data. All data points are precomputed and attached to the plot object. A slider controls which traces are visible at any time. 
+
+
+#### Quantum measurement
+
+#### Diffusion sandbox
+*Need more information about this sandbox*
