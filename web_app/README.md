@@ -84,17 +84,17 @@ Navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bo
 6. Now you can navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml bokeh2/bokeh2.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
 
 ## Sandboxes 
-#### Classical LC circuit 
+### Classical LC circuit 
 *Need more information about this sandbox*
 Implemented using a bokeh server which utilizes callbacks to update the visualization. Because the number of varying parameters is large (k=5), precomputing all possible data points will require an unreasonable number of calculations (n^k). Therefore, callback was prefferd for this task. 
-#### Complex wavefunction visualization 
+### Complex wavefunction visualization 
 *Need more information about this sandbox*
-#### Gaussian Wave-packet
+### Gaussian Wave-packet
 **Learning goal:** introduce the gaussian wavepacket as a wavefunction of special interest and show how the wavefunction and the probaility amplitude change when varying the wavefunction's parameters. 
 **Implementation:** plotly with precomputed data. All data points are precomputed and attached to the plot object. A slider controls which traces are visible at any time. 
 
 
-#### Quantum measurement
+### Quantum measurement
 
 #### Diffusion sandbox
 *Need more information about this sandbox*
