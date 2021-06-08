@@ -137,6 +137,7 @@ class Wavevector(np.ndarray):
          0.        +0.j 0.        +0.j 0.        +0.j 0.        +0.j
          0.70710678+0.j 0.70710678+0.j 0.        +0.j 0.        +0.j]
         """
+        # TODO: use numpy matrices to avoid the loop. It might speed up computation. 
         # set the seed to get predictable results
         np.random.seed(seed) 
         # initiate a table of probabilities to store the probability of the flux being found in each region
@@ -168,6 +169,41 @@ class Wavevector(np.ndarray):
         # normalize it
         self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)))
         return self
+
+    def collapse_1d(self, basis, seed = 0):
+        """collapse wavefunction into a subspace
+
+        Perform a simulated measurement on the wavevector that projects it into a basis function of
+        a subspace and then renormalizes the output to return the post-measurement
+        wavevector.
+
+        The basis functions of the subspace are columns of the basis argument 
+        Args:
+            basis: a matrix whose columns represent 
+
+        Returns:
+            Wavevector consisting of normalized post-measurement
+        """
+
+        probability_table = []
+        for i in range(len(basis[0, :])):
+            projected = (basis[:, i] @ self)*basis[:, i]/(np.sqrt(basis[:, i] @ basis[:, i]))
+            prob = np.real(np.transpose(np.conjugate(projected)) @ projected)
+            probability_table.append(prob)
+        probability_table = np.array(probability_table)/np.sum(probability_table)
+        cube_throw = np.random.multinomial(1, probability_table)
+        basis_function_number = int((np.where(cube_throw ==1)[0][0]))
+        
+        # collaps wavefunction
+        self[:] = basis[:, basis_function_number]
+        # normalize
+        self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)))
+        return self
+
+
+
+
+
 
     def resample_wv(self, **kwargs):
         """
