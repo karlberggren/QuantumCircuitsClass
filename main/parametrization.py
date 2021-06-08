@@ -39,32 +39,27 @@ L_step = 1e-6
 L_min = 1e-6
 L_max = 100e-6
 L = L_center
-x_range = 3
+x_range = 3*Φo
 phi_0 = 0
 Q_0 = 0
 phi = np.linspace(-x_range, x_range,N)
-energy = (phi - phi_0)**2/(2*L_center)/(4*π**2)*Φo**2
+energy = (phi - phi_0)**2/(2*L_center)
 
 ω = 1/np.sqrt(L_center*C_center)
 T = 2 * π / ω
-#t_initial = 0
-#t_final = T
-#time_t = np.linspace(t_initial, t_final, 7)
 t = 0
 
-dim_info = ((-x_range*Φo/2/π, x_range*Φo/2/π, N),)
+dim_info = ((-x_range, x_range, N),)
 masses = (C_center,)
 σ = np.sqrt(ħ/2*np.sqrt(L_center/C_center))
 wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((phi_0, σ)), *dim_info)
 pdf = np.abs(wv_o)**2
 
-classical = energy[:]
 δφ = 2*x_range / N
 booleans = [True if (phi_0 - δφ) < x < (phi_0 + δφ) else False for x in phi]
 
 source = ColumnDataSource(data=dict(phi=phi, energy=energy, pdf=pdf))
 classical_view = CDSView(source=source, filters=[BooleanFilter(booleans)])
-#time_source = ColumnDataSource(data=dict(time=time_t))
 
 # set up grid: each quadrant is actually goldern-ratio rectangle
 
@@ -82,18 +77,11 @@ quad1 = figure(plot_height=plot_height, plot_width=plot_width,
 quad1.line('phi', 'energy', source=source, line_width=3, line_alpha=0.6)
 quad1.circle('phi', 'energy', source=source, line_width=3, view=classical_view)
 
-#classical_point = quad1.circle([0],[0], size=10, color="navy", alpha=0.5)
-
 # quadrant 2: L, C, Φ_EXT sliders
 init_offset = Slider(title="phi_0", value=0.0, start=-5.0, end=5.0, step=0.1)
 offset = Slider(title="⟨Φ⟩_{EXT}", value=0.0, start=-5.0, end=5.0, step=0.1)
-#packet_width = Slider(title="σ", value=0.1, start=0.1, end=5.0, step=0.1)
 inductance = Slider(title="L [μH]", value=L_center*1e6, start=L_min*1e6, end=L_max*1e6, step=L_step*1e6, format = '0.0f')
 capacitance = Slider(title="C [fF]", value=C_center*1e15, start=C_min*1e15, end=C_max*1e15, step=C_step*1e15, format = '0.0f')
-#ω_text = str(1/np.sqrt(L*C))
-#x_text = 0
-#y_text = 0
-#ω_label = Text(x = 'x', y = 'y', text = 'ω_text')
 
 quad2 = gridplot([[inductance,capacitance],[offset,init_offset],[None,None]], plot_width = int(plot_width/2), plot_height = int(plot_height/2))
 
@@ -105,25 +93,22 @@ quad3 = figure(plot_height=plot_height,
 quad3.line('phi', 'pdf', source=source, line_width=3, color="black", alpha=0.5)
 
 # quadrant 4: ⟨Φ⟩(t=0) and σ_Φ(t=0) sliders, play/pause, reset buttons
-start_pause = Button(label = "Start/Pause")
+start_pause = Button(label = '⏸')
 #reset = Button(label = "Reset", button_type = "success")
 reset = Button(label = "Reset")
 quad4 = gridplot([[start_pause, reset]])
 
 # Set up widgets
-
 def update_data(attrname, old, new):
     global t, C, L, wv_o, phi_ext, phi_0
-    global phi_ext, phi_0
     # Get the current slider values
     L = inductance.value/1e6
     C = capacitance.value/1e15
-    phi_ext = offset.value
-    phi_0 = init_offset.value
-    σ = np.sqrt(ħ/2*np.sqrt(L/C))
+    phi_ext = offset.value*Φo
+    phi_0 = init_offset.value*Φo
     
     # Generate the new curve
-    energy = (phi - phi_ext)**2/(2*L)/(4*π**2)*Φo**2
+    energy = (phi - phi_ext)**2/(2*L)
 
     source.data = dict(phi=phi, energy=energy, pdf=pdf)
     booleans = [True if (phi_0 - phi_ext*np.cos(ω*t) - δφ/2) < x < (phi_0 - phi_ext*np.cos(ω*t) + δφ/2) else False for x in phi]
@@ -132,19 +117,19 @@ def update_data(attrname, old, new):
 
 
 def callback():
-    global t, C, L, wv_o, phi_ext, phi_0
+    global t, C, L, wv_o, phi_ext, phi_0, pdf
     # move forward by callback_period
     L = inductance.value/1e6
     C = capacitance.value/1e15
-    phi_ext = offset.value
-    phi_0 = init_offset.value
+    phi_ext = offset.value*Φo
+    phi_0 = init_offset.value*Φo
 
     #time_t = time_source.data['time']
     def V(Φ):
         return (Φ - phi_ext)**2/(2*L)
     if update_time :
         masses = (C,)
-        wv_o.evolve(V, masses, (0, update_time/1000*T*1e-30), frames = 1, t_dep = False)
+        wv_o.evolve(V, masses, (0, update_time/1000*T*1e-4), frames = 1, t_dep = False)
         pdf = np.abs(wv_o)**2
     #pdf = 1/(2*π*σ**2)**(0.25)*np.exp(-(phi - phi_0 - phi_ext*np.cos(ω*t))**2/(4*σ**2))
     source.data['pdf'] = pdf
@@ -156,21 +141,24 @@ for w in [offset, inductance, capacitance, init_offset]:
     w.on_change('value', update_data)
 
 def update_start_pause():
-    global update_time
+    global update_time, start_pause
     if update_time > 0:
         update_time = 0
+        start_pause.label = '▶'
     else:
         update_time = callback_period
+        start_pause.label = '⏸'
 
 def update_reset():
     global t
     global wv_o, phi_0, phi_ext, L, C
+    global pdf
     L = inductance.value/1e6
     C = capacitance.value/1e15
-    phi_ext = offset.value
-    phi_0 = init_offset.value
+    phi_ext = offset.value*Φo
+    phi_0 = init_offset.value*Φo
     σ = np.sqrt(ħ/2*np.sqrt(L/C))
-    energy = (phi - phi_ext)**2/(2*L)/(4*π**2)*Φo**2
+    energy = (phi - phi_ext)**2/(2*L)
 
     wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((phi_ext, σ)), *dim_info)
     pdf = np.abs(wv_o)**2
