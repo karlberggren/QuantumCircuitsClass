@@ -2,7 +2,8 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 from scipy.sparse import diags, issparse
 
-ħ = 1.05e-34  # planck's constant J s
+#ħ = 1.05e-34  # planck's constant J s
+ħ = 1  # planck's constant J s
 
 class Operator(object):
     """
