@@ -31,6 +31,8 @@ web_app
                             |__ main.css
             |__ templates
                     |__ All the HTML files
+            |__ utils
+                    |__ Sandbox files
 
 ```
 The `dispatch.yaml` file is responsible for defining service allocation for the Google app deployment. To be perfectly honest, I don't have the slightest idea how it works or what it does, but I know through trial and error (lots and lots of error) that it makes things work. I'll explain how to use it in the [Deploying on Google App Engine](https://github.com/karlberggren/QuantumCircuitsClass/tree/main/web_app#deploying) section. 
@@ -80,3 +82,120 @@ Navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bo
 4. Follow [these](https://cloud.google.com/sdk/docs/install) instructions to download and install the Gcloud SDK. 
 5. Once installed, you'll need to authenticate your credentials and select a project to link the SDK. 
 6. Now you can navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml bokeh2/bokeh2.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
+
+## Sandboxes 
+### Classical LC circuit 
+*Need more information about this sandbox*
+Implemented using a bokeh server which utilizes callbacks to update the visualization. Because the number of varying parameters is large (k=5), precomputing all possible data points will require an unreasonable number of calculations (n^k). Therefore, callback was prefferd for this task. 
+### Complex wavefunction visualization 
+*Need more information about this sandbox*
+### Gaussian Wave-packet
+**Learning goal:** introduce the gaussian wavepacket as a wavefunction of special interest and show how the wavefunction and the probaility amplitude change when varying the wavefunction's parameters.
+**Implementation:** plotly with pre-computed data. All data points are pre-computed and attached to the plot object. A slider controls which traces are visible at any time. The changeable variables: wavenumber (momentum), mean and spread.   
+The below code snippet creates a gaussian wavepacket sandbox where the wavenumber can be varied using a slider. The full code can be found [here](https://github.com/karlberggren/QuantumCircuitsClass/blob/main/web_app/main/utils/plotly_slider.py).
+```
+import plotly.graph_objects as go
+import numpy as np
+
+# Create figure
+fig_k = go.Figure()
+
+# Initialize x range and parameters
+x=np.arange(-5, 5.05, 0.05)
+k= np.linspace(-5, 5, 21)
+phi_0 = 0
+sig = 1
+
+# Iterate over all k values. For each k value, compute the complex wavefunction, real part, imaginary part, and probability amplitude.  
+for k_i in np.arange(-5, 5, 0.5):
+    psi = np.multiply(np.exp(1j*k_i*x), np.sqrt(np.exp(-np.power(x-phi_0, 2)/(2*sig**2))/(sig*np.sqrt(2*np.pi))))
+    # add wavefunction trace to figure
+    fig_k.add_trace(
+        go.Scatter3d(
+            visible=False,
+            line=dict(color="black", width=2),
+            name="wavefunction",
+            x=x,
+            y=np.imag(psi), 
+            z=np.real(psi),
+            mode="lines"))
+    # add real projection of wavefunction trace to figure
+    fig_k.add_trace(
+        go.Scatter3d(
+            visible=False,
+            line=dict(color="red", width=1),
+            name="real part",
+            x=x,
+            y=-np.ones(psi.shape),
+            z=np.real(psi),  
+            mode="lines"))
+    # add imaginary projection of wavefunction trace to figure
+    fig_k.add_trace(
+        go.Scatter3d(
+            visible=False,
+            line=dict(color="orange", width=1),
+            name="imaginary part",
+            x= x,
+            y= np.imag(psi), 
+            z= -np.ones(psi.shape), 
+            mode="lines"))
+
+x2 = np.arange(-5, 5.05, 0.05)
+y2 =-np.ones(x2.shape)
+z2 = np.sqrt(np.exp(-np.power(x-phi_0, 2)/(2*sig**2))/(sig*np.sqrt(2*np.pi)))
+# add probability amplitude trace to figure
+fig_k.add_trace(go.Scatter3d(visible=True, x=x2, y=y2, z=z2, name="prob amplitude", mode="lines", line=dict(color='black', width=2)))
+
+# Make the traces corresponding to k=0 visible by default
+fig_k.data[30].visible = True
+fig_k.data[31].visible = True
+fig_k.data[32].visible = True
+
+# Create and add slider
+steps = []
+for i in range(0, len(fig_k.data)-1, 3):
+    step = dict(
+        method="update",
+        args=[{"visible": [False] * len(fig_k.data)},
+              {"title": "k= " + str(k[i//3])}],  # layout attribute
+        label=str(k[i//3])
+    )
+    step["args"][0]["visible"][i] = True  # Toggle i'th trace to "visible"
+    step["args"][0]["visible"][i+1] = True  # Toggle i+1'th trace to "visible"
+    step["args"][0]["visible"][i+2] = True  # Toggle i+2'th trace to "visible"
+    step["args"][0]["visible"][-1] = True   # Toggle the prob amplitude trace to "visible"
+    steps.append(step)
+
+sliders = [dict(
+    active=10,
+    currentvalue={"prefix": "Wave number: "},
+    pad={"t": 50},
+    steps=steps
+)]
+
+# add slider to image object
+fig_k.update_layout(
+    sliders=sliders
+)
+
+# Update latout 
+fig_k.update_layout(
+    scene = dict(
+        xaxis = dict(nticks=10, range=[-5,5],),
+        yaxis = dict(nticks=4, range=[-1,1],),
+        zaxis = dict(nticks=4, range=[-1,1],),
+        xaxis_title='Phi',
+        yaxis_title='Imaginary', 
+        zaxis_title='Real',))
+# Update latout 
+fig_k.update_layout(scene_aspectmode='manual',
+                  scene_aspectratio=dict(x=2, y=1, z=1))
+
+fig_k.show()
+fig_k.write_html("wavefunction_changing_k.html")
+```
+
+### Quantum measurement
+
+#### Diffusion sandbox
+*Need more information about this sandbox*
