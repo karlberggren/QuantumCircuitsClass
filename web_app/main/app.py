@@ -64,7 +64,7 @@ def home():
 
 @app.route('/Classical_LC',methods=['GET'] )
 def classical_LC():
-    script = server_document('https://bokeh1-dot-quantum-circuits-307315.uc.r.appspot.com/LC_circuit_bokeh')
+    script = server_document('https://bokeh1-dot-quantum-circuits-306715.ue.r.appspot.com/LC_circuit_bokeh')
     #script = server_document('http://localhost:5006/LC_circuit_bokeh')
     return render_template("classical_LC.html", script=script)
 
@@ -86,20 +86,8 @@ def probability():
 @app.route('/Prob_amplitiude', methods=['GET', 'POST'])
 def Prob_amplitiude():
     selected_class = request.form.get('dropdown-select')
-    if selected_class == 0 or selected_class == None:
-        Probability_dens, Quantum_state = redraw(1)
-    else:
-        Probability_dens, Quantum_state = redraw(selected_class)
-
-    #script_Classical_LC, div_Classical_LC = components(Classical_LC)
-    script_Probability_dens, div_Probability_dens = components(Probability_dens)
-    script_Quantum_state , div_Quantum_state  = components(Quantum_state )
-    return render_template('index.html',
-            div_Probability_dens=div_Probability_dens,
-            script_Probability_dens=script_Probability_dens,
-            div_Quantum_state=div_Quantum_state,
-            script_Quantum_state=script_Quantum_state,
-            selected_class=selected_class)
+    script = server_document('https://bokeh2-dot-quantum-circuits-306715.ue.r.appspot.com/wavevector_measure_bokeh')
+    return render_template('index.html', wavevector_measurement =script, selected_class=selected_class)
 
 
 def animated_interactive(data, pass_class):
