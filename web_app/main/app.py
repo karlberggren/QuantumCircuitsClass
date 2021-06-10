@@ -72,6 +72,10 @@ def classical_LC():
 def teaching_staff():
     return render_template("teaching_staff.html")
 
+@app.route('/schrodinger',methods=['GET'] )
+def schrodinger():
+    return render_template("schrodinger.html")
+
 @app.route('/probability',methods=['GET'] )
 def probability():
     Probability_dens, Quantum_state = redraw(0)
