@@ -15,14 +15,17 @@ from numpy.testing import assert_almost_equal
 from inspect import signature
 from scipy.integrate import solve_ivp
 from .q_operator import Op_matx
+
 from matplotlib.animation import FuncAnimation
 from matplotlib.widgets import Slider, Button, CheckButtons
+from .wavefunction import Wavefunction
 
 pause = False
 
 π = np.pi
 oo = np.inf
-ħ = 1.05e-34 
+#ħ = 1.05e-34 
+ħ = 1
 class Wavevector(np.ndarray):
     """
 
@@ -68,8 +71,7 @@ class Wavevector(np.ndarray):
         self.ranges = getattr(obj, 'ranges', None)
         
     @classmethod
-    #def from_wf(cls, wf: Wavefunction, *args):
-    def from_wf(cls, wf, *args):
+    def from_wf(cls, wf: Wavefunction, *args):
         """make wavevector from wavefunction
 
         Factory method that takes a Wavefunction and a sequence of tuples (one for each 
@@ -101,7 +103,7 @@ class Wavevector(np.ndarray):
         new_wavevector.ranges = args
         return new_wavevector
 
-    def simple_measure_1d(self, M, seed = 0):
+    def simple_measure_1d(self, M: int, seed: int = 0):
         """collapse wavefunction into a subspace
 
         Perform a simulated measurement on the wavevector that projects it into
@@ -120,20 +122,22 @@ class Wavevector(np.ndarray):
         >>> wf = Wavefunction.init_gaussian((0,1))
         >>> wv = Wavevector.from_wf(wf, (-1, 1, 4))
         >>> print(wv.simple_measure_1d(2))
-        [0. +0.j 0. +0.j 0.5+0.j 0.5+0.j]
+        [0.70710678+0.j 0.70710678+0.j 0.        +0.j 0.        +0.j]
 
         >>> wf2 = Wavefunction.init_gaussian((1,0.5))
         >>> wv2 = Wavevector.from_wf(wf2, (-1, 3, 16))
         >>> print(wv2.simple_measure_1d(4))
-        [0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.25+0.j 0.25+0.j 0.25+0.j 0.25+0.j
-         0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j 0.  +0.j]
+        [0. +0.j 0. +0.j 0. +0.j 0. +0.j 0.5+0.j 0.5+0.j 0.5+0.j 0.5+0.j 0. +0.j
+         0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j]
 
         >>> wf3 = Wavefunction.init_gaussian((1,0.1))
         >>> wv3 = Wavevector.from_wf(wf2, (-0.5, 2, 12))
         >>> print(wv3.simple_measure_1d(6))
-        [0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0.5+0.j
-         0.5+0.j 0. +0.j 0. +0.j]
+        [0.        +0.j 0.        +0.j 0.        +0.j 0.        +0.j
+         0.        +0.j 0.        +0.j 0.        +0.j 0.        +0.j
+         0.70710678+0.j 0.70710678+0.j 0.        +0.j 0.        +0.j]
         """
+        # TODO: use numpy matrices to avoid the loop. It might speed up computation. 
         # set the seed to get predictable results
         np.random.seed(seed) 
         # initiate a table of probabilities to store the probability of the flux being found in each region
@@ -161,10 +165,45 @@ class Wavevector(np.ndarray):
 
         # collaps the wavefunction 
         self[inds] = 1
-        self[exclude_inds] = 0
+        self[exclude_inds] = 0  
         # normalize it
-        self /= np.sum(np.power(np.absolute(self), 2))
+        self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)*delx))
         return self
+
+    def collapse_1d(self, basis, seed = 0):
+        """collapse wavefunction into a subspace
+
+        Perform a simulated measurement on the wavevector that projects it into a basis function of
+        a subspace and then renormalizes the output to return the post-measurement
+        wavevector.
+
+        The basis functions of the subspace are columns of the basis argument 
+        Args:
+            basis: a matrix whose columns represent 
+
+        Returns:
+            Wavevector consisting of normalized post-measurement
+        """
+
+        probability_table = []
+        for i in range(len(basis[0, :])):
+            projected = (basis[:, i] @ self)*basis[:, i]/(np.sqrt(basis[:, i] @ basis[:, i]))
+            prob = np.real(np.transpose(np.conjugate(projected)) @ projected)
+            probability_table.append(prob)
+        probability_table = np.array(probability_table)/np.sum(probability_table)
+        cube_throw = np.random.multinomial(1, probability_table)
+        basis_function_number = int((np.where(cube_throw ==1)[0][0]))
+        
+        # collaps wavefunction
+        self[:] = basis[:, basis_function_number]
+        # normalize
+        self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)))
+        return self
+
+
+
+
+
 
     def resample_wv(self, **kwargs):
         """
@@ -344,12 +383,11 @@ class Wavevector(np.ndarray):
         return np.meshgrid(*((np.linspace(x_min, x_max, N) for x_min, x_max, N in self.ranges)))
 
 
-    # def evolve(self, Vfunc,
-    #            masses: tuple,
-    #            times: tuple,
-    #            frames: int = 30,
-    #            t_dep: bool = True) -> np.array:
-    def evolve(self, Vfunc, masses, times, frames = 30, t_dep = True):
+    def evolve(self, Vfunc,
+               masses: tuple,
+               times: tuple,
+               frames: int = 30,
+               t_dep: bool = True) -> np.array:
         """evolves wavevector in a (possibly time_varying) potential.
 
         Evolves the wavevector, changing its value continuously in time, and 
@@ -395,8 +433,9 @@ class Wavevector(np.ndarray):
 
             # peform simulation
             frame_times = np.linspace(*times, frames)
-            r = solve_ivp(dψdt, times, self, method='RK23', 
-                          t_eval = frame_times)
+            print(type(self))
+            #r = solve_ivp(dψdt, times, self, t_eval = frame_times)
+            r = solve_ivp(dψdt, times, self, method='RK23', t_eval = frame_times)
 
             if not (r.status == 0):  # solver did not reach the end of tspan
                 print(r.message)
@@ -490,7 +529,7 @@ class Evolution(object):
     
 
 if __name__ == '__main__':
-    from wavefunction import Wavefunction
+    
     import doctest
     doctest.testmod()
 
@@ -524,10 +563,11 @@ if __name__ == '__main__':
 #        os.remove("wavevector_plot_test_file_new.png")
 
              
-    dim_info = ((-20, 20, 200),)
+    dim_info = ((-20, 20, 100),)
     masses = (ħ,)
     wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
-    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1e-33, n=4, t_dep = False)
+    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1, n=20, t_dep = False)
+#    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1, n=20, t_dep = False)
     plt.show()
     print("end wavevector")
     

@@ -167,7 +167,7 @@ class Wavevector(np.ndarray):
         self[inds] = 1
         self[exclude_inds] = 0  
         # normalize it
-        self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)))
+        self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)*delx))
         return self
 
     def collapse_1d(self, basis, seed = 0):
