@@ -417,7 +417,7 @@ class Wavevector(np.ndarray):
         """ 
         if t_dep:
             def dψdt(t, ψ):  # key function for evolution
-                return (KE.dot(ψ) + params["V_matx"]*ψ)/(1j*ħ)
+                return (KE.dot(ψ) + params["V_matx"]*ψ)/(ħ)
             raise NotImplementedError
         else:
             # make our Hamiltonian
@@ -429,7 +429,7 @@ class Wavevector(np.ndarray):
             Hamiltonian = KE + potential
 
             def dψdt(t, ψ):  # key function for evolution
-                return Hamiltonian.dot(ψ)/(1j*ħ)
+                return Hamiltonian.dot(ψ)/(ħ)
 
             # peform simulation
             frame_times = np.linspace(*times, frames)

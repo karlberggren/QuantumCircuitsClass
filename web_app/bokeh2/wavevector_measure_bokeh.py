@@ -27,7 +27,8 @@ oo = np.inf
 x_min, x_max, N = -10, 10, 200
 dim_info = ((x_min, x_max, N),)
 masses = (ħ,)
-wv_o = Wavevector.from_wf((1+1j)/np.sqrt(2)*Wavefunction.init_gaussian((0,1)), *dim_info)
+#wv_o = Wavevector.from_wf((1+1j)/np.sqrt(2)*Wavefunction.init_gaussian((0,1)), *dim_info)
+wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
 
 
 phi = np.linspace(x_min, x_max, N, N)
@@ -44,23 +45,26 @@ source = ColumnDataSource(data=dict(phi=phi, pdf=pdf, real=real, imag=imag))
 time_source = ColumnDataSource(data=dict(time=time_t))
 
 # Set up plot
-plot_pdf = figure(plot_height=400, plot_width=400, title="Wavefunction pdf",
-              tools="crosshair,pan,reset,save,wheel_zoom",
+plot_pdf = figure(plot_height=400, plot_width=600, title="Wavefunction pdf",
+              tools="",
               x_range=[x_min, x_max])
 
 plot_pdf.line('phi', 'pdf', source=source, line_width=3, line_alpha=0.6, line_color='black')
+plot_pdf.toolbar.logo = None
 
-plot_real = figure(plot_height=400, plot_width=400, title="Wavefunction: real part",
-              tools="crosshair,pan,reset,save,wheel_zoom",
+plot_real = figure(plot_height=200, plot_width=300, title="Real part",
+              tools="",
               x_range=[x_min, x_max])
 
 plot_real.line('phi', 'real', source=source, line_width=3, line_alpha=0.6, line_color='red')
+plot_real.toolbar.logo = None
 
-plot_imag = figure(plot_height=400, plot_width=400, title="Wavefunction:imaginary part",
-              tools="crosshair,pan,reset,save,wheel_zoom",
+plot_imag = figure(plot_height=200, plot_width=300, title="Imaginary part",
+              tools="",
               x_range=[x_min, x_max])
 
 plot_imag.line('phi', 'imag', source=source, line_width=3, line_alpha=0.6, line_color='orange')
+plot_imag.toolbar.logo = None
 
 # Set up widgets
 measure = Button(label="Measure system", button_type="success")
@@ -103,7 +107,7 @@ def callback():
     if evolve_button.active:
         start = time.time()
         time_t = time_source.data['time']
-        r = wavesource.data['wave'].evolve(lambda x: x-x, masses, (0, 0.2), frames = len(time_t), t_dep = False)
+        r = wavesource.data['wave'].evolve(lambda x: x-x, masses, (0, 0.1), frames = len(time_t), t_dep = False)
         for i in range(len(time_t)):
             print(i)
             wave = r.y.T[i, :]
@@ -123,8 +127,8 @@ def callback():
 
 
 # Set up layouts and add to document
-inputs = column(row(plot_imag, plot_real, plot_pdf), regions, row(measure, evolve_button, reset_button))
+inputs = column(row(measure, evolve_button, reset_button), regions, row(column(plot_imag, plot_real), plot_pdf))
 
 curdoc().add_root(row(inputs, width=800))
 curdoc().title = "Measurement"
-curdoc().add_periodic_callback(callback, 200)
+curdoc().add_periodic_callback(callback, 100)
