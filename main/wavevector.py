@@ -168,7 +168,7 @@ class Wavevector(np.ndarray):
         self[inds] = 1
         self[exclude_inds] = 0  
         # normalize it
-        self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)))
+        self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)*delx))
         return self
 
     def collapse_1d(self, basis, seed = 0):
@@ -434,10 +434,7 @@ class Wavevector(np.ndarray):
 
             # peform simulation
             frame_times = np.linspace(*times, frames)
-
-            #r = solve_ivp(dψdt, times, self,
             r = solve_ivp(dψdt, times, self, method='RK23', t_eval = frame_times)
-            #t_eval = frame_times)
 
             if not (r.status == 0):  # solver did not reach the end of tspan
                 print(r.message)
@@ -568,9 +565,14 @@ if __name__ == '__main__':
     dim_info = ((-10, 10, 41),)
     masses = (ħ*ħ,)
     wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
+<<<<<<< HEAD
     ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 0.01, n=10, t_dep = False)
 #    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,.1)), *dim_info)
 #    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 10, n=20, t_dep = False)
+=======
+    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1, n=20, t_dep = False)
+#    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1, n=20, t_dep = False)
+>>>>>>> a690c70583217d6d98e914b39fe88a206b27a13f
     plt.show()
     print("end wavevector")
     
