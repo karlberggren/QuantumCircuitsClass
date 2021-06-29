@@ -7,7 +7,11 @@ Undertand that evolution of a quantum system can be affected by changing externa
 
 Circuit parameters such as source strengths, Present an interactive function explorer with slider widgets.
 
-http://localhost:5006/sliders
+launch bokeh server locally with
+
+bokeh serve --show parametrization.py
+
+http://localhost:5006/parametrization
 '''
 
 import numpy as np
@@ -129,13 +133,13 @@ def callback():
         return (Φ - phi_ext)**2/(2*L)
     if update_time :
         masses = (C,)
-        wv_o.evolve(V, masses, (0, update_time/1000*T*1e-4), frames = 1, t_dep = False)
+        wv_o.evolve(V, masses, (0, update_time/1000*T), frames = 1, t_dep = False)
         pdf = np.abs(wv_o)**2
     #pdf = 1/(2*π*σ**2)**(0.25)*np.exp(-(phi - phi_0 - phi_ext*np.cos(ω*t))**2/(4*σ**2))
     source.data['pdf'] = pdf
     booleans = [True if (phi_0 - phi_ext*np.cos(ω*t) - δφ/2) < x < (phi_0 - phi_ext*np.cos(ω*t) + δφ/2) else False for x in phi]
     classical_view.filters[0] = BooleanFilter(booleans)
-    t += update_time/1000
+    t += update_time/1000*T  # sim time passed
 
 for w in [offset, inductance, capacitance, init_offset]:
     w.on_change('value', update_data)
@@ -163,7 +167,7 @@ def update_reset():
     wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((phi_ext, σ)), *dim_info)
     pdf = np.abs(wv_o)**2
     source.data = dict(phi=phi, energy=energy, pdf=pdf)
-    t = 0
+    t = 0  # restart sim time
 
 start_pause.on_click(update_start_pause)
 reset.on_click(update_reset)

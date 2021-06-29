@@ -389,7 +389,7 @@ class Wavevector(np.ndarray):
                times: tuple,
                frames: int = 30,
                t_dep: bool = True) -> np.array:
-        """evolves wavevector in a (possibly time_varying) potential.
+        """ evolves wavevector in a (possibly time_varying) potential.
 
         Evolves the wavevector, changing its value continuously in time, and 
         storing in a history array the value at certain snapshots.
@@ -406,7 +406,7 @@ class Wavevector(np.ndarray):
             t_dep: boolean specifies whether Vfunc is time dependent
 
         >>> dim_info = ((-2, 2, 5),)
-        >>> masses = (ħ,)
+        >>> masses = (ħ**2,)
         >>> wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
         >>> r = wv_o.evolve(lambda x: x-x, masses, (0, 1e-32), frames = 3, t_dep = False)
         >>> print(r.y)
@@ -530,7 +530,7 @@ class Evolution(object):
 if __name__ == '__main__':
     
     import doctest
-    doctest.testmod()
+    #doctest.testmod()
 
     x = np.asarray([1. + 0.j, 2, 3])
     wv1 = Wavevector(x)
@@ -539,7 +539,6 @@ if __name__ == '__main__':
     assert str(wv1 + wv1) == '[2.+0.j 4.+0.j 6.+0.j]', "Can't add two wavevectors"
     assert str(3 + wv1) == '[4.+0.j 5.+0.j 6.+0.j]', "Can't add a constant to a wavevector"
 
-    """
     wf2 = Wavefunction.init_gaussian((0, 1))*1j
     wv2 = Wavevector.from_wf(wf2, (-4, 4, 40))
     wf3 = wv2.resample_wv(range=((-3,3, 45),), method="linear")
@@ -552,7 +551,7 @@ if __name__ == '__main__':
     plot2 = wf3.visualize1D(**plot_params)
     plot2.savefig("wavevector_plot_test_file_resampled.png")
     from matplotlib.testing.compare import compare_images
-    """
+
 #    try:
 #        assert not compare_images("wavevector_plot_test_file_oldest.png", "wavevector_plot_test_file_new.png", 10),"Error plotting wv"
 #    except AssertionError:
