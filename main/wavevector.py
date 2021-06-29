@@ -24,8 +24,9 @@ pause = False
 
 π = np.pi
 oo = np.inf
-#ħ = 1.05e-34 
-ħ = 1
+ħ = 1.05e-34 
+#ħ = 1
+
 class Wavevector(np.ndarray):
     """
 
@@ -433,9 +434,9 @@ class Wavevector(np.ndarray):
 
             # peform simulation
             frame_times = np.linspace(*times, frames)
-            r = solve_ivp(dψdt, times, self,
-                          t_eval = frame_times)
-            #r = solve_ivp(dψdt, times, self, method='RK23', 
+
+            #r = solve_ivp(dψdt, times, self,
+            r = solve_ivp(dψdt, times, self, method='RK23', t_eval = frame_times)
             #t_eval = frame_times)
 
             if not (r.status == 0):  # solver did not reach the end of tspan
@@ -564,11 +565,12 @@ if __name__ == '__main__':
 #        os.remove("wavevector_plot_test_file_new.png")
 
              
-    dim_info = ((-20, 20, 100),)
-    masses = (ħ,)
+    dim_info = ((-10, 10, 41),)
+    masses = (ħ*ħ,)
     wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
-#    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1e-33, n=4, t_dep = False)
-    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1, n=20, t_dep = False)
+    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 0.01, n=10, t_dep = False)
+#    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,.1)), *dim_info)
+#    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 10, n=20, t_dep = False)
     plt.show()
     print("end wavevector")
     
