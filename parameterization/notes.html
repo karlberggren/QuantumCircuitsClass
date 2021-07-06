@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>notes.html</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+
+</head>
+
+<body>
+
+<h1 id="parmeterization-getting-simulation-running-on-bokeh-server">Parmeterization: Getting simulation running on bokeh server</h1>
+<p>Mon 05 Jul 2021 06:03:21 PM EDT</p>
+<p>Trying to debug parametrization.org</p>
+<p>The other day at the meeting we found some problems with the timescales involved. Specifically the “mass” (capacitance) has to be insanely small otherwise the simulation timescale becomes very short.</p>
+<h2 id="separate-directories">Separate Directories</h2>
+<p>First thing I did was separate the directories again, so that now I have “param.py” in a project directory.</p>
+<p>I then had to add “main” to the path using the “sys” library, which seems to have worked well.</p>
+<figure>
+<img src="figures/Screenshot%20from%202021-07-05%2018-55-13.png" alt="Screenshot" /><figcaption aria-hidden="true">Screenshot</figcaption>
+</figure>
+<p>It is worth plotting the Josephson inductance vs. the critical current to get a sense from about 10 nA to about 1 μA, as these are the scales used in Qubits, and correspond to fluxes on the order of Φₒ.</p>
+<p>Looking at this, it seems that 1e-6 uA corresponds to about 3 nH.</p>
+<p>if f = 1 GHz, then ω ≈ 6 Grad/s so T = 1 ns = 1 / √(L C). ⇒ L C = 1 / T² ⇒ C = 1/(T² L) = 1/(1e-18*1e-9)=1e-27.</p>
+<p>Now Δx ~ √(ħ/2 * √(L/C)) ~ √(5e-35<em>√(1e-9/1e-27)) = √(5e-35</em>1e9) ~ 2e-13.</p>
+<p>made a qubit circuit calculator in desmos</p>
+<p><a href="https://www.desmos.com/calculator/ohpq1wiko6" class="uri">https://www.desmos.com/calculator/ohpq1wiko6</a></p>
+<p>The end result was L = 1e-9, C = 1e-15, width is 3 e-16 and period is 6e-12</p>
+<p>I feel like I should test it with known quantities, namely set C = ħ² and then the timesteps shoudl be O(1)</p>
+<p>OK, I had a few struggles, but it turned out the problem was fundamentally that the plots weren’t updating. Evolve returns a solve_ivp object, but I had been assuming it returned a wavevector (i.e. updated in place).</p>
+<p>Indeed, that would be more useufl in the long run.</p>
+<p>Once I fixed that, I was able to get everything to evolve in place and look nice on the web page. I now just need to change it back so sliders work etc., as I had tod eisable all that during debugging process.</p>
+<p><img src="figures/Peek%202021-07-06%2009-05.gif" alt="screenrecording" /> The link above is to a gif, and should work if you go to the file to look at it.</p>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+<2021-07-05 Mon> Trying to debug parametrization.org
+
+The other day at the meeting we found some problems with the
+timescales involved.  Specifically the "mass" (capacitance) has to be
+insanely small otherwise the simulation timescale becomes very short.
+

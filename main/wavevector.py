@@ -394,6 +394,8 @@ class Wavevector(np.ndarray):
         Evolves the wavevector, changing its value continuously in time, and 
         storing in a history array the value at certain snapshots.
 
+        FIXME: does not seem to evolve in place, i.e. does not update array itself
+
         Args:
             Vfunc: A potential energy function
             masses: list of tuples containing m_eff for each dimension. 
@@ -401,7 +403,8 @@ class Wavevector(np.ndarray):
 
             times: tuple in form "start time", "end time"
 
-            frames: number of frames to record the evolution at
+            frames: number of frames to record the evolution at.  Note, must be at least
+                    2, else it will just return the original frame.
 
             t_dep: boolean specifies whether Vfunc is time dependent
 
@@ -415,6 +418,7 @@ class Wavevector(np.ndarray):
          [6.31618778e-01+0.j 9.64557428e-04+0.j 3.24023040e-06+0.j]
          [4.91905199e-01+0.j 8.41415942e-04+0.j 3.18509494e-08+0.j]
          [2.32359563e-01+0.j 4.82278714e-04+0.j 1.62011520e-06+0.j]]
+
         """ 
         if t_dep:
             def dψdt(t, ψ):  # key function for evolution
@@ -561,10 +565,17 @@ if __name__ == '__main__':
 #        os.remove("wavevector_plot_test_file_new.png")
 
              
-    dim_info = ((-10, 10, 41),)
-    masses = (ħ*ħ,)
-    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
-    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1, n=20, t_dep = False)
+    """dim_info = ((-10, 10, 81),)
+    masses = (ħ,)
+    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,0.5)), *dim_info)
+    ani, button = wv_o.realtime_evolve(lambda x: x*x , masses, 1, n=20, t_dep = False)
     plt.show()
-    print("end wavevector")
+    """
+    # test for oscillations
+    dim_info = ((-10, 10, 81),)
+    masses = (ħ,)
+    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0.5,0.5)), *dim_info)
+    ani, button = wv_o.realtime_evolve(lambda x: x*x*ħ , masses, 1, n=20, t_dep = False)
+    plt.show()
     
+    print("end wavevector")
