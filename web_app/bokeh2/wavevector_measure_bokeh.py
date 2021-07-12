@@ -8,6 +8,7 @@ at your command prompt. Then navigate to the URL
 in your browser.
 '''
 from bokeh.core.property.color import Color
+from bokeh.models.arrow_heads import TeeHead
 import numpy as np
 
 from bokeh.io import curdoc
@@ -43,35 +44,43 @@ real = np.real(wavesource.data['wave'])
 imag = np.imag(wavesource.data['wave'])
 source = ColumnDataSource(data=dict(phi=phi, pdf=pdf, real=real, imag=imag))
 time_source = ColumnDataSource(data=dict(time=time_t))
+clock_source = ColumnDataSource(data=dict(x=[0, 0], y= [0, 1], theta=[0, -90]))
 
 # Set up plot
-plot_pdf = figure(plot_height=400, plot_width=600, title="Wavefunction pdf",
+plot_pdf = figure(plot_height=400, plot_width=520, title="Wavefunction pdf",
               tools="",
               x_range=[x_min, x_max])
 
 plot_pdf.line('phi', 'pdf', source=source, line_width=3, line_alpha=0.6, line_color='black')
 plot_pdf.toolbar.logo = None
 
-plot_real = figure(plot_height=200, plot_width=300, title="Real part",
+plot_real = figure(plot_height=200, plot_width=270, title="Real part",
               tools="",
               x_range=[x_min, x_max])
 
 plot_real.line('phi', 'real', source=source, line_width=3, line_alpha=0.6, line_color='red')
 plot_real.toolbar.logo = None
 
-plot_imag = figure(plot_height=200, plot_width=300, title="Imaginary part",
+plot_imag = figure(plot_height=200, plot_width=270, title="Imaginary part",
               tools="",
               x_range=[x_min, x_max])
 
 plot_imag.line('phi', 'imag', source=source, line_width=3, line_alpha=0.6, line_color='orange')
 plot_imag.toolbar.logo = None
 
+plot_clock = figure(plot_height=100, plot_width=100, title="", tools="",  x_range=[-1, 1], y_range=[-1, 1])
+plot_clock.circle([0], [0], size=60, color="navy", alpha=0.5)
+plot_clock.line('x', 'y', source=clock_source, line_width=3, color="black")
+plot_clock.toolbar.logo = None
+plot_clock.xaxis.visible = False
+plot_clock.yaxis.visible = False
+
 # Set up widgets
 measure = Button(label="Measure system", button_type="success")
 evolve_button = Toggle(label = '► Evolve', button_type = "success")
 regions = Slider(title="Number or regions", value=2, start=1, end=20, step=1)
 reset_button = Button(label='Reset', button_type='primary')
-radio_button_group = RadioButtonGroup(labels=['Classical', 'Quantum'], active=1)
+radio_button_group = RadioButtonGroup(labels=['Classical', 'Quantum'], active=0)
 
 def classic_measure(pdf, xrange, numregions):
     probability_table = []
@@ -117,6 +126,7 @@ def reset_click(value):
     source.data['real'] = np.real(wavesource.data['wave'])
     source.data['imag'] = np.imag(wavesource.data['wave'])
     time_source.data['time'] = np.linspace(t_initial, t_final, 2)
+    clock_source.data = dict(x=[0, 0], y= [0, 1], theta=[0, -90])
 
 reset_button.on_click(reset_click)
 
@@ -131,6 +141,7 @@ def measurement():
         source.data['real'] = np.real(wavesource.data['wave'])
         source.data['imag'] = np.imag(wavesource.data['wave'])
     elif radio_button_group.active == 0:
+        print("classical measure")
         num_of_regions = regions.value
         wave_object = wavesource.data['wave']
         new_wave = Wavevector(classic_measure(np.power(wave_object, 2), source.data['phi'], num_of_regions), wave_object.ranges)
@@ -143,13 +154,21 @@ measure.on_click(measurement)
 
 def change_mode(value):
     if radio_button_group.active == 1:
-        return
-    elif radio_button_group.active == 0:
-        wave_object = np.abs(wavesource.data['wave'])
-        wavesource.data = dict(wave=wave_object)
+        print("switched to quantum")
         source.data['pdf'] = np.power(np.absolute(wavesource.data['wave']), 2)
         source.data['real'] = np.real(wavesource.data['wave'])
         source.data['imag'] = np.imag(wavesource.data['wave'])
+        #wave_object = Wavevector(wavesource.data['wave'].astype(complex), *dim_info)
+        #wavesource.data = dict(wave=wave_object)
+        return
+    elif radio_button_group.active == 0:
+        print("switched to classical")
+        #wave_object = np.abs(wavesource.data['wave'])
+        #wavesource.data = dict(wave=wave_object)
+        source.data['pdf'] = np.power(np.absolute(wavesource.data['wave']), 2)
+        source.data['real'] = np.sqrt(source.data['pdf'])
+        #source.data['imag'] = np.imag(wavesource.data['wave'])
+        source.data['imag'] = np.zeros(source.data['imag'].shape)
         return
 radio_button_group.on_click(change_mode)
 
@@ -158,9 +177,9 @@ def callback():
     if evolve_button.active and radio_button_group.active == 1:
         start = time.time()
         time_t = time_source.data['time']
+        print(type(wavesource.data['wave']))
         r = wavesource.data['wave'].evolve(lambda x: x-x, masses, (0, 0.1), frames = len(time_t), t_dep = False)
         for i in range(len(time_t)):
-            print(i)
             wave = r.y.T[i, :]
             source.data['pdf'] = np.power(np.absolute(wave), 2)
             source.data['real'] = np.real(wave)
@@ -172,13 +191,26 @@ def callback():
         time_source.data['time'] = time_t   
         new_wave = Wavevector(r.y.T[-1], wavesource.data['wave'].ranges) 
         wavesource.data = dict(wave = new_wave)
+        new_theta = (clock_source.data['theta'][1]+360/100)%360
+        new_x = np.cos(-new_theta*np.pi/180)
+        new_y = np.sin(-new_theta*np.pi/180)
+        clock_source.data = dict(x=[0, new_x], y=[0, new_y], theta=[0, new_theta])
         end = time.time()
         print("time lapsed", end-start)
+
+    elif evolve_button.active:
+        new_theta = (clock_source.data['theta'][1]+360/100)%360
+        new_x = np.cos(-new_theta*np.pi/180)
+        new_y = np.sin(-new_theta*np.pi/180)
+        clock_source.data = dict(x=[0, new_x], y=[0, new_y], theta=[0, new_theta])
+        
+
+
     
 
 
 # Set up layouts and add to document
-inputs = column(radio_button_group, row(measure, evolve_button, reset_button, width=900), regions, row(column(plot_imag, plot_real), plot_pdf), width=900)
+inputs = column(radio_button_group, row(measure, evolve_button, reset_button, width=900), regions, row(column(plot_imag, plot_real), plot_pdf, plot_clock), width=900)
 
 curdoc().add_root(inputs)
 curdoc().title = "Measurement"
