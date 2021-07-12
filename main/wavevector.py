@@ -564,7 +564,7 @@ if __name__ == '__main__':
     dim_info = ((-10, 10, 41),)
     masses = (ħ*ħ,)
     wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((0,1)), *dim_info)
-    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1, n=20, t_dep = False)
+    ani, button = wv_o.realtime_evolve(lambda x: x-x, masses, 1e-33, n=20, t_dep = False)
     plt.show()
     print("end wavevector")
     
