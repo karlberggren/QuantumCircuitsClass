@@ -92,4 +92,40 @@ let's take some other scales like σ ~ √(ħ*√(L/C)) ~ √√ħ thus ∂x² ~
 
 ⅉ ∂ψ = -1/(2 m) ∂²ψ/√ħ + V(x)/ħ
 
+# Cleaning up Evolution
+Wed 07 Jul 2021 07:15:46 PM EDT
+
+I now have it evolving in place on the website, everything looking smooth and
+everything.
+
+I have experience in the past working with solve_ivp where it had real struggles in dealing with small numbers.
+
+Let's try setting L_scale = 0.1*ħ, C_scale = 0.1*ħ.  In that case the
+ground state will be width ~ √ħ which we don't want.  We want the width
+to be O(1).  So √(L/C) ~ O(1/ħ) ⇒ L/C ~ O(1/ħ²).  But C ~ O(ħ) ⇒ L ~ O(1/ħ).
+
+⇒ L_scale ~ 0.1/ħ
+
+Wow that worked!  Very happy.  There is some unexplained breathing, not sure
+what it's due to.  Need to experiment a bit with that.
+
+# Reduce breathing of eigenstate
+
+Try to see if I can reduce the extent to which I see breathing in the eigenstate.
+
+First, just try increasing number of points. 
+
+Didn't help.
+
+I got a bit distracted and decided to add buttons to speed up and slow down the simulation.
+
+# Fix classical evolution of eigenstate
+
+Tue Jul 13 10:18:56 EDT 2021
+
+The classical evolution of the eigenstate should follow the expectation
+value of position.  I was trying to use operators etc. to calculate this, but
+it wasn't working.  I decided to kludge it using list comprehensions.
+
+
 
