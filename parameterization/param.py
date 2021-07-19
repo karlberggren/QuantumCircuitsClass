@@ -28,6 +28,9 @@ sys.path.insert(0, '../main/')
 from wavevector import Wavevector
 from wavefunction import Wavefunction
 
+from q_operator import Op_matx
+from scipy.sparse import diags
+
 # adding logging to help debugging
 import logging
 
@@ -48,17 +51,27 @@ callback_period = 100  #ms
 # using this as a flag to check for reset.  Reset if zero.
 update_time = callback_period
 
+"""
+ params
+ dictionary containing key simulation parameters.  Start with just
+ including sim speed
+
+speed: 1 for 1 period to take 2π seconds in real time
+"""
+
+params = {"speed": .1}
+
 # Set up data
 ħ = 1.05e-34
 #FIXME
-# Φo = 2.07e-15
-Φo = 1
+Φo = 2.07e-15
+# Φo = 1
 
 π = np.pi
 N = 81
 #FIXME
-# C_scale, L_scale = 1e-15, 1e-11  # kludge because bokeh doesn't play nice with scientific notation
-C_scale, L_scale = 0.1, 0.1
+#C_scale, L_scale = 1e-15, 1e-11  # kludge because bokeh doesn't play nice with scientific notation
+C_scale, L_scale = 0.1*ħ, 0.1/ħ
 
 C_center, C_step, C_min, C_max  = 10*C_scale, 1*C_scale, 1*C_scale, 100*C_scale
 L_center, L_step, L_min, L_max  = 10*L_scale, 1*L_scale, 1*L_scale, 100*L_scale
@@ -67,7 +80,7 @@ L, C = L_center, C_center
 #FIXME x_range = 3*Φo
 σ = np.sqrt(ħ/2*np.sqrt(L_center/C_center))
 x_scale = σ
-x_range = 6*x_scale
+x_range = 8*x_scale
 phi_ext = 0
 phi_0 = 0
 Q_0 = 0
@@ -110,8 +123,8 @@ quad1.line('phi', 'energy', source=source, line_width=3, line_alpha=0.6)
 quad1.circle('phi', 'energy', source=source, line_width=3, view=classical_view)
 
 # quadrant 2: L, C, Φ_EXT sliders
-init_offset = Slider(title="phi_0", value=0.0, start=-5.0, end=5.0, step=0.1)
-offset = Slider(title="⟨Φ⟩_{EXT}", value=0.0, start=-5.0, end=5.0, step=0.1)
+init_offset = Slider(title="Initial flux, Φ(t=0)", value=0.0, start=-5.0, end=5.0, step=0.1)
+offset = Slider(title="External flux, Φ_EXT", value=0.0, start=-5.0, end=5.0, step=0.1)
 inductance = Slider(title="L [μH]", value=L_center/L_scale, start=L_min/L_scale, end=L_max/L_scale, step=L_step/L_scale, format = '0.0f')
 capacitance = Slider(title="C [fF]", value=C_center/C_scale, start=C_min/C_scale, end=C_max/C_scale, step=C_step/C_scale, format = '0.0e')
 
@@ -126,10 +139,12 @@ quad3 = figure(plot_height=plot_height,
 quad3.line('phi', 'pdf', source=source, line_width=3, color="black", alpha=0.5)
 
 # quadrant 4: ⟨Φ⟩(t=0) and σ_Φ(t=0) sliders, play/pause, reset buttons
+#             ">>" to speed up, "<<" to slow down
 start_pause = Button(label = '⏸')
-#reset = Button(label = "Reset", button_type = "success")
 reset = Button(label = "Reset")
-quad4 = gridplot([[start_pause, reset]])
+faster = Button(label = ">>")
+slower = Button(label = "<<")
+quad4 = gridplot([[start_pause, reset],[slower, faster]])
 
 # Set up widgets
 
@@ -163,7 +178,7 @@ def callback():
 
     #time_t = time_source.data['time']
     def V(Φ):
-        return (Φ - phi_ext)**2/(2*L)/ħ  # FIXME remove ħ
+        return (Φ - phi_ext)**2/(2*L)  # FIXME remove ħ
         #return Φ - Φ  # kludge to return array of 0s FIXME
 
     """ if we haven't recently had a reset """
@@ -174,21 +189,31 @@ def callback():
         # note, need frames = 2, else just returns the initial frame
         r = wv_o.evolve(V,
                         masses,
-                        (0, T/100),
+                        (0, params["speed"]*T),
                         frames = 2,
                         t_dep = False)
         pdf = np.abs(r.y.T[-1])**2
         wv_o = Wavevector(r.y.T[-1], wv_o.ranges)  # make a copy
 
-    #pdf = 1/(2*π*σ**2)**(0.25)*np.exp(-(phi - phi_0 - phi_ext*np.cos(ω*t))**2/(4*σ**2))
+        # check if range has been exceeded and modify
+        if np.max(pdf) > quad3.y_range.end * .95:
+            quad3.y_range.end *= 1.01
+
     source.data['pdf'] = pdf
-    # CLASSICAL POINT
+    bra = list(np.conj(r.y.T[-1]))
+    ket = list(r.y.T[-1])
+    #logging.warning(bra)
+    x = list(phi.astype(complex))
+    expectation_value = np.real(sum([ b*x_val*k*δφ for b,x_val,k in zip(bra, x, ket)]))
     """ 
     I now need to filter out any of the points that are not the classical
     point 
     """
     
-    booleans = [True if (phi_0 - phi_ext*np.cos(ω*t) - δφ/2) < x < (phi_0 - phi_ext*np.cos(ω*t) + δφ/2) else False for x in phi]
+    booleans = [True if expectation_value - δφ/2 < x < expectation_value + δφ/2
+                else False
+                for x in phi]
+    
     classical_view.filters[0] = BooleanFilter(booleans)
 
     t += update_time/1000*T  # sim time passed
@@ -206,7 +231,7 @@ def update_start_pause():
     else:
         update_time = callback_period
         start_pause.label = '⏸'
-
+    
 def update_reset():
     global t
     global wv_o, phi_0, phi_ext, L, C
@@ -219,7 +244,7 @@ def update_reset():
 
     energy = (phi - phi_ext)**2/(2*L)
 
-    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((phi_ext, σ)), *dim_info)
+    wv_o = Wavevector.from_wf(Wavefunction.init_gaussian((phi_ext+phi_0, σ)), *dim_info)
     pdf = np.abs(wv_o)**2
     source.data = dict(phi=phi, energy=energy, pdf=pdf)
     # FIXME bug here, where energy data isn't being reset properly
@@ -227,6 +252,16 @@ def update_reset():
 
 start_pause.on_click(update_start_pause)
 reset.on_click(update_reset)
+def update_faster():
+    logging.warning("before: "+str(params["speed"]))
+    params["speed"] = params["speed"]*1.5
+    logging.warning("after: "+str(params["speed"]))
+faster.on_click(update_faster)
+def update_slower():
+    logging.warning("before: "+str(params["speed"]))
+    params["speed"] = params["speed"]/1.5
+    logging.warning("after: "+str(params["speed"]))
+slower.on_click(update_slower)
 
 # Set up layouts and add to document
 
