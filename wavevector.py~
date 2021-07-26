@@ -25,7 +25,7 @@ class Wavefunction(object):
         Initializes an instance of the Wavefunction class, given a function object.
         wfunc must return a complex NumPy value.
 
-        FIXME, slight concern what if someone calls Wavefunction(lambda *x: foobar(*x))
+        FIXME, slight concern what if someone calls Wavefunction(lambda *x: foobar(x))
         """
         self.ψ = wfunc
         self.ndim = ndim
@@ -33,41 +33,21 @@ class Wavefunction(object):
             self.ndim = len(signature(wfunc).parameters)
         
     def __call__(self, *args):
-        """
-        This code permits the wavefunction class to be callable
-
-        >>> ψ = Wavefunction(lambda x: np.exp(-x**2))
-        >>> print(ψ(0))
-        1.0
-        >>> print(ψ.ψ(0))
-        1.0
-        """
         return self.ψ(*args)
     
     @classmethod
     def init_gaussian(cls, *args) -> "Wavefunction object based on Gaussian":
         """
-        Factory method that initializes a properly normalized Gaussian
-        wavefunction.  *args is a list of tuples.  Each tuple contains
-        (Xo, σ) for one of the dimensions along which the gaussian is
-        to be defined
-
-        >>> wf1 = Wavefunction.init_gaussian((0,1))
-        >>> print(wf1(0))
-        (0.6316187777460647+0j)
-
-
-        >>> wf1 = Wavefunction.init_gaussian((0,1), (1,2))
-        >>> print(wf1(0,1))
-        (0.28209479177387814+0j)
-
+        Factory method that initializes a properly normalized Gaussian wavefunction.
+        *args is a list of tuples.  Each tuple contains (Xo, σ) for one of the
+        dimensions along which the gaussian is to be defined
         """
-        def result(*xs):
+        def result(*x):
             return_val = 1
-            for x, arg in zip(xs,args):
+            for i, arg in enumerate(args):
                 Xo, σ = arg
-                return_val *= np.exp(-(x - Xo)**2/(4*σ**2))/(2*π*σ**2)**0.25
-            return return_val + 0j
+                return_val *= np.exp(-(x[i] - Xo)**2/(4*σ**2))/(2*π*σ**2)**0.25+0j
+            return return_val
         return cls(result, len(args))
                    
     @classmethod
@@ -89,27 +69,18 @@ class Wavefunction(object):
         raise NotImplementedError
     
     def __add__(self, wf2):
-        """
-        Note, the result is in general not normalized.
+        retval =  self.__class__(lambda *x: self(*x) + wf2(*x))
+        return retval
 
-        >>> wf1 = Wavefunction.init_gaussian((0,1))
-        >>> wf2 = Wavefunction.init_gaussian((1,2))
-        >>> wf3 = wf1 + wf2
-        >>> wf3(0)
-        (1.0511812443492508+0j)
-        >>> wf1(0) + wf2(0)
-        (1.0511812443492508+0j)
-        """
-        return  self.__class__(lambda *x: self(*x) + wf2(*x))
 
     def __sub__(self, wf2):
         return self.__class__(lambda *x: self(*x) - wf2(*x))
 
+
     def __mul__(self, arg2):
         """
-        Multiply wavefunction by a complex value coefficient
+        Multiply wavefunction by another wavefunction or a complex value
         """
-        # FIXME, I think the first case should never happen
         if isinstance(arg2, self.__class__):
             return self.__class__(lambda *x: self(*x) * arg2(*x))
         else:
@@ -131,33 +102,6 @@ class Wavefunction(object):
         else:
             return self.__class__(lambda *x: self(*x) / arg2(*x))
 
-    def __abs__(self):
-        """ Calculate absolute value of wavefunction
-        >>> abs(Wavefunction.init_gaussian((0,1)))
-        0.9999999999999997
-
-        If for some reason the user wishes to normalize over a finite
-        region (E.g. because the function is not integrable, or 
-        periodic boundary conditions are in effect over a finite range,
-        the limits can be provided as a tuple.
-        """
-        func = lambda *x: np.real(self(*x))**2 - np.imag(self(*x))**2
-        limits = [(-oo, oo) for _ in range(self.ndim)]
-
-        return nquad(func, limits)[0]
-
-
-    def normalize(self): #  FIXME
-        """ 
-        Function returns a normalized wavefunction given an input of a non-normalized
-        wavefunction.  It is needed whenever wavefunctions are added.
-
-        >>> wf = Wavefunction.init_gaussian((0,1)) + Wavefunction.init_gaussian((0,1))
-        >>> abs(wf.normalize())
-        0.9999999999999999
-        """
-        return self.__class__(self.ψ, self.ndim)/np.sqrt(abs(self))
-
 
     def vectorize(self, *args):
         """
@@ -176,7 +120,7 @@ class Wavefunction(object):
         self.vec = self.mat.copy().flatten()
         return self.vec
 
-    def visualize1D(self, **kwargs):
+    def plot_wf(self, **kwargs):
       """
       plot_wavefunction:: plot a one-dimensional wavefunction.
 
@@ -215,12 +159,10 @@ class Wavefunction(object):
 
       if method == "polar":
         # or equivalently, one can look at magnitude and phase
-        fig, (ax1, ax2) = plt.subplots(2)
-        fig.suptitle('Polar plot')
-        ax1.plot(xs, np.abs(ψs), label="magnitude")
-        ax1.set(ylabel="|ψ|")
-        ax2.plot(xs, np.angle(ψs), label="phase")
-        ax2.set(xlabel=x_label, ylabel="∠ψ")
+        plt.plot(xs, np.angle(ψs), label="phase")
+        plt.xlabel(x_label)
+        plt.ylabel("∠ψ")
+        plt.title("Phase")
         return plt.gcf()
     
       if method == "pdf":
@@ -373,7 +315,7 @@ if __name__ == '__main__':
         plot_params = {"x_range": (-4, 4), "N": 40,
                        "method": "pdf", "x_label": "Q"}
         plt.close()
-        plot_result = wf1.visualize1D(**plot_params)
+        plot_result = wf1.plot_wf(**plot_params)
         plot_result.savefig("wavefunction_plot_test_file_new.png")
         from matplotlib.testing.compare import compare_images
         try:
@@ -416,9 +358,6 @@ if __name__ == '__main__':
     wf2 = Ket.init_gaussian((0, 1), (0,2))
     wf1 = Bra.init_gaussian((0, 1), (0,2))
     assert_almost_equal(wf1 @ wf2, 1, err_msg = "2d Expectation value not working")
-
-    import doctest
-    doctest.testmod()
     
     print("Ended Wavefunction run")
 

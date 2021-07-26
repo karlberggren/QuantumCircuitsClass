@@ -68,7 +68,7 @@ params = {"speed": .1}
 # Φo = 1
 
 π = np.pi
-N = 81
+N = 161
 #FIXME
 #C_scale, L_scale = 1e-15, 1e-11  # kludge because bokeh doesn't play nice with scientific notation
 C_scale, L_scale = 0.1*ħ, 0.1/ħ
@@ -78,7 +78,11 @@ L_center, L_step, L_min, L_max  = 10*L_scale, 1*L_scale, 1*L_scale, 100*L_scale
 L, C = L_center, C_center
 
 #FIXME x_range = 3*Φo
-σ = np.sqrt(ħ/2*np.sqrt(L_center/C_center))
+def calc_σ(L, C):
+    return 0.9625*np.sqrt(ħ/2*np.sqrt(L/C))
+
+σ = calc_σ(L, C)
+
 x_scale = σ
 x_range = 8*x_scale
 phi_ext = 0
@@ -124,7 +128,7 @@ quad1.circle('phi', 'energy', source=source, line_width=3, view=classical_view)
 
 # quadrant 2: L, C, Φ_EXT sliders
 init_offset = Slider(title="Initial flux, Φ(t=0)", value=0.0, start=-5.0, end=5.0, step=0.1)
-offset = Slider(title="External flux, Φ_EXT", value=0.0, start=-5.0, end=5.0, step=0.1)
+offset = Slider(title="External flux, Φ_EXT", value=0.0, start=-5.0, end=5.0, step=0.01)
 inductance = Slider(title="L [μH]", value=L_center/L_scale, start=L_min/L_scale, end=L_max/L_scale, step=L_step/L_scale, format = '0.0f')
 capacitance = Slider(title="C [fF]", value=C_center/C_scale, start=C_min/C_scale, end=C_max/C_scale, step=C_step/C_scale, format = '0.0e')
 
@@ -240,7 +244,7 @@ def update_reset():
     C = capacitance.value*C_scale
     phi_ext = offset.value*x_scale
     phi_0 = init_offset.value*x_scale
-    σ = np.sqrt(ħ/2*np.sqrt(L/C))
+    σ = calc_σ(L,C)
 
     energy = (phi - phi_ext)**2/(2*L)
 

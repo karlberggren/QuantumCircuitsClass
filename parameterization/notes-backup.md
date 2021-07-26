@@ -119,12 +119,8 @@ Didn't help.
 
 I got a bit distracted and decided to add buttons to speed up and slow down the simulation.
 
-Those look nice and work well.  However, I still would like to improve.
 # Fix classical evolution of eigenstate
 
-Tue Jul 13 10:18:56 EDT 2021
-This definitely gives me an idea for a "find the eigenstates" sandbox, where you try to find
-the ground state eigenstates by playing with some knobs on the w.f.
 Tue Jul 13 10:18:56 EDT 2021
 
 The classical evolution of the eigenstate should follow the expectation
