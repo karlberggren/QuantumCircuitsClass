@@ -64,8 +64,7 @@ def home():
 
 @app.route('/Classical_LC',methods=['GET'] )
 def classical_LC():
-    script = server_document('https://bokeh1-dot-test-deploying-320720.ue.r.appspot.com/LC_circuit_bokeh')
-    #script = server_document('https://bokeh1-dot-quantum-circuits-306715.ue.r.appspot.com/LC_circuit_bokeh')
+    script = server_document('https://bokeh1-dot-quantum-explorations.uk.r.appspot.com/LC_circuit_bokeh')
     #script = server_document('http://localhost:5006/LC_circuit_bokeh')
     return render_template("classical_LC.html", script=script)
 
@@ -91,8 +90,8 @@ def probability():
 @app.route('/Prob_amplitiude', methods=['GET', 'POST'])
 def Prob_amplitiude():
     selected_class = request.form.get('dropdown-select')
-    #script = server_document('https://bokeh2-dot-quantum-circuits-306715.ue.r.appspot.com/wavevector_measure_bokeh')
-    script = server_document('http://localhost:5006/wavevector_measure_bokeh')
+    script = server_document('https://bokeh1-dot-quantum-explorations.uk.r.appspot.com/wavevector_measure_bokeh')
+    #script = server_document('http://localhost:5006/wavevector_measure_bokeh')
     return render_template('index.html', wavevector_measurement =script, selected_class=selected_class)
 
 

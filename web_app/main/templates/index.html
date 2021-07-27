@@ -119,8 +119,11 @@
             <li>Simulate a throw of an n sided weighted die throw with it's sides weighed by \(p_0, p_1, \dots, p_n\)</li>
             <li>The measurement basis function corresponding to the result of the throw is normalized and becomes the new wavefunction</li>
         </ol>
+        </p>
         In code this is 
+        <pre>
         <code class="language-python">
+    def simple_measure_1d(self, M: int, seed: int = 0):
         np.random.seed(seed) 
         # initiate a table of probabilities to store the probability of the flux being found in each region
         probability_table = []
@@ -134,14 +137,16 @@
             # create a  projection matrix x:
             x = np.identity(len(self), dtype=np.float32)*delx
             x[exclude_inds, exclude_inds] = 0
-            # find probability of flux being in that region by taking <phi^* | x | phi> and store in the probability table 
+            # find probability of flux being in that region by taking (phi^* | x | phi) and store in the probability table 
             prob = np.real(np.transpose(np.conjugate(self)) @ x @ self)
             probability_table.append(prob)
-        # Use multinomial RV to get the resul of throwing a weighted cube. Multinomial returns an array of size p.size where the entry in each index is the number of times
+        # Use multinomial RV to get the resul of throwing a weighted cube. 
+        # Multinomial returns an array of size p.size where the entry in each index is the number of times
         # the cube landed on that face
         probability_table = np.array(probability_table)/np.sum(probability_table)   # normalize probabilities in case wavevctor isn't normalized
         cube_throw = np.random.multinomial(1, probability_table)
-        region_number = int((np.where(cube_throw ==1)[0][0]))  # for some odd reason numpy returns the array index s a float which needs to be converted to an int for indexing
+        region_number = int((np.where(cube_throw ==1)[0][0]))  
+        # for some odd reason numpy returns the array index s a float which needs to be converted to an int for indexing
         inds = [j for j in range(round(region_number*len(self)/M), round((region_number+1)*len(self)/M))]
         exclude_inds = list(set(range(len(self))) - set(inds))
 
@@ -152,7 +157,7 @@
         self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)*delx))
         return self
     </code>
-            </p>
+</pre>
         </div>
         </div>
 
