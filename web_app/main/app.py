@@ -90,7 +90,8 @@ def probability():
 @app.route('/Prob_amplitiude', methods=['GET', 'POST'])
 def Prob_amplitiude():
     selected_class = request.form.get('dropdown-select')
-    script = server_document('https://bokeh2-dot-quantum-circuits-306715.ue.r.appspot.com/wavevector_measure_bokeh')
+    #script = server_document('https://bokeh2-dot-quantum-circuits-306715.ue.r.appspot.com/wavevector_measure_bokeh')
+    script = server_document('http://localhost:5006/wavevector_measure_bokeh')
     return render_template('index.html', wavevector_measurement =script, selected_class=selected_class)
 
 
