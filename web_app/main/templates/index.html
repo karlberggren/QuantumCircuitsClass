@@ -9,50 +9,81 @@
                 <h3>Wavefunction </h3>
                 <p>In the previous section, we covered probability density functions. Here, we introduce the concept of a system wavefunction, \( \psi(\Phi) \), which is defined as follows: 
                     \[ \psi^*(\Phi) \psi(\Phi) = P(\Phi) \]
-                    where \( \psi^* \) is the complex conjugate of \( \psi \) and \( P(\Phi) \) is the probability density function of the system with respect to the random variable \( \Phi \). </p>
-                <p> The probability density \( P(\Phi) \) has to be a real valued function. However, \( \psi(\Phi) \) can be complex because it will always get multiplied by its complex conjugate when we make observations on the system.
-                    As a complex quantity, \( \psi \) has an amplitude and a phase and can be written as \( \psi = |\psi|e^{-j\angle \psi} \). 
-                    \( |\psi(\Phi)| \) is commonly referred to as the probability amplitude of the system. 
+                    where \( \psi \) is a complex function of \( \Phi \) and \( \psi^* \) is its complex conjugate. \( P(\Phi) \) is the probability density function of the system with respect to the random variable \( \Phi \). </p>
+                <p> The probability density \( P(\Phi) \) must be a real valued function. However, \( \psi(\Phi) \) can be complex because it will always get multiplied by its complex conjugate when we make observations on the system.
+                    As a complex quantity, \( \psi \) has a magnitude and a phase at each value of \(\Phi \) and it can be written as \( \psi(\Phi) = |\psi(\Phi)|e^{-j\angle \psi(\Phi)} \). 
+                    The magnitude of \(\psi \), written as \( |\psi(\Phi)| \), is commonly referred to as the probability amplitude of the system. 
                  </p>
-                 <p>Below are interactive plots in which the wavefunction \[ \psi(\Phi) = \frac{1}{\sqrt[\leftroot{-2}\uproot{2}4]{\sigma^2 2 \pi}} e^{-(\Phi - \Phi_0)^2/4\sigma}e^{jk\Phi} \] is ploted on a 3 dimensional axis. 
+                 <h3>Visualizing wavefunctions </h3>
+                 <p>Visualizations can have a huge impact on an individual's ability to learn and understandn complicated topics. We assume that you are already familiar with probability density functiond plots and with visualizing complex numbers as phasors 
+                     in the complex plane. But is there a better way to visualize wavefunctions? In the sandbox below, we introduce introduce a 3D visualization method for a wavefunction where \(\Phi \) lies on the \(x\) axis and the real and imaginary parts of \(\psi\) lie 
+                     along the \(y\) and \(z\) axes. Please test out different functions and compare the visual inforation of each plotting method. 
+                     <!-- Below are interactive plots in which the wavefunction \[ \psi(\Phi) = \frac{1}{\sqrt[\leftroot{-2}\uproot{2}4]{\sigma^2 2 \pi}} e^{-(\Phi - \Phi_0)^2/4\sigma}e^{jk\Phi} \] is ploted on a 3 dimensional axis. 
                      The flux, \(\Phi\), lies along the x axis; the real part of \(\psi\) lies along the y axis and the imaginary part of \(\psi \) lies along the z axis. The probability density function is plotted on the xy plane. Notice that 
-                     \[P(\Phi) \ = \ \psi^*\psi \ = \ \frac{1}{\sqrt[\leftroot{-2}\uproot{2}4]{\sigma^2 2 \pi}} \frac{1}{\sqrt[\leftroot{-2}\uproot{2}4]{\sigma^2 2 \pi}} e^{-(\Phi - \Phi_0)^2/4\sigma}e^{-jk\Phi} e^{-(\Phi - \Phi_0)^2/4\sigma}e^{jk\Phi} \ = \ \frac{1}{\sqrt{\sigma^2 2\pi}}e^{-(\Phi - \Phi_0)^2/2\sigma}\]. 
-                     The PDF of the wavefunction is a gaussian distribution with mean \( \Phi_0\) and standard diviation \(\sigma \). In each one of the interactive plots below, you can vary either \(k\), \(\sigma\), or \(\Phi_0 \) and observe the effect on the wavefunction and the probability distribution. 
+                     \[P(\Phi) \ = \ \psi^*\psi \ = \ \frac{1}{\sqrt[\leftroot{-2}\uproot{2}4]{\sigma^2 2 \pi}} \frac{1}{\sqrt[\leftroot{-2}\uproot{2}4]{\sigma^2 2 \pi}} e^{-(\Phi - \Phi_0)^2/4\sigma}e^{-jk\Phi} e^{-(\Phi - \Phi_0)^2/4\sigma}e^{jk\Phi} \ = \ \frac{1}{\sqrt{\sigma^2 2\pi}}e^{-(\Phi - \Phi_0)^2/2\sigma}\]
+                     The PDF of the wavefunction is a gaussian distribution with mean \( \Phi_0\) and standard diviation \(\sigma \). In each one of the interactive plots below, you can vary either \(k\), \(\sigma\), or \(\Phi_0 \) and observe the effect on the wavefunction and the probability distribution. -->
+                 </p>
+                 <p>
+                     <b>Inset DJ's wavefunction visualization sandbox</b>
                  </p>
 
             </div>
-            <div class="col-6">
-               <!--{{ div_Classical_LC | safe }} -->
-               {% include 'wavefunction_changing_k.html' %}
-                
-            </div>
-            <div class="col-6">
-                {% include 'wavefunction_changing_sig.html' %}
-            </div>
-
-            <div class="col-6">
-                {% include 'wavefunction_changing_mu.html' %}
+        </div>
+            
+        <div class="row mt-5">
+            <div class="col-12">
+            <h3>Bra-ket Notation</h3>
+            <p>Physicists like to use a the bra-ket notation in quantum mechanics. This notation might appear intimidating at first, but it turns out to be quite nice and powerful. Once you understand it, of course. 
+                Here are some definitions:
+                <ul>
+                    <li>Ket: \( \ket{\psi(\Phi)} \) is the wavevector representation of a wavefunction, \(\psi\). If \(\psi(\Phi) \) is a continuous complex valued function, \( \ket{\psi} \) is a normalized column vector consisting of discrete samples of \(\psi\).</li>
+                    <li>Bra: \(\bra{\psi(\Phi)} \) is the conjugate transpose of \( \ket{\psi(\Phi)} \). \(\bra{\psi}\) is a normalized row vector consisting of discrete samples of \(\psi^*\)</li>
+                    <li>Inner  product: \(\braket{\psi|\psi}\) is the inner product of \(\psi\) with itself. For a continuous wavefunction, \(\braket{\psi|\psi} = \int_{-\infty}^{\infty} \psi^*(\Phi)\psi(\Psi)d\Phi = \int_{-\infty}^{\infty} P(\Phi)d\Phi = 1 \).
+                        For a discrete vector, \(\braket{\psi|\psi}\) is a dot product of a row vector and a column vector.</li>
+                    <lil>Expectation: \( \braket{\psi|\Phi|\psi} \) or \( \braket{\Phi} \) is the expected value of the random variable, or the \(\Phi\) domain acting on the wavefunction.  \( \braket{\psi|\Phi|\psi} =\int_{-\infty}^{\infty} \psi^*(\Phi)\Phi\psi(\Psi)d\Phi\)</lil>
+                </ul>
+                </p>
+            <p></p>
             </div>
         </div>
         <div class="row mt-5">
-            <div class="col-6">
+            <div class="col-12">
             <h3>Position and Momentum Analog</h3>
-            <p>In physics, quantum mechanics is typically introduced by describing a mass on a spring as the harmonic oscillator. Instead of flux\current and charge, the wavefunction is in terms of position and momentum. 
-                While a mass on a spring and an LC circuit don't seem to have much in common, the mathematical formulation that describes their behavior is identical.
+            <p>In physics, quantum mechanics is typically introduced using an analogy of a mass on a spring as a harmonic oscillator. Instead of flux or current and charge, the wavefunction is written in terms of position and momentum of the mass. 
+                While masses on springs and LC circuits don't seem to have much in common, the mathematical formulation that describes both systems is identical.
                 </p>
             <p>Here, we'll use the charge on the capacitor \( Q \), in analogy with the position \( x\) and we'll use the flux in an inductor, \( \Phi \), in analogy with the momentum \( p \).</p>
-            <p>The hamiltonian of the spring system is:
+            <p>The hamiltonian of the mass spring system is:
                 \[ \mathcal{H} = \frac{1}{2} kx^2 + \frac{1}{2m} p^2\]
                 where the momentum is defined as, \( p = m \dot{x}\). 
                 The hamiltonian of the L-C system is
                 \[ \mathcal{H} = \frac{1}{2L} \Phi^2 + \frac{1}{2C} Q^2\]
                 where \( \Phi = L \dot{Q} \).
             </p>
-            </div>
-            <div class="col-6"> 
-            
+            <h3>Uncertainty</h3>
+            <p>In a classical LC circuit, kowledge of the charge on the capacitor reveals a lot of information about the flux in the inductor (??). Likewise in a quantum LC circuit, knowledge of the flux wavefunction reveals information on the charge wavefunction. 
+                In fact, they are related to each other by a fourier transform. Let \(\psi(\Phi) \) be the wavefunction of the flux and \(\phi(Q)\) be the wavefunction. Then, 
+                \[ \phi(Q) = \frac{1}{\sqrt{2\pi\hbar}} \int \psi(\Phi) e^{\frac{i}{\hbar}Q\Phi} d\Phi\] 
+                \[ \psi(\Phi) = \frac{1}{\sqrt{2\pi\hbar}} \int \phi(Q) e^{-\frac{i}{\hbar}Q\Phi} dQ\]   
+            In the position - momentum analogy,   
+            \[ \psi(x) = \frac{1}{\sqrt{2\pi\hbar}} \int \phi(p) e^{\frac{j}{\hbar}px} dp\]   
+            \[ \phi(p) = \frac{1}{\sqrt{2\pi\hbar}} \int \psi(x) e^{-\frac{j}{\hbar}px} dx\] 
+            </p>
+            <p>The sandbox below is useful for visualizing the relationship between the wavefunction in the flux domain and the wavefunction in the charge domain. We plot a gaussian wavepacket in the flux domain, 
+               \[ \psi(\Phi) = \frac{1}{\sqrt[\leftroot{-2}\uproot{2}4]{\sigma^2 2 \pi}} e^{-(\Phi - \Phi_0)^2/4\sigma}e^{j\Phi Q}  \]
+               along with its fourier transform, which represents the wavefunction in the charge domain. Unsurprisingly, the probability amplitude of the fourier transform is also a gaussian. In each one of the interactive plots you'll be able to change a parameter 
+               of the gaussian wavepacket. Notice how the wavefunctions in the flux domain and the charge domain change with respect to each other. 
+    
+            </p>
         </div>
-        </div>
+    </div>
+    
+    {% include 'wavefunction_changing_k_with_fft.html' %}
+    {% include 'wavefunction_changing_sig_with_fft.html' %}
+    <p> 
+        Notice how one distribution widens as the other narrows? Does this remind you about anything you were told about knowing 2 variables simultaniously? Thinking about it in terms of position and momentum might help jog your memory.</p>
+    {% include 'wavefunction_changing_mu_with_fft.html' %}        
+        
         <div class="row mt-5">
             <h2>Measurements </h2>
             <div class="col-12">
@@ -71,15 +102,60 @@
                 <li>2. After the measurement, the modified wavefunction doesn't continue to evolve in the LC potential like in the classical case. Instead, the wavefunction starts broadening out immediately after the measurement. The wavefunction post measurement has almost no resemblance to itself pre-measurement.</li> 
             </ul>
             </p>
-            <p><b>! insert  quantum measurement simulation !</b></p>
+            {{wavevector_measurement | safe}}
         </div>
-        </div>
+    </div>
         <div class="row mt-5">
-            <h2>Uncertainty</h2>
-            <div class="col-8">
-                <h3></h3>
-            </div>
+        <div class="col-12">
+            <h3>Mathematically Representing Measurements</h3>
+            <p>You probably heard that in quantum mechanics, a measurement collapses a wavefunction. But what does that actually mean? 
+            Let's imagine a measurement instrument which is rated to measure current between -1 mA and 1 mA and gives a reading with 2 decimal numbers (i.e. accuracy 0.01 mA). If the device gives us a reading of 0.34 mA, we know that the true current value is 
+            somewhere between 0.335 mA and 0.345 mA. For the sake of simplicity, let's assume that there's a uniform probability distrubution for the true value of the current in that region. This means that every time we perform a measurement, we recieve a narrow probability distribution that looks like a square pulse. We can use this probability distribution to write down a collapsed wavefunction.
+            Our code collapses the wavefunction as follows:
+            <ol>
+            <li>Assemble the measurement basis \(x_0, x_1, \dots, x_n\)</li>
+            <li>Project the wavefunction unto each one of the basis elements as follows \(\psi_{xi} = \frac{\psi \dot x_i}{|x_i|^2} x_i \)</li>
+            <li>Calculate the probability of the true value being in the \(i\)'s projected wavefunction as \(p_i = \int\psi_{xi}^*\psi_{xi}d\Phi\)</li>
+            <li>Simulate a throw of an n sided weighted die throw with it's sides weighed by \(p_0, p_1, \dots, p_n\)</li>
+            <li>The measurement basis function corresponding to the result of the throw is normalized and becomes the new wavefunction</li>
+        </ol>
+        In code this is 
+        <code class="language-python">
+        np.random.seed(seed) 
+        # initiate a table of probabilities to store the probability of the flux being found in each region
+        probability_table = []
+        # get del x
+        for xmin, xmax, N in self.ranges:
+            delx = (xmax - xmin)/(N-1) 
+        # for every region:
+        for i in range(M):
+            inds = [j for j in range(round(i*len(self)/M), round((i+1)*len(self)/M))]
+            exclude_inds = list(set(range(len(self))) - set(inds))
+            # create a  projection matrix x:
+            x = np.identity(len(self), dtype=np.float32)*delx
+            x[exclude_inds, exclude_inds] = 0
+            # find probability of flux being in that region by taking <phi^* | x | phi> and store in the probability table 
+            prob = np.real(np.transpose(np.conjugate(self)) @ x @ self)
+            probability_table.append(prob)
+        # Use multinomial RV to get the resul of throwing a weighted cube. Multinomial returns an array of size p.size where the entry in each index is the number of times
+        # the cube landed on that face
+        probability_table = np.array(probability_table)/np.sum(probability_table)   # normalize probabilities in case wavevctor isn't normalized
+        cube_throw = np.random.multinomial(1, probability_table)
+        region_number = int((np.where(cube_throw ==1)[0][0]))  # for some odd reason numpy returns the array index s a float which needs to be converted to an int for indexing
+        inds = [j for j in range(round(region_number*len(self)/M), round((region_number+1)*len(self)/M))]
+        exclude_inds = list(set(range(len(self))) - set(inds))
+
+        # collaps the wavefunction 
+        self[inds] = 1
+        self[exclude_inds] = 0  
+        # normalize it
+        self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)*delx))
+        return self
+    </code>
+            </p>
         </div>
+        </div>
+
         <div class="row mt-5">
         
         </div>

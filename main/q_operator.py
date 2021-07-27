@@ -2,8 +2,11 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 from scipy.sparse import diags, issparse
 
-#ħ = 1.05e-34  # planck's constant J s
-ħ = 1  # planck's constant J s
+# We had some problems with defining ħ differently in different function.  Trying to have
+# ħ be a global that is present everywhere is proving to be somewhat of a mess.  One idea is to
+# require ħ to be defined in the top-most file (the one that imports this one).
+ħ = 1.05e-34  # planck's constant J∙s
+#ħ = 1  # planck's constant J∙s
 
 class Operator(object):
     """
@@ -17,7 +20,6 @@ class Operator(object):
     >>> wf = Ket.init_gaussian((0,1))
     >>> print(I(wf)(0))
     (0.6316187777460647+0j)
-
     """
 
     def __init__(self, ofunc):
@@ -197,23 +199,22 @@ class Op_matx(object):
 
         A multi-dimensional KE operator looks something like:
 
-        KE(x,y,z,...) = ⅉ ħ/(2 m_x) ∂²/∂x² +  ⅉ ħ/(2 m_y) ∂²/∂y² +  ⅉ ħ/(2 m_z) ∂²/∂z² + ...
+        KE(x,y,z,...) = - ħ²/(2 m_x) ∂²/∂x² +  - ħ²/(2 m_y) ∂²/∂y² +  - ħ²/(2 m_z) ∂²/∂z² + ...
         arguments should be a list of tuples in the form (xmin, xmax, N, m_eff) where N is the
         number of points along that dimension and m_eff an effective mass.
 
-        >>> op = Op_matx.make_KE((-2, 2, 5, 1.05e-34))
+        >>> op = Op_matx.make_KE((-2, 2, 5, 1.05e-34**2))
         >>> print(op.matx.todense())
-        [[0.-1.j  0.+0.5j 0.+0.j  0.+0.j  0.+0.j ]
-         [0.+0.5j 0.-1.j  0.+0.5j 0.+0.j  0.+0.j ]
-         [0.+0.j  0.+0.5j 0.-1.j  0.+0.5j 0.+0.j ]
-         [0.+0.j  0.+0.j  0.+0.5j 0.-1.j  0.+0.5j]
-         [0.+0.j  0.+0.j  0.+0.j  0.+0.5j 0.-1.j ]]
-
+        [[ 1.  -0.5  0.   0.   0. ]
+         [-0.5  1.  -0.5  0.   0. ]
+         [ 0.  -0.5  1.  -0.5  0. ]
+         [ 0.   0.  -0.5  1.  -0.5]
+         [ 0.   0.   0.  -0.5  1. ]]
         """
         coeffs = []
         for x_min, x_max, Nx, m_eff in args:
             Δx = (x_max - x_min + 1)/Nx
-            coeffs.append(1j*ħ/2/m_eff/Δx**2)
+            coeffs.append(-ħ*ħ/2/m_eff/Δx**2)
 
         # We need to know how large the final (flattened) matrix is going to be
         KE_matx_len = np.prod([N for _, _,N,_ in args])
