@@ -64,7 +64,8 @@ def home():
 
 @app.route('/Classical_LC',methods=['GET'] )
 def classical_LC():
-    script = server_document('https://bokeh1-dot-quantum-circuits-306715.ue.r.appspot.com/LC_circuit_bokeh')
+    script = server_document('https://bokeh1-dot-test-deploying-320720.ue.r.appspot.com/LC_circuit_bokeh')
+    #script = server_document('https://bokeh1-dot-quantum-circuits-306715.ue.r.appspot.com/LC_circuit_bokeh')
     #script = server_document('http://localhost:5006/LC_circuit_bokeh')
     return render_template("classical_LC.html", script=script)
 
