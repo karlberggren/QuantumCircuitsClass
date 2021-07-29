@@ -80,8 +80,9 @@ Navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bo
 2. Create a new project by clicking on the 'select project' dropdown menu on the banner and choose to make a new project.
 3. Enable billing for the app engine in the newly created project. 
 4. Follow [these](https://cloud.google.com/sdk/docs/install) instructions to download and install the Gcloud SDK. 
-5. Once installed, you'll need to authenticate your credentials and select a project to link the SDK. 
-6. Now you can navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml bokeh2/bokeh2.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
+5. Once installed, you'll need to authenticate your credentials. You can do this by typing `gcloud auth login` into the consoule. A pop up window asking you to sign into a google account will pop up. Sign in to the correct google account.
+6. Set project id by entering `gcloud config set project [project-id]`. 
+7. Now you can navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml bokeh2/bokeh2.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
 
 ## Sandboxes 
 ### Classical LC circuit 
