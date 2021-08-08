@@ -24,5 +24,5 @@ EXPOSE 8080
 
 # [START CMD]
 #CMD bokeh serve --disable-index-redirect --num-procs=4 --port=8080 --address=0.0.0.0 --allow-websocket-origin=$LC_CIRCUIT_SIM LC_circuit_bokeh.py --allow-websocket-origin="https://quantum-circuits-307315.uc.r.appspot.com/Classical_LC"
-CMD python -m bokeh serve --port=8080 --disable-index-redirect --allow-websocket-origin="*" wavevector_measure_bokeh.py
+CMD python -m bokeh serve --port=8080 --disable-index-redirect --allow-websocket-origin="*" diffusion2.py
 # [END CMD]
