@@ -70,7 +70,7 @@
         
         <div class="row mt-5">
             <div class="col-4">
-                <p><b>Question 1</b></p>
+                <b>1.</b>
                 What property of the initial distribution function is relates to how quickly the particles diffuse?
                 <form>
                     <div class="form-group">
@@ -79,21 +79,7 @@
                     </div>
                 </form>
             </div>
-            <div class="col-8" style="background-color: #e3e3e3">! Insert sandbox here !</div>
-        </div>
-
-        <div class="row mt-5">
-            <div class="col-4">
-                <b>1.</b>
-                What can you say about the evolution of the particles near the center of the distribution compared to those around the edges?
-                <form>
-                    <div class="form-group">
-                        <label for="answer2"></label>
-                        <input type="text" class="form-control" id="answer2" placeholder="Type your thoughts here">
-                    </div>
-                </form>
-            </div>
-            <div class="col-8" style="background-color: #e3e3e3">! Insert sandbox here !</div>
+            <div class="col-8" style="background-color: #e3e3e3">{{ script1 | safe }}</div>
         </div>
 
         <div class="row mt-5">
@@ -107,12 +93,26 @@
                     </div>
                 </form>
             </div>
-            <div class="col-8" style="background-color: #e3e3e3">! Insert sandbox here !</div>
+            <div class="col-8" style="background-color: #e3e3e3">{{ script1 | safe }}</div>
         </div>
 
         <div class="row mt-5">
             <div class="col-4">
                 <b>3.</b>
+                What can you say about the evolution of the particles near the center of the distribution compared to those around the edges?
+                <form>
+                    <div class="form-group">
+                        <label for="answer2"></label>
+                        <input type="text" class="form-control" id="answer2" placeholder="Type your thoughts here">
+                    </div>
+                </form>
+            </div>
+            <div class="col-8" style="background-color: #e3e3e3">{{ script1 | safe }}</div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-4">
+                <b>4.</b>
                 If the evolution goes on for a very long time, what do you expect the final distribution to be like?
                 <form>
                     <div class="form-group">
@@ -166,7 +166,7 @@
                     </div>
                 </form>
             </div>
-            <div class="col-8" style="background-color: #e3e3e3">! Insert sandbox here !</div>
+            <div class="col-8" style="background-color: #e3e3e3">{{ script2 | safe }}</div>
         </div>
 
         <div class="row mt-5">
@@ -180,7 +180,7 @@
                     </div>
                 </form>
             </div>
-            <div class="col-8" style="background-color: #e3e3e3">! Insert sandbox here !</div>
+            <div class="col-8" style="background-color: #e3e3e3">{{ script2 | safe }}</div>
         </div>
 
         <div class="row mt-5">
@@ -194,12 +194,10 @@
                     </div>
                 </form>
             </div>
-            <div class="col-8" style="background-color: #e3e3e3">! Insert sandbox here !</div>
+            <div class="col-8" style="background-color: #e3e3e3">{{ script2 | safe }}</div>
         </div>
 
         <img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" width="270" height="100" align="left">
         <img src="{{url_for('static', filename='eecs.png')}}" alt="EECS" width="auto" height="100" align="right"> 
     </div>
-    {{ script_Probability_dens | safe }}
-    {{ script_Quantum_state | safe }}
 {% endblock %}
