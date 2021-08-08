@@ -74,7 +74,11 @@ def teaching_staff():
 
 @app.route('/schrodinger',methods=['GET'] )
 def schrodinger():
-    return render_template("schrodinger.html")
+    script1 = server_document('https://bokeh3-dot-quantum-explorations.uk.r.appspot.com/diffusion1')
+    script2 = server_document('https://bokeh4-dot-quantum-explorations.uk.r.appspot.com/diffusion2')
+    #script1 = server_document('http://localhost:5006/diffusion1')
+    #script2 = server_document('http://localhost:5006/diffusion2')
+    return render_template("schrodinger.html",script1=script1,script2=script2)
 
 @app.route('/probability',methods=['GET'] )
 def probability():

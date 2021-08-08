@@ -79,7 +79,7 @@ diff_slider = Slider(start=0.5, end=10, value=2, step=0.5, title='Diffusion Cons
 def update_diff(attr,old,new):
     global current_call
     x = diff_slider.value
-    y = 27*x-17
+    y = round(200/x)-10
     curdoc().remove_periodic_callback(current_call)
     current_call = curdoc().add_periodic_callback(callback, y) # 100 ms alternatively 
     return

@@ -53,8 +53,8 @@ p_real.xaxis.major_label_text_color = "white"
 
 # Circuit image
 p_image = figure(x_range=(0,200), y_range=(0,200), plot_width=315, plot_height=300, tools='')
-# url = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Lc_circuit.svg/2048px-Lc_circuit.svg.png"
-url = 'circuit.png'
+url = "https://bokeh4-dot-quantum-explorations.uk.r.appspot.com/circuit.png"
+#url = 'circuit.png'
 source = ColumnDataSource(data=dict(url=[url]))
 image = ImageURL(url=dict(value=url), x=5, y=0, w=200, h=200, anchor="bottom_left")
 p_image.add_glyph(source,image)
