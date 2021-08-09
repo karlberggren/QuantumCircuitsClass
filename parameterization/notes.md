@@ -148,6 +148,7 @@ The square of this expression is
 
 How wavefunction from_gaussian function works is it assumes σ is given for the pdf
 
+>>>>>>> refs/remotes/origin/main
 return_val *= np.exp(-(x - Xo)**2/(4*σ**2))/(2*π*σ**2)**0.25
 
 In that case, the value we want to use in the init_gaussian call is the one for the pdf, i.e.
