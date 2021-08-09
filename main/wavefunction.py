@@ -47,9 +47,10 @@ class Wavefunction(object):
     @classmethod
     def init_gaussian(cls, *args) -> "Wavefunction object based on Gaussian":
         """
-        Factory method that initializes a properly normalized Gaussian wavefunction.
-        *args is a list of tuples.  Each tuple contains (Xo, σ) for one of the
-        dimensions along which the gaussian is to be defined
+        Factory method that initializes a properly normalized Gaussian
+        wavefunction.  *args is a list of tuples.  Each tuple contains
+        (Xo, σ) for one of the dimensions along which the gaussian is
+        to be defined
 
         >>> wf1 = Wavefunction.init_gaussian((0,1))
         >>> print(wf1(0))
@@ -59,6 +60,7 @@ class Wavefunction(object):
         >>> wf1 = Wavefunction.init_gaussian((0,1), (1,2))
         >>> print(wf1(0,1))
         (0.28209479177387814+0j)
+
         """
         def result(*xs):
             return_val = 1

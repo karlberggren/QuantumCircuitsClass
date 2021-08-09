@@ -127,5 +127,51 @@ The classical evolution of the eigenstate should follow the expectation
 value of position.  I was trying to use operators etc. to calculate this, but
 it wasn't working.  I decided to kludge it using list comprehensions.
 
+# Fix ground state calculation
 
+Thu Jul 15 09:37:51 EDT 2021
 
+From (these notes)[https://www.reed.edu/physics/courses/P342.S10/Physics342/page1/files/Lecture.9.pdf]
+equation 9.7
+
+normalized ground state is
+
+(m ω / π ħ )^(1/4) exp(- m ω / 2 ħ x²)
+
+The square of this expression is
+
+√(m ω / π ħ ) exp(- m ω / ħ x²)
+
+How wavefunction from_gaussian function works is it assumes σ is given for the pdf
+
+return_val *= np.exp(-(x - Xo)**2/(4*σ**2))/(2*π*σ**2)**0.25
+
+In that case, the value we want to use in the init_gaussian call is the one for the pdf, i.e.
+
+- m ω / ħ = - 1 / 2 σ²
+⇒ m ω / ħ =  1 / 2 σ²
+⇒ ħ / (m ω) =  2 σ²
+⇒ ħ / (2 m ω) =  σ²
+⇒ √(ħ / (2 m ω)) =  σ
+but
+m = C
+ω = 1/√(L C)
+
+∴ √(ħ √(L C) / (2 C)) =  σ
+⇒ √(ħ √(L) / (2 √C)) =  σ
+It is convenient to remember Zc = √(L/C) thus
+⇒ σ = √(ħ Zc / 2) which I believe is what we were using
+
+-----
+
+ⅉ ħ ∂ψ/∂t = -ħ²/(2 m) ∂²ψ/∂x² + V(x)
+∂t ~ 1
+∂x ~ 1
+ⅉ ħ ∂ψ = -ħ²/(2 m) ∂²ψ + V(x)
+ⅉ ∂ψ = -ħ/(2 m) ∂²ψ + V(x)/ħ
+C = m ~ ħ
+⇒ ⅉ ∂ψ = - ∂²ψ + V(x)/ħ
+if ∂t ~ 1, T ~ 1
+T = 1/√(LC) = 1/√(L ħ) ⇒ L ~ 1/ħ
+and also
+V(x) ~ ħ
