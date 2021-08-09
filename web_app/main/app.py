@@ -64,7 +64,7 @@ def home():
 
 @app.route('/Classical_LC',methods=['GET'] )
 def classical_LC():
-    script = server_document('https://bokeh1-dot-quantum-circuits-306715.ue.r.appspot.com/LC_circuit_bokeh')
+    script = server_document('https://bokeh1-dot-quantum-explorations.uk.r.appspot.com/LC_circuit_bokeh')
     #script = server_document('http://localhost:5006/LC_circuit_bokeh')
     return render_template("classical_LC.html", script=script)
 
@@ -74,7 +74,11 @@ def teaching_staff():
 
 @app.route('/schrodinger',methods=['GET'] )
 def schrodinger():
-    return render_template("schrodinger.html")
+    script1 = server_document('https://bokeh3-dot-quantum-explorations.uk.r.appspot.com/diffusion1')
+    script2 = server_document('https://bokeh4-dot-quantum-explorations.uk.r.appspot.com/diffusion2')
+    #script1 = server_document('http://localhost:5006/diffusion1')
+    #script2 = server_document('http://localhost:5006/diffusion2')
+    return render_template("schrodinger.html",script1=script1,script2=script2)
 
 @app.route('/probability',methods=['GET'] )
 def probability():
@@ -90,7 +94,8 @@ def probability():
 @app.route('/Prob_amplitiude', methods=['GET', 'POST'])
 def Prob_amplitiude():
     selected_class = request.form.get('dropdown-select')
-    script = server_document('https://bokeh2-dot-quantum-circuits-306715.ue.r.appspot.com/wavevector_measure_bokeh')
+    script = server_document('https://bokeh1-dot-quantum-explorations.uk.r.appspot.com/wavevector_measure_bokeh')
+    #script = server_document('http://localhost:5006/wavevector_measure_bokeh')
     return render_template('index.html', wavevector_measurement =script, selected_class=selected_class)
 
 

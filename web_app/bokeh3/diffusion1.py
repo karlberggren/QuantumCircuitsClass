@@ -54,8 +54,9 @@ p1.axis.visible = False
 p1.toolbar.logo = None
 p1.xgrid.visible = False
 p1.ygrid.visible = False
+#p1.title.text_font_size = '16pt'
 
-# Function plot
+# Function plots
 p2 = figure(x_range=(-x_lim, x_lim), y_range=(0, 0.08), plot_height=300, plot_width=900, tools='')
 p2.line(x='x', y='y', source=function_source, line_width=2)
 p2.yaxis.visible = False
@@ -73,6 +74,17 @@ def update_initial_width(attr,old,new):
         particles_source.data['color'] = x_lim-np.abs(x)
 width_slider.on_change('value', update_initial_width)
 
+# Diffusion constant slider
+diff_slider = Slider(start=0.5, end=10, value=2, step=0.5, title='Diffusion Constant')
+def update_diff(attr,old,new):
+    global current_call
+    x = diff_slider.value
+    y = round(200/x)-10
+    curdoc().remove_periodic_callback(current_call)
+    current_call = curdoc().add_periodic_callback(callback, y) # 100 ms alternatively 
+    return
+diff_slider.on_change('value', update_diff)
+
 # Evolve button
 evolve_button = Toggle(label = '► Evolve', button_type='success')
 def evolve_click(value):
@@ -80,6 +92,7 @@ def evolve_click(value):
         evolve_button.label = '❚❚ Pause'
     else:
         evolve_button.label = '► Evolve'
+    update_diff(1,2,3)
 evolve_button.on_click(evolve_click)
 
 # Reset button
@@ -96,6 +109,7 @@ def reset_click(value):
         x = get_points(y,sigma)
         particles_source.data['x'] = x
         particles_source.data['color'] = x_lim-np.abs(x)
+    update_diff(1,2,3)
 reset_button.on_click(reset_click)
 
 def callback():
@@ -121,7 +135,7 @@ bug --> use closure, create d/dt function, assign a variable and pass it in
 """
 
 # Set up layouts and add to document
-inputs = column(row(evolve_button, reset_button, sizing_mode='scale_width', width=900),p1,p2,width_slider, width=900)
+inputs = column(row(evolve_button, reset_button, sizing_mode='scale_width', width=900),p1,p2,width_slider, diff_slider, width=900)
 curdoc().add_root(inputs) # Need to adjust sizes just a bit more
 curdoc().title = "Diffusion"
-curdoc().add_periodic_callback(callback, 10) # 100 ms alternatively 
+current_call = curdoc().add_periodic_callback(callback, 10) # 100 ms alternatively 

@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include 'navbar_prob_ampl.html' %}
+    <div class="container">
+
+        <div class="row mt-5">
+            <h2>The Schrodinger Equation</h2>
+            <div class="col-12"> 
+                <h3>The Evolution of Wavefunctions</h3>
+                <p>
+                    The Schrodinger equation is a very famous equation that describes the evolution of systems in time.
+                    More precisely, it describes how a wavefunction changes in time when it is inside a Hamiltonian (ie. a potential).
+                    The equation with time dependence is typically quoted as follows:
+                    \[ i \hbar \frac{d}{d t}|\Psi(t)\rangle=\hat{H}|\Psi(t)\rangle \]
+
+                    We can break it down into its parts like so:
+                    <ul>
+                        <li>
+                            The left hand side of the equation \( i \hbar \frac{d}{d t}|\Psi(t)\rangle \) represents the derivative in time
+                            the wavefunction \( |\Psi(t)\rangle \) (recall Bra-Ket notation from the previous sec.). Note that this may be a complex quantity.
+                        </li>
+                        <li>
+                            The right hand side of the equation, involves how the Hamiltonian \( \hat{H} \) acts on the wavefunction \( |\Psi(t)\rangle \).
+                            This encapsulates the description of the energy of the system.
+                        </li>
+                    </ul>
+
+                    The time-dependent Schrodinger equation says that the way in which the wavefunction \( |\Psi(t)\rangle \) evolves in time is given by the energy of the given wavefunction in the system. 
+                    This is analogous to an equation of motion in classical mechanics, however, we only use the first derivative of the wavefunction.
+                </p>
+
+                <h3>LC potentials</h3>
+                <p> 
+                    We can describe the evolution of LC circuits with the following Hamiltonian:
+                    \[ H = \frac{Q^2}{2C} + \frac{\Phi^2}{2L} \]
+                    Here we use \(Q\) to represent the charge in the circuit and \(\Phi\) to represent the magnetic flux in the circuit.
+                    \(C\) and \(L\) represent the capacitance and the inductance in the circuit. To turn this into a quantum mechanical Hamiltonian
+                    we denote the quantities \(Q\) and \(\Phi\) as operators \(\hat{Q}\) and \(\hat{\Phi}\). 
+
+                    Now with this Hamiltonian we can see how the wavefunctions evolve.
+                </p>
+                
+                <div class="row mt-5">
+                    <div class="col-sm">
+                        <pre>
+                            <code class="language-python">
+    Insert code here</code>
+                        </pre>
+                    </div>
+                    <div class="col-sm">
+                        <div><b>! Insert interactive sandbox with a slider for C and evolve a gaussian !</b></div>
+                    </div>
+                </div>
+
+                <p>
+                    When the capacitor is much bigger than the inductance (when \(C \gg L\)), the term involving the flux is going to 
+                    be bigger than the term involving the charge. In physical terms, the circuit's energy is influenced 
+                    more by the inductor than by the capacitor. 
+                    We may find that the Hamiltonian looks like this:
+                </p>
+
+                <div class="row mt-5">
+                    <div class="col-sm">
+                        <pre>
+                            <code class="language-python">
+    Insert code here</code>
+                        </pre>
+                    </div>
+                    <div class="col-sm">
+                        <div><b>! Insert plot of the potential with a slider for the capacitance !</b></div>
+                    </div>
+                </div>
+
+                <p>
+                    Talk about the mechanical picture and how it seems like its evolution is in free-space
+                </p>
+
+                <h4>Diffusion Picture of the Schrodinger Equation</h4>
+
+                <p>
+                    
+                    The Schrodinger equation is describes the evolution of quantum systems in time.
+                    One interesting question to ask if whether the Schrodinger equation has a diffusive nature to it. 
+                    More precisely, what information about the behaivour of the Schrodinger equation can we get if we compare it to the Diffusion equation?
+                </p>
+                <p>
+                    In the case of a free particle potential, where the capacitance of an LC circuit is much greater than its inductance, the Schrodinger equation looks like this:
+
+                    \[ i \hbar \frac{d}{d t}|\Psi(t)\rangle=\hat{H}|\Psi(t)\rangle \]
+                    \[ i \hbar \frac{d\Psi}{d t} = -\frac{\hbar^2}{2L} \frac{d^2 \Psi}{d\phi^2} \]
+                    \[ \frac{d\Psi}{d t} = \frac{i\hbar}{2L} \frac{d^2 \Psi}{d\phi^2} \]
+                </p>
+                <p>
+                    In this case, the Schrodinger equation resembles the diffusion equation:
+                    \[ \frac{dT}{dt} = D \frac{d^2T}{dx^2} \]
+
+                    Comparing these two equations we might be able to suggest that \( i\frac{\hbar}{2L} \) could be analogous to \(D\) the diffusion coefficient for the schrodinger equation.
+                    The second similarity between these two equations is that a single derivative in time is related to a double derivative in the space coordinate.
+                    We can thus expect that there may be some similar behaivour between the two equations. 
+                </p>
+                <h5>Exploring the Diffusion Equation</h5>
+                <p>
+                    The diffusion equation is found in many physical and chemical systems.
+                    We have an understanding that particles diffuse from an area of high concentration to an area of low concentration.
+                    Lets see how this works:
+                </p>
+
+                <h6>Diffusion Sandbox</h6>
+                
+                In the sandbox below, there is a distribution of particles that are enclosed in a box.
+                These particles are distributed according to a gaussian (normal) distribution.
+                You can use the slider to tune the initial width of the distribution before evolving the distribution of particles.
+                Run the sandbox multiple times with different conditions, note the evolution of the particles.
+
+                <div class="row mt-5">
+                    <div class="col-sm">
+                        <div><b>! Insert classical sandbox of a gaussian particle distribution with a slider for the width of the distribution !</b></div>
+                    </div>
+                </div>
+
+                Think about these questions, go back to the sandbox and explore:
+                <ol>
+                    <li>What property of the initial distribution function is relates to how 'quick' the particles diffuse?</li>
+                    <li>What can you say about the evolution of the particles near the center of the distribution compared to those around the edges?</li>
+                    <li>If the evolution goes on for a very long time, what do you expect the final distribution to be like?</li>
+                </ol>
+                
+                <p>
+                    It is really intersting to note that the evolution of the particles is very different depending on the initial distribution width.
+                    If the intial distribution is really narrow, then the particles will move very fast at the begining.
+                    Similarly, if the inital distribution is really wide then the particles will move very slow. 
+                    We can conclude that the evolution of the distribution function is related to its curvature \( \frac{d^2T}{dx^2} \), which follows from the statement of the diffusion equation.
+
+                </p>
+                <p>
+                    For the particles that diffuse in the box, the speed at which they move depends on where they are in the distribution. 
+                    Near the centre of the distribution there are many closely packed particles which move very fast.
+                    At the edges there are loosely spaced particles that move slowly.
+                    We can conclude that the physical analogue of the curvature of the distribution is how closely packed the particles are at any given point in time.
+                </p>
+                <p>
+                    When the distribution has evolved for a very long time we can see that the 
+                </p>
+                
+
+                <h4>Superpositions of states</h4>
+
+                <p>Introduce the idea of a superposition of states. Explain how a state can be made from individua basis states</p>
+
+                <div class="row mt-5">
+                    <div class="col-sm">
+                        <pre>
+                            <code class="language-python">
+    Insert code here</code>
+                        </pre>
+                    </div>
+                    <div class="col-sm">
+                        <div><b>! Insert plot of two gaussians with a slider for their serparation, possibly show evolution !</b></div>
+                    </div>
+                </div>
+
+                <p> Introduce a bit more of the formalism behind coefficients in superpositions </p>
+
+                <h4>Operator picture</h4>
+                <p>Matrix representation</p>
+
+                <h4>How to solve the Schrodinger equation</h4>
+
+
+            </div>
+        </div>
+        
+        <div class="row mt-5">
+            <h2>Problems (these are old, to be replaced)</h2>
+            <p>
+                <ol>
+                    <li>Compute \(⟨j⟩^2\) and then \(⟨j^2⟩\) from the ages problem above. Determine \(\Delta j \) for each \(j\)</li>
+                    <li>
+                        The needle on a car spedometer is loose and free to swing. When you flick it, it is equally likely to land between \(0\) and \(\pi\) and can bounce off a pin at \(3\pi/2\).
+                        <ol type="a">
+                            <li>What is the probability density \(\rho(\theta)\)? Graph it as a function of \(\theta\) from \(-\pi/2\) to \(3\pi/2\). Hint: \(\rho(x)\) is 0 in a section of the interval. Make sure that the total probability is 1.</li>
+                            <li>Compute \(⟨\theta⟩\), \(⟨\theta⟩^2\) and \(\sigma\) for the distribution</li>
+                        </ol>
+                    </li>
+                    <li>
+                        Consider the following probability density function:
+                        \[\rho(x)=A e^{-\lambda(x-a)^{2}}\]
+                        <ol type="a">
+                            <li>Determine \(A\)</li>
+                            <li>Compute \(⟨x⟩\), \(⟨x⟩^2\) and \(\sigma\)</li>
+                            <li>Sketch the graph of \(\rho(x)\)</li>
+                        </ol>
+                    </li>
+                    <li>
+                        Consider the following function named \(\Psi(x,t)\). We define \(|\Psi(x,t)|^2 =\Psi(x,t) \times \Psi(x,t)= \rho(x,t)\). At \(t=0\):
+                        \[\Psi(x, 0)=\left\{\begin{array}{ll}
+                        A x / a, & \text { if } 0 \leq x \leq a, \\
+                        A(b-x) /(b-a), & \text { if } a \leq x \leq b, \\
+                        0, & \text { otherwise }
+                        \end{array}\right.\]
+                        <ol type="a">
+                            <li>Find \(A\) in terms of \(a\) and \(b\) to ensure normalization</li>
+                            <li>What is the expectation value of \(x\) at \(t=0\)?</li>
+                        </ol>
+                    </li>
+                </ol>
+            </p>
+        </div>
+
+        <div class="row mt-5">
+            <p>
+                <em>References:</em>
+                <ul>
+                    <li>R. Shankar, Principles of quantum mechanics. New York u.a.: Plenum Pr, 1988. </li>
+                    <li>D. J. Griffiths and D. F. Schroeter, Introduction to quantum mechanics. Cambridge: Cambridge University Press, 2019.</li>
+                </ul>
+            </p>
+        </div>
+        <img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" width="270" height="100" align="left">
+        <img src="{{url_for('static', filename='eecs.png')}}" alt="EECS" width="auto" height="100" align="right"> 
+    </div>
+    {{ script_Probability_dens | safe }}
+    {{ script_Quantum_state | safe }}
+{% endblock %}

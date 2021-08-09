@@ -6,6 +6,12 @@ dispatch:
   - url: "*/wavevector_measure_bokeh/*"
     service: bokeh2
 
+  - url: "*/diffusion1/*"
+    service: bokeh3
+  
+  - url: "*/diffusion2/*"
+    service: bokeh4
+
   # Send all work to the one static backend.
   - url: "*/.*"
     service: default
