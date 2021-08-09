@@ -48,7 +48,7 @@ particles_source = ColumnDataSource(data=dict(x=x1,y=y1,color=cx))
 color_mapper = linear_cmap(field_name='color', palette='Blues8', low=x_lim, high=0, low_color='#084594', high_color='#f7fbff')
 
 # Particle plot
-p1 = figure(x_range=(-x_lim, x_lim), y_range=(-0.05,0.55), plot_height=150, plot_width=900, title='Classical Diffusion', tools='')
+p1 = figure(x_range=(-x_lim, x_lim), y_range=(-0.05,0.55), plot_height=150, plot_width=700, title='Classical Diffusion', tools='')
 p1.circle(x='x',y='y', source=particles_source, size=12, color=color_mapper, alpha=0.75, line_alpha=0.0) # color='#037ffc'
 p1.axis.visible = False
 p1.toolbar.logo = None
@@ -57,7 +57,7 @@ p1.ygrid.visible = False
 #p1.title.text_font_size = '16pt'
 
 # Function plots
-p2 = figure(x_range=(-x_lim, x_lim), y_range=(0, 0.08), plot_height=300, plot_width=900, tools='')
+p2 = figure(x_range=(-x_lim, x_lim), y_range=(0, 0.08), plot_height=300, plot_width=700, tools='')
 p2.line(x='x', y='y', source=function_source, line_width=2)
 p2.yaxis.visible = False
 p2.toolbar.logo = None
@@ -135,7 +135,7 @@ bug --> use closure, create d/dt function, assign a variable and pass it in
 """
 
 # Set up layouts and add to document
-inputs = column(row(evolve_button, reset_button, sizing_mode='scale_width', width=900),p1,p2,width_slider, diff_slider, width=900)
+inputs = column(row(evolve_button, reset_button, sizing_mode='scale_width', width=700),p1,p2,width_slider, diff_slider, width=700)
 curdoc().add_root(inputs) # Need to adjust sizes just a bit more
 curdoc().title = "Diffusion"
 current_call = curdoc().add_periodic_callback(callback, 10) # 100 ms alternatively 

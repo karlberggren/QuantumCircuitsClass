@@ -42,7 +42,7 @@ real_source = ColumnDataSource(data=dict(x=x,y=y.real))
 imag_source = ColumnDataSource(data=dict(x=x,y=y.imag))
 
 # Real figure
-p_real = figure(x_range=(-x_lim, x_lim), y_range=(-0.35, 0.35), plot_width=320, plot_height=300, title='Real Component Re{Ψ}', tools='')
+p_real = figure(x_range=(-x_lim, x_lim), y_range=(-0.35, 0.35), plot_width=220, plot_height=300, title='Real Component Re{Ψ}', tools='')
 p_real.line(x='x', y='y', source=real_source, line_width=2)
 p_real.xaxis.axis_label = 'Flux [Wb]'
 p_real.yaxis.visible = False
@@ -52,7 +52,7 @@ p_real.ygrid.visible = False
 p_real.xaxis.major_label_text_color = "white"
 
 # Circuit image
-p_image = figure(x_range=(0,200), y_range=(0,200), plot_width=315, plot_height=300, tools='')
+p_image = figure(x_range=(0,200), y_range=(0,200), plot_width=230, plot_height=300, tools='')
 url = "https://bokeh4-dot-quantum-explorations.uk.r.appspot.com/circuit.png"
 #url = 'circuit.png'
 source = ColumnDataSource(data=dict(url=[url]))
@@ -64,7 +64,7 @@ p_image.xgrid.visible = False
 p_image.ygrid.visible = False
 
 # Imaginary figure 
-p_imag = figure(x_range=(-x_lim, x_lim), y_range=(-0.35, 0.35), plot_width=320, plot_height=300, title='Imaginary Component Im{Ψ}', tools='')
+p_imag = figure(x_range=(-x_lim, x_lim), y_range=(-0.35, 0.35), plot_width=220, plot_height=300, title='Imaginary Component Im{Ψ}', tools='')
 p_imag.line(x='x', y='y', source=imag_source, line_width=2)
 p_imag.xaxis.axis_label = 'Flux [Wb]'
 p_imag.yaxis.visible = False
@@ -74,7 +74,7 @@ p_imag.ygrid.visible = False
 p_imag.xaxis.major_label_text_color = "white"
 
 # Probability density figure
-p = figure(x_range=(-x_lim, x_lim), y_range=(0, 0.5), plot_width=955, plot_height=300, title='Probability Density Function Ψ*Ψ', tools='')
+p = figure(x_range=(-x_lim, x_lim), y_range=(0, 0.5), plot_width=700, plot_height=300, title='Probability Density Function Ψ*Ψ', tools='')
 p.line(x='x', y='y', source=function_source, line_width=2)
 p.xaxis.axis_label = 'Flux [Wb]'
 p.yaxis.visible = False
@@ -200,7 +200,7 @@ def callback():
 """ Add unicode characters and infinte capacitance label """
 
 # Set up layouts and add to document
-inputs = column(row(evolve_button,radio_button_group,reset_button, width=960),column(width_slider,inductance_slider, width=935),row(p_imag,p_image,p_real),p)
+inputs = column(row(evolve_button,radio_button_group,reset_button, width=700),column(width_slider,inductance_slider, width=700),row(p_imag,p_image,p_real),p)
 curdoc().add_root(inputs)
 curdoc().title = "Diffusion"
 curdoc().add_periodic_callback(callback, 10)
