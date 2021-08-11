@@ -8,19 +8,23 @@ The code for the main website is contained in the `main` directory. The other di
 ```
 web_app 
     |__dispatch.yaml
-    |__ bokeh1
-            |__ bokeh1.yaml
+    |__ bokeh
+            |__ bokeh_measurement_and_diffusion.yaml
             |__ Dockerfile
-            |__ LC_circuit_bokeh.py
             |__ requirements.txt
-    
-    |__ bokeh2 
-            |__ bokeh2.yaml
-            |__ Dockerfile
             |__ wavevector_measure_bokeh.py
+            |__ diffusion1.py
+            |__ diffusion2.py
             |__ utils 
                 |__ wavevector.py 
                 |__ q_operator.py
+    
+    |__ plotly_wavefunction 
+            |__ plotly.yaml
+            |__ requirements.txt
+            |__ Dockerfile
+            |__ wavfun_visualization.py
+
     |__ main
             |__ main.yaml
             |__ app.py
@@ -30,9 +34,11 @@ web_app
                     |__ css
                             |__ main.css
             |__ templates
-                    |__ All the HTML files
+                    |__ *.html
+                    |__ navbars
+                    |__ gaussian_wavepacket_utils
             |__ utils
-                    |__ Sandbox files
+                    |__ Static plotly scripts
 
 ```
 The `dispatch.yaml` file is responsible for defining service allocation for the Google app deployment. To be perfectly honest, I don't have the slightest idea how it works or what it does, but I know through trial and error (lots and lots of error) that it makes things work. I'll explain how to use it in the [Deploying on Google App Engine](https://github.com/karlberggren/QuantumCircuitsClass/tree/main/web_app#deploying) section. 
@@ -59,12 +65,12 @@ For example `<img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" wi
 All the figures included in the text must be placed in the static folder. 
 I really don't know how CSS works. So, whenever I have a question, I just google it and copy and paste the code.
 
-### Bokeh 
-#### Bokeh1
-Bokeh1 service contains the interactive LC circuit simulation. The main entry point for the simulation is in the `LC_circuit_bokeh.py` script. The Google app engine uses `bokeh1.yaml` and `Dockerfile` to define the production environment.
+### Server sandboxes 
+#### Bokeh
+The sandboxes which utalize bokeh are contained in [bokeh_measurement_and_diffusion ](https://github.com/karlberggren/QuantumCircuitsClass/tree/main/web_app/bokeh_measurement_and_diffusion). Each python script contains code which generates one sandbox to be hosted on a bokeh server. The Google app engine uses `bokeh.yaml` and `Dockerfile` to define the production environment and run all sandboxes in the directory.
 
-#### Bokeh2 
-Bokeh2 service contains the interactive wavefunction measurement simulation. The main entry point for the simulation is in the `wavevector_measure_bokeh.py` script. The Google app engine uses `bokeh2.yaml` and `Dockerfile` to define the production environment.
+#### Plotly
+Some description about this environment
 
 ## Deploying
 ### Locally
@@ -73,7 +79,7 @@ To deploy the bokeh simulation, navigate to the bokeh directory and run `bokeh s
 To deploy the main site locally, navigate to `main` and uncomment line 68 and comment line 67 in `app.py`. In `web_app/main` and run `app.py` by typing `python app.py` into the command line.
 ### Google App Engine
 #### If you already have a Google Cloud Project set up and the SDK downloaded
-Navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml bokeh2/bokeh2.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
+Navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh_measurement_and_diffusion/bokeh.yaml plotly_wavefunction/plotly.py dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
 
 #### Getting started with App Engine
 1. Navigate to your [cloud console](https://console.cloud.google.com).
@@ -82,7 +88,7 @@ Navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bo
 4. Follow [these](https://cloud.google.com/sdk/docs/install) instructions to download and install the Gcloud SDK. 
 5. Once installed, you'll need to authenticate your credentials. You can do this by typing `gcloud auth login` into the consoule. A pop up window asking you to sign into a google account will pop up. Sign in to the correct google account.
 6. Set project id by entering `gcloud config set project [project-id]`. 
-7. Now you can navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh1/bokeh1.yaml bokeh2/bokeh2.yaml dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
+7. Now you can navigate to the `Web_app` directory and run `gcloud app deploy main/main.yaml bokeh_measurement_and_diffusion/bokeh.yaml plotly_wavefunction/plotly.py dispatch.yaml` to deploy all the services. Alternatively, run `gcloud app deploy main/main.yaml  dispatch.yaml` to only deploy the main service. 
 
 ## Sandboxes 
 ### Classical LC circuit 
