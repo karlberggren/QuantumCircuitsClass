@@ -1,16 +1,16 @@
 dispatch:
   # Send all mobile traffic to the mobile frontend.
-  - url: "*/LC_circuit_bokeh/*"
-    service: bokeh1
-
   - url: "*/wavevector_measure_bokeh/*"
-    service: bokeh2
+    service: bokeh
 
   - url: "*/diffusion1/*"
-    service: bokeh3
+    service: bokeh
   
   - url: "*/diffusion2/*"
-    service: bokeh4
+    service: bokeh
+  
+  - url: "*/plotly/*"
+    service: plotly
 
   # Send all work to the one static backend.
   - url: "*/.*"

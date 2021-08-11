@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% include 'navbars/navbar_measurement.html' %}
+    <div class="container">
+        <div class="row mt-5">
+            <h2>Measurements </h2>
+            <div class="col-12">
+            <h3>Classical Measurements</h3>
+            <p>When we perform a measurement in a classical LC system, the probability distributions on the flux and on the charge collapse into dirac delta distributions. A classical measurement provides full certainty both in the measured domain and the domain coupled to it. 
+                Measuring the flux alone, gives all the information about the charge. After the measurement, the state of the L-C system is fully known for all time.</p>
+            <p><b>! insert classical simulation with measurements !</b></p>
+        </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-12">
+            <h3>Quantum Measurements</h3>
+            <p>When we perform a measurement on a quantum system, we change the probability density and its corresponding wavefunction to reflect our new knowledge of the system. Here, we notice 2 very interesting effects:
+                <ul style="list-style: none;">
+                <li>1. The wavefunction collapse in the measured domain causes a broadening of the wavefunction in the coupled domain. This means that knowledge about one variable comes at the expense of knowledge of the other. </li>
+                <li>2. After the measurement, the modified wavefunction doesn't continue to evolve in the LC potential like in the classical case. Instead, the wavefunction starts broadening out immediately after the measurement. The wavefunction post measurement has almost no resemblance to itself pre-measurement.</li> 
+            </ul>
+            </p>
+            {{wavevector_measurement | safe}}
+        </div>
+    </div>
+        <div class="row mt-5">
+        <div class="col-12">
+            <h3>Mathematically Representing Measurements</h3>
+            <p>You probably heard that in quantum mechanics, a measurement collapses a wavefunction. But what does that actually mean? 
+            Let's imagine a measurement instrument which is rated to measure current between -1 mA and 1 mA and gives a reading with 2 decimal numbers (i.e. accuracy 0.01 mA). If the device gives us a reading of 0.34 mA, we know that the true current value is 
+            somewhere between 0.335 mA and 0.345 mA. For the sake of simplicity, let's assume that there's a uniform probability distrubution for the true value of the current in that region. This means that every time we perform a measurement, we recieve a narrow probability distribution that looks like a square pulse. We can use this probability distribution to write down a collapsed wavefunction.
+            Our code collapses the wavefunction as follows:
+            <ol>
+            <li>Assemble the measurement basis \(x_0, x_1, \dots, x_n\)</li>
+            <li>Project the wavefunction unto each one of the basis elements as follows \(\psi_{xi} = \frac{\psi \dot x_i}{|x_i|^2} x_i \)</li>
+            <li>Calculate the probability of the true value being in the \(i\)'s projected wavefunction as \(p_i = \int\psi_{xi}^*\psi_{xi}d\Phi\)</li>
+            <li>Simulate a throw of an n sided weighted die throw with it's sides weighed by \(p_0, p_1, \dots, p_n\)</li>
+            <li>The measurement basis function corresponding to the result of the throw is normalized and becomes the new wavefunction</li>
+        </ol>
+        </p>
+        In code this is 
+        <pre>
+        <code class="language-python">
+    def simple_measure_1d(self, M: int, seed: int = 0):
+        np.random.seed(seed) 
+        # initiate a table of probabilities to store the probability of the flux being found in each region
+        probability_table = []
+        # get del x
+        for xmin, xmax, N in self.ranges:
+            delx = (xmax - xmin)/(N-1) 
+        # for every region:
+        for i in range(M):
+            inds = [j for j in range(round(i*len(self)/M), round((i+1)*len(self)/M))]
+            exclude_inds = list(set(range(len(self))) - set(inds))
+            # create a  projection matrix x:
+            x = np.identity(len(self), dtype=np.float32)*delx
+            x[exclude_inds, exclude_inds] = 0
+            # find probability of flux being in that region by taking (phi^* | x | phi) and store in the probability table 
+            prob = np.real(np.transpose(np.conjugate(self)) @ x @ self)
+            probability_table.append(prob)
+        # Use multinomial RV to get the resul of throwing a weighted cube. 
+        # Multinomial returns an array of size p.size where the entry in each index is the number of times
+        # the cube landed on that face
+        probability_table = np.array(probability_table)/np.sum(probability_table)   # normalize probabilities in case wavevctor isn't normalized
+        cube_throw = np.random.multinomial(1, probability_table)
+        region_number = int((np.where(cube_throw ==1)[0][0]))  
+        # for some odd reason numpy returns the array index s a float which needs to be converted to an int for indexing
+        inds = [j for j in range(round(region_number*len(self)/M), round((region_number+1)*len(self)/M))]
+        exclude_inds = list(set(range(len(self))) - set(inds))
+
+        # collaps the wavefunction 
+        self[inds] = 1
+        self[exclude_inds] = 0  
+        # normalize it
+        self /= np.sqrt(np.sum(np.power(np.absolute(self), 2)*delx))
+        return self
+    </code>
+</pre>
+        </div>
+        </div>
+
+        <div class="row mt-5">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  <li class="page-item"><a class="btn btn-secondary btn-lg active" role="button" style="background-color: #411038;"  href="{{ url_for('prob_amplitude') }}">Previous</a></li>
+                  <li class="page-item"><a class="btn btn-secondary btn-lg active" role="button" style="background-color: #411038;"  href="{{ url_for('schrodinger') }}">Next</a></li>
+                </ul>
+              </nav>
+        </div>
+        <img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" width="270" height="100" align="left">
+        <img src="{{url_for('static', filename='eecs.png')}}" alt="EECS" width="auto" height="100" align="right"> 
+    </div>
+{% endblock %}

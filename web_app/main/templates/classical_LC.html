@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-    {% include 'navbar_classical.html' %}
+    {% include 'navbars/navbar_classical.html' %}
     <div class="container">
         <p>
 
@@ -194,6 +194,12 @@
         <p> 
 
         </p>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li class="page-item"><a class="btn btn-secondary btn-lg active" role="button" style="background-color: #411038;"  href="{{ url_for('home') }}">Home</a></li>
+              <li class="page-item"><a class="btn btn-secondary btn-lg active" role="button" style="background-color: #411038;"  href="{{ url_for('probability') }}">Next</a></li>
+            </ul>
+          </nav>
     </div>
     <div>
         <img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" width="270" height="100" align="left">

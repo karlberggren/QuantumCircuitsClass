@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
-{% include 'navbar_home.html' %}
+{% include 'navbars/navbar_home.html' %}
     <div class="container">
         <div class="row mt-5">
-            <h2 >6.S079: Quantum Circuits, Superconductors and Qbits</h2>
+            <h2 >6.S079: Quantum Superconducting Circuits for Quantum Computing</h2>
             <div class="col-12">
                 <h3>Welcome! </h3>
                 <p> This course is brought to you by the EECS departent at MIT. </p>
@@ -12,7 +12,8 @@
                         <ul class="menu">
                           <li><a href="{{ url_for('classical_LC') }}">Classical LC Circuits</a></li>
                           <li><a href="{{ url_for('probability') }}">Random Variables and Probability Density Functions</a></li>
-                          <li><a href="{{ url_for('Prob_amplitiude') }}">Wavefunctions, Probability Amplitude, and Measurement</a></li>
+                          <li><a href="{{ url_for('prob_amplitude') }}">Wavefunctions and Probability Amplitude</a></li>
+                          <li><a href="{{ url_for('measurement') }}">Quantum Measurement</a></li>
                           <li><a href="{{ url_for('schrodinger') }}">The Schrodinger equation</a></li>
                         </ul>
                       </nav></strong>
@@ -23,6 +24,7 @@
         <div class="row mt-5"> 
               
         </div>
+    
         <img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" width="270" height="100" align="left">
         <img src="{{url_for('static', filename='eecs.png')}}" alt="EECS" width="auto" height="100" align="right"> 
     </div>

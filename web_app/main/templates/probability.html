@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-    {% include 'navbar_prob_ampl.html' %}
+    {% include 'navbars/navbar_prob_ampl.html' %}
     <div class="container">
         <div class="row mt-5">
             <h2>Probability Distributions</h2>
@@ -291,9 +291,14 @@
                 </ul>
             </p>
         </div>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+              <li class="page-item"><a class="btn btn-secondary btn-lg active" role="button" style="background-color: #411038;"  href="{{ url_for('classical_LC') }}">Previous</a></li>
+              <li class="page-item"><a class="btn btn-secondary btn-lg active" role="button" style="background-color: #411038;"  href="{{ url_for('prob_amplitude') }}">Next</a></li>
+            </ul>
+          </nav>
         <img src="{{url_for('static', filename='MIT_c.jpg')}}" alt="MIT" width="270" height="100" align="left">
         <img src="{{url_for('static', filename='eecs.png')}}" alt="EECS" width="auto" height="100" align="right"> 
     </div>
-    {{ script_Probability_dens | safe }}
-    {{ script_Quantum_state | safe }}
+
 {% endblock %}

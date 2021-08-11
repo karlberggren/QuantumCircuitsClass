@@ -1,3 +1,0 @@
-service: bokeh3
-runtime: custom
-env: flex

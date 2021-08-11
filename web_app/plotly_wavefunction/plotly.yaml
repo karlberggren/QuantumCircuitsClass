@@ -1,0 +1,3 @@
+service: plotly
+runtime: custom
+env: flex
