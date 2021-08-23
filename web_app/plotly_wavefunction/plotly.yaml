@@ -3,5 +3,7 @@
 # env: flex
 
 service: plotly
-runtime: python37
-entrypoint: gunicorn -b 127.0.0.1:8080 main:server
+runtime: custom
+env: flex
+# runtime: python37
+entrypoint: gunicorn -b :$PORT main:plotly

@@ -154,5 +154,5 @@ def update_graph(func_name, x0, k, phi, xpos):
 
 if __name__ == '__main__':
     # app.run_server(debug=True, port=8080)
-	app.run_server(host='127.0.0.1', port=8080, debug=True)
+	app.run_server(port=8080, debug=True)
     

@@ -21,5 +21,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8080
 
 # [START CMD]
-CMD python wavfun_visualization.py
+CMD python main.py
 # [END CMD]
