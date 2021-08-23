@@ -10,9 +10,7 @@
 # limitations under the License.
 
 FROM python:3
-
-ENV BK_VERSION=2.3.0
-ENV PY_VERSION=3.7
+ENV PY_VERSION=3.8
 
 WORKDIR /usr/src/app
 
@@ -23,6 +21,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8080
 
 # [START CMD]
-#CMD bokeh serve --disable-index-redirect --num-procs=4 --port=8080 --address=0.0.0.0 --allow-websocket-origin=$LC_CIRCUIT_SIM LC_circuit_bokeh.py --allow-websocket-origin="https://quantum-circuits-307315.uc.r.appspot.com/Classical_LC"
 CMD python wavfun_visualization.py
 # [END CMD]
