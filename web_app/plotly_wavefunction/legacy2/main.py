@@ -153,6 +153,6 @@ def update_graph(func_name, x0, k, phi, xpos):
     return fig
 
 if __name__ == '__main__':
-    # app.run_server(debug=True, port=8080)
-	app.run_server(port=8080, debug=True)
+    # app.run_server(debug=True)
+	app.run_server(debug=True, host='0.0.0.0', port=8080)
     

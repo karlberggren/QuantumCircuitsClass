@@ -1,0 +1,54 @@
+19-Sept 2021
+1. cd /D D:\Drives\Dropbox (MIT)\03_QNN_group\QuantumCircuitsClass\web_app
+2. gcloud auth login
+3. gcloud projects list
+4. gcloud config set project quantum-explorations
+5. gcloud app deploy plotly_wavefunction/plotly.yaml dispatch.yaml
+xxx did not work [20210920t004559]
+6. gcloud builds submit --tag gcr.io/quantum-explorations/dash-example  --project=quantum-explorations
+7. gcloud run deploy --image gcr.io/quantum-explorations/dash-example --platform managed  --project=quantum-explorations --allow-unauthenticated
+[Setting IAM policy failed, try "gcloud beta run services add-iam-policy-binding --region=us-east1 --member=allUsers --role=roles/run.invoker test-plotly"]
+-----------------------------
+run command promt:
+1. gcloud auth login
+2. gcloud projects list
+3. gcloud config set project 548423810719
+4. cd /D D:\WV_Sandbox
+cd /D D:\Drives\Dropbox (MIT)\03_QNN_group\QuantumCircuitsClass\web_app\main
+cd /D D:\Drives\Dropbox (MIT)\03_QNN_group\QuantumCircuitsClass\web_app\plotly_wavefunction
+5. web_app\main\templates: create wavefunction.html 
+app.py: script-->wavefunction.html, 
+6. web_app\dispatch.yml
+  - url: "*/3D_wavefunction/*"
+    service: plotly1
+7. locally run-python from web_app\main: app.py
+-----------------------------
+  - url: "*/LC_circuit_bokeh/*"
+    service: bokeh1
+gcloud compute project-info describe --project 548423810719
+cd /D D:\sandbox
+pip freeze > requirements.txt
+gcloud config get-value project
+gcloud config set project quantum-explorations
+gcloud init
+gcloud app deploy app.yaml
+-----------------------------
+cd /D D:\Drives\Dropbox (MIT)\03_QNN_group\QuantumCircuitsClass\web_app\plotly1
+python wavfun_visualization.py
+cd /D D:\Drives\Dropbox (MIT)\03_QNN_group\QuantumCircuitsClass\web_app\main
+python app.py
+gcloud app deploy plotly1/plotly1.yaml dispatch.yaml
+-----------------------------
+1. gcloud auth login
+2. gcloud projects list
+gcloud config set project quantum-explorations
+gcloud services enable cloudbuild.googleapis.com
+gcloud app create --project=quantum-explorations
+gcloud app deploy
+gcloud app browse
+gcloud app deploy dispatch.yaml main/main.yaml plotly1/plotly1.yaml
+-----------------------------
+gcloud builds submit --tag gcr.io/quantum-explorations/dash-wvfun  --project=quantum-explorations
+gcloud run deploy --image gcr.io/quantum-explorations/dash-wvfun --platform managed  --project=quantum-explorations --allow-unauthenticated
+-----------------------------
+

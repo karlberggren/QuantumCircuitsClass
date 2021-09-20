@@ -9,8 +9,7 @@ dispatch:
   - url: "*/diffusion2/*"
     service: bokeh
   
-  # url: "*/wavefunc_visualization/*"
-  - url: "*/plotly/*"
+  - url: "*/wavefunc_visualization/*"
     service: plotly
 
   # Send all work to the one static backend.
